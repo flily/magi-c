@@ -20,3 +20,5 @@ Goals
 6. Built-in unit test framework.
 7. More strict checkings is enabled in debug mode, and can be removed in release mode, to
    improve performance.
+8. Built-in library should be implemented in magi-c and bootstrapped in C, to readable to users.
+9. Marcos can be used in built-in library and included in the generated C code, to make code reabable.
