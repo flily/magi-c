@@ -199,8 +199,31 @@ fun add(ar int32, ai int32, br int32, bi int32) (int32, int32) {
     var i int32 = ai + bi
     return r, i
 }
+```
 
+
+### global variables
+Global variables will introduce a hidden input and state to the function. 
+It is not recommended but it is impossible to avoid, a explicit declaration in function spec can make it clear.
+```
+// Style 1
 fun calc(ar int32, ai int32) with(gbr int32, gbi int32) (int32, int32) {
+    var r int32 = ar + gbr
+    var i int32 = ai + gbi
+    return r, i
+}
+
+// Style 2
+fun [gbr int32, gbi int32]calc(ar int32, ai int32)  (int32, int32) {
+    var r int32 = ar + gbr
+    var i int32 = ai + gbi
+    return r, i
+}
+
+// Style 3
+fun calc(ar int32, ai int32) (int32, int32) {
+    global var gbr int32
+    global var gbi int32
     var r int32 = ar + gbr
     var i int32 = ai + gbi
     return r, i
