@@ -4,25 +4,29 @@ MAGI-C GRAMMAR
 
 Keywords
 --------
-|    Keyword    |        Description        |
-|---------------|---------------------------|
-|    null       |  null pointer literal     |
-|    true       |  boolean true             |
-|    false      |  boolean false            |
-|    var        |  variable declaration     |
-|    const      |  constant declaration     |
-|    fun        |  function declaration     |
-|    struct     |  structure type           |
-|    type       |  type definition          |
-|    if         |  if statement             |
-|    elif       |  else if statement        |
-|    else       |  else statement           |
-|    for        |  for loop                 |
-|    and        |  logical AND              |
-|    or         |  logical OR               |
-|    not        |  logical NOT              |
-|    new        |  allocate new memory      |
-|    delete     |  free allocated memory    |
+|   Keyword   |        Description                            |
+|-------------|-----------------------------------------------|
+|  null       |  null pointer literal                         |
+|  true       |  boolean true                                 |
+|  false      |  boolean false                                |
+|  var        |  variable declaration                         |
+|  const      |  constant declaration                         |
+|  fun        |  function declaration                         |
+|  struct     |  structure type                               |
+|  type       |  type definition                              |
+|  if         |  if statement                                 |
+|  elif       |  else if statement                            |
+|  else       |  else statement                               |
+|  for        |  for loop                                     |
+|  and        |  logical AND                                  |
+|  or         |  logical OR                                   |
+|  not        |  logical NOT                                  |
+|  new        |  allocate new memory                          |
+|  delete     |  free allocated memory                        |
+|  ref        |  reference a pointer without ownership        |
+|  export     |  export a function of variable                |
+|  import     |  import a module                              |
+|  module     |  define current module name                   |
 
 
 Types
@@ -59,6 +63,7 @@ Magi-c has the following basic types just like C:
 |  text          |  char*[8]  |
 |  string        |  char*[16] |
 |  blob          |  char*[32] |
+|  token         |  uint32_t  |
 
 
 ### Structure
@@ -229,6 +234,35 @@ fun calc(ar int32, ai int32) (int32, int32) {
     return r, i
 }
 ```
+
+
+compiler directives
+-------------------
+
+### include c header file
+```
+// include c header file
+#include <stdio.h>
+#include <stdlib.h>
+```
+
+
+### specify target variable name
+```
+// specify target variable name
+#target-name: my_i
+var i uint32
+```
+
+
+### inline C code
+```
+// inline C code
+#inline c {
+    printf("hello, world\n");
+}
+```
+
 
 
 hard problems
