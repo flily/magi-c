@@ -10,7 +10,7 @@ Goals
    readable and similar to original codes, and have no warnings when compile.
 2. Generated C code uses only standard C library, without any external dependencies.
 3. Magic-c shoule be memory safe, with
-    1. Semi-automatic memory management, memory can be freed automatically with garbage collection.
+    1. Semi-automatic memory management, memory can be freed when function exits, no auto GC and STW (stop the world).
     2. Writing and reading memory will be checked boundary at compile time and run time.
     3. Some mechanism like memory ownership is used to prevent memory leak.
     4. Problem of dangling pointers may not be solved, because it may introduce some super difficult

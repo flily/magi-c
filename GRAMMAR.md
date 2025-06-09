@@ -9,6 +9,7 @@ Keywords
 |  null       |  null pointer literal                         |
 |  true       |  boolean true                                 |
 |  false      |  boolean false                                |
+|  auto       |  automatic type inference                     |
 |  var        |  variable declaration                         |
 |  const      |  constant declaration                         |
 |  fun        |  function declaration                         |
@@ -91,6 +92,7 @@ var l = new int[5]{1, 2, 3, 4}        // automatic list in size 5, and the last 
 
 
 ### Pointer
+Pointer and concrete type are different, but share the same member methods.
 ```
 var n int = 5
 var ref p *int = &n
@@ -247,11 +249,15 @@ compiler directives
 ```
 
 
-### specify target variable name
+### specify target variable name and type
 ```
 // specify target variable name
-#target-name: my_i
+#name: i -> my_i
 var i uint32
+
+// specify target variable type
+#type: i -> uint32
+var i auto
 ```
 
 
