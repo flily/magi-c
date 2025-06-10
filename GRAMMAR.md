@@ -237,6 +237,25 @@ fun calc(ar int32, ai int32) (int32, int32) {
 }
 ```
 
+### Type method and instance methods
+```
+// Receiver to pointer or a concrete type are the same
+fun (p Point) MethodA() {
+    // do something
+}
+
+// The same to MethodA. (redefined)
+fun (p *Point) MethodB() {
+    // do something
+}
+
+// Type method, static class method.
+func Point.MethodC() {
+    // do something
+}
+```
+
+
 
 compiler directives
 -------------------
