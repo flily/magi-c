@@ -7,7 +7,7 @@ Goals
 =====
 
 1. Magi-c compiles code to standard C (C99 or later), and try best to make the generated C codes
-   readable and similar to original codes, and have no warnings when compile.
+    readable and similar to original codes, and have no warnings when compile.
 2. Generated C code uses only standard C library, without any external dependencies.
 3. Magic-c shoule be memory safe, with
     1. Semi-automatic memory management, memory can be freed when function exits, no auto GC and STW (stop the world).
@@ -22,3 +22,7 @@ Goals
    improve performance.
 8. Built-in library should be implemented in magi-c and bootstrapped in C, to readable to users.
 9. Marcos can be used in built-in library and included in the generated C code, to make code reabable.
+10. Magi-c have NO class:
+    1. Use structure and function with receiver to implement object-oriented programming.
+    2. No inheritance, but use mix-in to reuse code.
+    3. No method override.
