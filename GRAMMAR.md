@@ -250,11 +250,40 @@ fun (p *Point) MethodB() {
 }
 
 // Type method, static class method.
-func Point.MethodC() {
+fun Point.MethodC() {
     // do something
 }
 ```
 
+### Call type method and instance methods
+```
+type Point struct {
+    x float32
+    y float32
+}
+
+fun (p *Point) Distance() float32 {
+    return sqrt(p.x * p.x + p.y * p.y)
+}
+
+fun Point.New(x float32, y float32) *Point {
+    return new Point{
+        x: x,
+        y: y,
+    }
+}
+
+fun main() {
+    var p *Point = Point.New(3.0, 4.0)  // call type method to create a new instance
+
+    var d float32 = p.Distance()  // call instance method
+
+    var pp *Point = &p
+    d = pp.Distance()              // call instance method with pointer
+
+    Point.MethodC()                // call type method
+}
+```
 
 
 compiler directives
