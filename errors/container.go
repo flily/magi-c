@@ -20,13 +20,9 @@ type container struct {
 }
 
 func (c *container) Error() string {
-	if c == nil {
-		return ""
-	}
-
 	inner := ""
 	if c.inner != nil {
-		inner = fmt.Sprintf(" [inner: %s]", c.inner.Error())
+		inner = fmt.Sprintf(" [with: %s]", c.inner.Error())
 	}
 
 	base := ""
@@ -38,26 +34,14 @@ func (c *container) Error() string {
 }
 
 func (c *container) Message() string {
-	if c == nil {
-		return ""
-	}
-
 	return c.message
 }
 
 func (c *container) Lower() Error {
-	if c == nil {
-		return nil
-	}
-
 	return c.base
 }
 
 func (c *container) Inner() error {
-	if c == nil {
-		return nil
-	}
-
 	return c.inner
 }
 
