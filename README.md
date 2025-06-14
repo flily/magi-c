@@ -1,5 +1,14 @@
 magi-c
 ======
+
+![GitHub](https://img.shields.io/github/license/flily/magi-c)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/flily/magi-c)
+![GitHub top language](https://img.shields.io/github/languages/top/flily/magi-c)
+
+[![CI](https://github.com/flily/magi-c/actions/workflows/ci.yaml/badge.svg)](https://github.com/flily/magi-c/actions/workflows/ci.yaml)
+[![codecov](https://codecov.io/gh/flily/magi-c/graph/badge.svg?token=Fo40DMNyZr)](https://codecov.io/gh/flily/magi-c)
+
+
 Magi-c programming language, a programming language designed for embedded system, with modern
 features and memory safe, which can be translated into standard C.
 
