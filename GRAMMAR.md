@@ -30,6 +30,30 @@ Keywords
 |  module     |  define current module name                   |
 
 
+
+Operators
+---------
+
+|  Operator  |  Description                                      |
+|------------|---------------------------------------------------|
+|  +         |  addition                                         |
+|  -         |  subtraction                                      |
+|  *         |  multiplication                                   |
+|  /         |  division                                         |
+|  %         |  modulus                                          |
+|  ==        |  equal to                                         |
+|  !=        |  not equal to                                     |
+|  ===       |  instance equal to, not pointer, shallow equal    |
+|  !==       |  instance not equal to, not pointer, shallow      |
+|  &         |  bitwise AND                                      |
+|  |         |  bitwise OR                                       |
+|  ^         |  bitwise XOR                                      |
+|  ~         |  bitwise NOT                                      |
+|  <<        |  left shift                                       |
+|  >>        |  right shift                                      |
+|  &         |  address of                                       |
+
+
 Types
 -----
 
