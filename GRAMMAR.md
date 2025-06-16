@@ -12,6 +12,7 @@ Keywords
 |  auto       |  automatic type inference                     |
 |  var        |  variable declaration                         |
 |  const      |  constant declaration                         |
+|  global     |  global variable declaration                  |
 |  fun        |  function declaration                         |
 |  struct     |  structure type                               |
 |  type       |  type definition                              |
@@ -25,9 +26,12 @@ Keywords
 |  new        |  allocate new memory                          |
 |  delete     |  free allocated memory                        |
 |  ref        |  reference a pointer without ownership        |
+|  return     |  return from a function                       |
+|  call       |  call on a function pointer                   |
 |  export     |  export a function of variable                |
 |  import     |  import a module                              |
 |  module     |  define current module name                   |
+|  sizeof     |  get size of a type or variable               |
 
 
 
