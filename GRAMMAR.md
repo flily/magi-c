@@ -20,6 +20,11 @@ Keywords
 |  elif       |  else if statement                            |
 |  else       |  else statement                               |
 |  for        |  for loop                                     |
+|  while      |  while loop                                   |
+|  do         |  do-while loop                                |
+|  foreach    |  foreach loop                                 |
+|  break      |  break out of a loop                          |
+|  continue   |  continue to the next iteration of a loop     |
 |  and        |  logical AND                                  |
 |  or         |  logical OR                                   |
 |  not        |  logical NOT                                  |
@@ -233,6 +238,11 @@ fun add(ar int32, ai int32, br int32, bi int32) (int32, int32) {
     var r int32 = ar + br
     var i int32 = ai + bi
     return r, i
+}
+
+func doSomething() {
+    // return is always required.
+    return
 }
 ```
 
