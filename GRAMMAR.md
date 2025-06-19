@@ -61,6 +61,8 @@ Operators
 |  <<        |  left shift                                       |
 |  >>        |  right shift                                      |
 |  &         |  address of                                       |
+|  +>>       |  pointer arithmetic, add offset to pointer        |
+|  -<<       |  pointer arithmetic, subtract offset from pointer |
 
 
 Types
@@ -131,6 +133,21 @@ var n int = 5
 var ref p *int = &n
 ```
 
+### Pointer arithmetic
+Pointer arithmetic is supported
+```
+// +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+// | x44 | x33 | x22 | x11 | x88 | x77 | x66 | x55 | xcc | xbb | xaa | x99 |
+// +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+//         ^                 ^
+//         p2b               p2t
+var arr = uint32[]{0x11223344, 0x55667788, 0x99aabbcc}
+var ref p1 *uint32 = &arr[0]          // pointer to the first element
+
+var ref p2b = p1 +>> 1                // *p2b == 0x88112233, shift by byte
+var ref p2t = p1 +>> 1 uint32         // *p2t == 0x55667788, shift by type
+```
+
 
 Variables
 ---------
@@ -171,6 +188,13 @@ b, c := a, a                     // type inference and parallel assign
 var d int16 = int16(a)           // strong typing and strong binding, a type cast is required
 e := int16(a)                    // type casting with type inference
 ```
+
+### token
+```
+var a token = :error
+var b token = :ok
+```
+
 
 ### if statement
 ```
