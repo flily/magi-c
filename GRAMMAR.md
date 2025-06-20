@@ -189,6 +189,18 @@ var d int16 = int16(a)           // strong typing and strong binding, a type cas
 e := int16(a)                    // type casting with type inference
 ```
 
+### Type inference
+```
+var a1 int32 = 5
+var a2 *int32 = new int32(7)
+b1 := a1                       // b is int32
+c1 := &a1                      // INVALID, a pointer MUST BE a reference or take ownership
+
+b2 := *a2                      // b2 is int32, dereference a pointer
+c2 := a2                       // INVALID, a2 is not a reference
+d2 := ref a2                   // d2 is a reference to a2
+```
+
 ### token
 ```
 var a token = :error
