@@ -35,3 +35,5 @@ Goals
     1. Use structure and function with receiver to implement object-oriented programming.
     2. No inheritance, but use mix-in to reuse code.
     3. No method override.
+11. Magi-c should have a bigger standard library of useful feature not implement by C. Standard
+    library MUST BE implemented in standard C.
