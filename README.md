@@ -13,7 +13,7 @@ Magi-c programming language, a programming language designed for embedded system
 features and memory safe, which can be translated into standard C.
 
 Goals
-=====
+-----
 
 1. Magi-c compiles code to standard C (C99 or later), and try best to make the generated C codes
     readable and similar to original codes, and have no warnings when compile.
@@ -37,3 +37,18 @@ Goals
     3. No method override.
 11. Magi-c should have a bigger standard library of useful feature not implement by C. Standard
     library MUST BE implemented in standard C.
+
+
+Standard library
+----------------
+
+1. Strings
+2. Buffers, fixed size buffers, dynamic buffers
+3. Files I/O, terminal I/O
+4. Binary encoding/decoding
+5. Unit tests ans assertions
+6. JSON encoding/decoding
+7. Error handling
+8. Cryptography algorithms
+9. Command-line argument processing.
+
