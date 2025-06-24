@@ -17,6 +17,10 @@ Goals
 
 1. Magi-c compiles code to standard C (C99 or later), and try best to make the generated C codes
     readable and similar to original codes, and have no warnings when compile.
+
+    NOTES: variable definition must be at the beginning of a block in C89, and <stdint.h> is missing,
+    generate C89 compatible code is not the first priority, but may be supported in the future.
+
 2. Generated C code uses only standard C library, without any external dependencies.
 3. Magic-c shoule be memory safe, with
     1. Semi-automatic memory management, memory can be freed when function exits, no auto GC and STW (stop the world).
