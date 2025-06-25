@@ -43,4 +43,32 @@ const (
 	Module
 	Sizeof
 	keywordEnd
+
+	operatorBegin
+	Plus
+	Sub
+	Multiply
+	Divide
+	Modulo
+	Equal
+	NotEqual
+	InstanceEqual
+	InstanceNotEqual
+	LessThan
+	LessThanOrEqual 
+	GreaterThan
+	GreaterThanOrEqual
+	BitwiseAnd
+	BitwiseOr
+	BitwiseNot
+	BitwiseXor
+	ShiftLeft
+	ShiftRight
+	AddressOf
+	PointerAdd
+	PointerSub
+	operatorEnd
+
+	punctuationBegin
+	punctuationEnd
 )
