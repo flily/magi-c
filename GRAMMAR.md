@@ -45,6 +45,8 @@ Operators
 
 |  Operator  |  Description                                      |
 |------------|---------------------------------------------------|
+|  =         |  assignment                                        |
+|  :=        |  assignment with type inference                   |
 |  +         |  addition                                         |
 |  -         |  subtraction                                      |
 |  *         |  multiplication                                   |
@@ -54,6 +56,10 @@ Operators
 |  !=        |  not equal to                                     |
 |  ===       |  instance equal to, not pointer, shallow equal    |
 |  !==       |  instance not equal to, not pointer, shallow      |
+|  >         |  greater than                                     |
+|  >=        |  greater than or equal to                         |
+|  <         |  less than                                        |
+|  <=        |  less than or equal to                            |
 |  &         |  bitwise AND                                      |
 |  |         |  bitwise OR                                       |
 |  ^         |  bitwise XOR                                      |
