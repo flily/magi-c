@@ -41,6 +41,7 @@ Goals
     3. No method override.
 11. Magi-c should have a bigger standard library of useful feature not implement by C. Standard
     library MUST BE implemented in standard C.
+12. Magi-c generates C code and build scripts (Makefile and CMakeLists.txt) to build the project.
 
 
 Standard library
