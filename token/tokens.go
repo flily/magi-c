@@ -47,9 +47,10 @@ const (
 	operatorBegin
 	Plus               // +
 	Sub                // -
-	Multiply           // *
-	Divide             // /
-	Modulo             // %
+	Asterisk           // *
+	Slash              // /
+	Backslash          // \
+	Percent            // %
 	Equal              // ==
 	NotEqual           // !=
 	InstanceEqual      // ===
@@ -58,13 +59,12 @@ const (
 	LessThanOrEqual    // <=
 	GreaterThan        // >
 	GreaterThanOrEqual // >=
-	BitwiseAnd         // &
-	BitwiseOr          // |
-	BitwiseNot         // ~
-	BitwiseXor         // ^
+	Ampersand          // &
+	VerticalBar        // |
+	Tilde              // ~
+	Caret              // ^
 	ShiftLeft          // <<
 	ShiftRight         // >>
-	AddressOf          // &
 	PointerAdd         // +>>
 	PointerSub         // -<<
 
@@ -83,7 +83,7 @@ const (
 	Semicolon       // ;
 	DualColon       // ::
 	QuestionMark    // ?
-	Band            // !
+	Bang            // !
 	CommentStart    // //
 
 	punctuationEnd
