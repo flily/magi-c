@@ -1,6 +1,8 @@
 package token
 
-import "os"
+import (
+	"os"
+)
 
 type TokenizerState int
 
@@ -8,10 +10,17 @@ const (
 	TokenizerStateInit TokenizerState = iota
 )
 
+type TokenContext struct {
+	Token   Token
+	Context *LineContext
+}
+
 type Tokenizer struct {
 	Filename string
-	state    TokenizerState
 	Lines    []*LineContext
+	state    TokenizerState
+	line     int
+	column   int
 }
 
 func NewTokenizer() *Tokenizer {
@@ -52,4 +61,66 @@ func (t *Tokenizer) ReadFile(filename string) error {
 	}
 
 	return t.ReadBuffer(data, filename)
+}
+
+func (t *Tokenizer) nextRuneInLine() (rune, bool) {
+	if t.line >= len(t.Lines) {
+		return 0, true // No more lines
+	}
+
+	line := t.Lines[t.line]
+	if t.column >= line.Content.Length() {
+		return 0, true // No more characters in the current line
+	}
+
+	r := line.Content.Content[t.column]
+	t.column++
+
+	return r, false
+}
+
+func (t *Tokenizer) nextRune() (rune, bool) {
+	if t.line >= len(t.Lines) {
+		return 0, true // No more lines
+	}
+
+	line := t.Lines[t.line]
+	r := line.Content.Content[t.column]
+
+	t.column++
+	for t.column >= line.Content.Length() {
+		t.line++
+		t.column = 0
+		if t.line >= len(t.Lines) {
+			return 0, true // No more lines
+		}
+		line = t.Lines[t.line]
+	}
+
+	return r, false
+}
+
+func (t *Tokenizer) currentRune() rune {
+	line := t.Lines[t.line]
+	return line.Content.Content[t.column]
+}
+
+func (t *Tokenizer) SkipWhitespace() {
+}
+
+func (t *Tokenizer) scanTokenInit(r rune) *TokenContext {
+	return nil
+}
+
+func (t *Tokenizer) ScanToken() *TokenContext {
+	t.SkipWhitespace()
+
+	r := t.currentRune()
+	switch t.state {
+	case TokenizerStateInit:
+		return t.scanTokenInit(r)
+
+	default:
+		return nil
+	}
 }
