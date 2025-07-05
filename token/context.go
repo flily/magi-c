@@ -52,6 +52,14 @@ func (l Line) Length() int {
 	return len(l.Content)
 }
 
+func (l Line) Rune(n int) rune {
+	if n < 0 || n >= l.Length() {
+		return 0
+	}
+
+	return l.Content[n]
+}
+
 func (l Line) AsString() string {
 	return string(l.Content)
 }
@@ -106,6 +114,12 @@ func (c *LineContext) AddHighlight(start int, end int) {
 	}
 
 	c.Highlights = append(c.Highlights, highlight)
+}
+
+func (c *LineContext) MarkContext(start int, end int) *LineContext {
+	ctx := NewLineContext(c.Filename, c.Content)
+	ctx.AddHighlight(start, end)
+	return ctx
 }
 
 func (c *LineContext) MakeLineWithNumber(format string) string {

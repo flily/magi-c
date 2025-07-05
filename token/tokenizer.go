@@ -108,7 +108,64 @@ func (t *Tokenizer) currentRune() rune {
 func (t *Tokenizer) SkipWhitespace() {
 }
 
+func IsValidIdentifierRune(r rune) bool {
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
+
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
+
+	if '0' <= r && r <= '9' {
+		return true
+	}
+
+	if r == '_' {
+		return true
+	}
+
+	return false
+}
+
+func IsValidIdentifierInitialRune(r rune) bool {
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
+
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
+
+	if r == '_' {
+		return true
+	}
+
+	return false
+}
+
+func (t *Tokenizer) scanIdentifier() *LineContext {
+	line := t.Lines[t.line]
+	start := t.column
+	end := start
+	for end < line.Content.Length() {
+		c := line.Content.Rune(end)
+		if !IsValidIdentifierRune(c) {
+			break
+		}
+
+		end++
+	}
+
+	ctx := line.MarkContext(start, end)
+	return ctx
+}
+
 func (t *Tokenizer) scanTokenInit(r rune) *TokenContext {
+	if IsValidIdentifierInitialRune(r) {
+		t.scanIdentifier()
+	}
+
 	return nil
 }
 
