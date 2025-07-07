@@ -82,6 +82,11 @@ func NewInvalidLine() Line {
 	return Line{Line: -1}
 }
 
+type FileContext struct {
+	Filename string
+	Lines    []*Line
+}
+
 type LineContext struct {
 	Filename   string
 	Content    Line
