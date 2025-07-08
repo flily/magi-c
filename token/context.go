@@ -87,6 +87,16 @@ type FileContext struct {
 	Lines    []*Line
 }
 
+type LineHighlight struct {
+	Line  *Line
+	Start int
+	End   int
+}
+
+type ContextItem struct {
+	LineHighlights []LineHighlight
+}
+
 type LineContext struct {
 	Filename   string
 	Content    Line
