@@ -30,11 +30,11 @@ func TestReadFileData(t *testing.T) {
 		t.Errorf("expected 7 lines, got %d", ctx.Lines())
 	}
 
-	if ctx.Line(0).String() != "lorem ipsum" {
-		t.Errorf("expected first line to be 'lorem ipsum', got '%s'", ctx.Line(0).String())
+	if ctx.LineContent(0).String() != "lorem ipsum" {
+		t.Errorf("expected first line to be 'lorem ipsum', got '%s'", ctx.LineContent(0).String())
 	}
 
-	if ctx.Line(6).String() != "ut labore et dolore magna aliqua" {
-		t.Errorf("expected last line to be 'ut labore et dolore magna aliqua', got '%s'", ctx.Line(6).String())
+	if ctx.LineContent(6).String() != "ut labore et dolore magna aliqua" {
+		t.Errorf("expected last line to be 'ut labore et dolore magna aliqua', got '%s'", ctx.LineContent(6).String())
 	}
 }

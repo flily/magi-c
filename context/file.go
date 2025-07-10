@@ -88,14 +88,23 @@ func ReadFile(filename string) (*FileContext, error) {
 	return ReadFileData(filename, data), nil
 }
 
-func (l *FileContext) Line(n int) *LineContent {
-	if n < 0 || n >= len(l.Contents) {
+func (f *FileContext) Lines() int {
+	return len(f.Contents)
+}
+
+func (f *FileContext) LineContent(n int) *LineContent {
+	if n < 0 || n >= len(f.Contents) {
 		return nil
 	}
 
-	return l.Contents[n]
+	return f.Contents[n]
 }
 
-func (l *FileContext) Lines() int {
-	return len(l.Contents)
+func (f *FileContext) LineContext(n int) *LineContext {
+	ctx := &LineContext{
+		Content: f.LineContent(n),
+		File:    f,
+	}
+
+	return ctx
 }
