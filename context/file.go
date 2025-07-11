@@ -22,6 +22,10 @@ func (l LineContent) String() string {
 	return string(l.Content)
 }
 
+func (l LineContent) Length() int {
+	return len(l.Content)
+}
+
 type FileContext struct {
 	Filename string
 	Contents []*LineContent
@@ -79,6 +83,19 @@ func ReadFileData(filename string, data []byte) *FileContext {
 	return ctx
 }
 
+func (f *FileContext) Rune(line int, column int) (rune, bool) {
+	if line >= len(f.Contents) {
+		return 0, true
+	}
+
+	l := f.LineContent(line)
+	if column >= len(l.Content) {
+		return 0, true
+	}
+
+	return l.Content[column], false
+}
+
 func ReadFile(filename string) (*FileContext, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
@@ -107,4 +124,22 @@ func (f *FileContext) LineContext(n int) *LineContext {
 	}
 
 	return ctx
+}
+
+func (f *FileContext) FirstRune() *Cursor {
+	if len(f.Contents) <= 0 {
+		return nil
+	}
+
+	line := f.Contents[0]
+	if len(line.Content) <= 0 {
+		return nil
+	}
+
+	return &Cursor{
+		Line:        0,
+		Column:      0,
+		File:        f,
+		LineContext: f.LineContext(0),
+	}
 }

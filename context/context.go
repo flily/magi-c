@@ -11,6 +11,10 @@ type LineContext struct {
 	Highlights []*Highlight
 }
 
+func (l *LineContext) Length() int {
+	return l.Content.Length()
+}
+
 func (l *LineContext) Rune(n int) rune {
 	return 0
 }
