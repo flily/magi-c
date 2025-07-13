@@ -1,6 +1,7 @@
 package context
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -18,12 +19,30 @@ func NewLineFromBytes(line int, data []byte) LineContent {
 	return l
 }
 
-func (l LineContent) String() string {
+func (l *LineContent) String() string {
 	return string(l.Content)
 }
 
-func (l LineContent) Length() int {
+func (l *LineContent) Length() int {
 	return len(l.Content)
+}
+
+func (l *LineContent) Mark(start int, end int) *LineContext {
+	if start > l.Length() || end > l.Length() {
+		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
+			start, end, l.Length())
+
+		panic(err)
+	}
+
+	ctx := &LineContext{
+		Content: l,
+		Highlights: []*Highlight{
+			NewHighlight(start, end),
+		},
+	}
+
+	return ctx
 }
 
 type FileContext struct {
