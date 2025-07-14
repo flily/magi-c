@@ -33,8 +33,13 @@ func (l *LineContext) Length() int {
 	return l.Content.Length()
 }
 
-func (l *LineContext) Rune(n int) rune {
-	return 0
+func (l *LineContext) Rune(n int) (rune, bool) {
+	if n < 0 || n >= l.Length() {
+		return 0, true
+	}
+
+	r := l.Content.Content[n]
+	return r, false
 }
 
 type Context struct {

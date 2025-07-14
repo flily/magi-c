@@ -27,3 +27,16 @@ func (c *Cursor) Next() *Cursor {
 		LineContext: lctx,
 	}
 }
+
+func (c *Cursor) Peek() (rune, bool) {
+	if c.Line >= len(c.File.Contents) {
+		return 0, true
+	}
+
+	l := c.File.LineContent(c.Line)
+	if c.Column >= len(l.Content) {
+		return 0, true
+	}
+
+	return l.Content[c.Column], false
+}
