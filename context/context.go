@@ -29,6 +29,10 @@ type LineContext struct {
 	Highlights []*Highlight
 }
 
+func (l *LineContext) StringContent() string {
+	return l.Content.String()
+}
+
 func (l *LineContext) Length() int {
 	return l.Content.Length()
 }
