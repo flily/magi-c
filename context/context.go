@@ -2,6 +2,7 @@ package context
 
 import (
 	"fmt"
+	"sort"
 )
 
 type Highlight struct {
@@ -9,13 +10,13 @@ type Highlight struct {
 	End   int
 }
 
-func NewHighlight(start, end int) *Highlight {
+func NewHighlight(start, end int) Highlight {
 	if start < 0 || end < 0 || start > end {
 		err := fmt.Errorf("invalid highlight range: start=%d, end=%d", start, end)
 		panic(err)
 	}
 
-	h := &Highlight{
+	h := Highlight{
 		Start: start,
 		End:   end,
 	}
@@ -23,10 +24,27 @@ func NewHighlight(start, end int) *Highlight {
 	return h
 }
 
+type ByHighlight []Highlight
+
+func (a ByHighlight) Len() int {
+	return len(a)
+}
+
+func (a ByHighlight) Less(i, j int) bool {
+	return a[i].Start < a[j].Start
+}
+
+func (a ByHighlight) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type Line struct {
+	Line    int
+	Content []rune
+}
+
 type LineContext struct {
 	Content    *LineContent
 	File       *FileContext
-	Highlights []*Highlight
+	Highlights []Highlight
 }
 
 func (l *LineContext) StringContent() string {
@@ -46,9 +64,36 @@ func (l *LineContext) Rune(n int) (rune, bool) {
 	return r, false
 }
 
+func (l *LineContext) Join(lctxs ...*LineContext) *LineContext {
+	hc := len(l.Highlights)
+	for _, lctx := range lctxs {
+		hc += len(lctx.Highlights)
+	}
+
+	result := &LineContext{
+		Content:    l.Content,
+		File:       l.File,
+		Highlights: make([]Highlight, 0, hc),
+	}
+
+	result.Highlights = append(result.Highlights, l.Highlights...)
+
+	for _, lctx := range lctxs {
+		if lctx.Content != l.Content {
+			err := fmt.Errorf("cannot join different line contexts: %s != %s", l.Content.String(), lctx.Content.String())
+			panic(err)
+		}
+
+		result.Highlights = append(result.Highlights, lctx.Highlights...)
+	}
+
+	sort.Sort(ByHighlight(l.Highlights))
+	return result
+}
+
 type Context struct {
 	File      *FileContext
 	PrevLines []*LineContent
 	NextLines []*LineContent
-	Line      *LineContext
+	Lines     []*LineContext
 }
