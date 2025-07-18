@@ -34,7 +34,9 @@ func (a ByHighlight) Less(i, j int) bool {
 	return a[i].Start < a[j].Start
 }
 
-func (a ByHighlight) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByHighlight) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
 
 type Line struct {
 	Line    int
@@ -89,6 +91,20 @@ func (l *LineContext) Join(lctxs ...*LineContext) *LineContext {
 
 	sort.Sort(ByHighlight(l.Highlights))
 	return result
+}
+
+type ByLineContextLine []*LineContext
+
+func (a ByLineContextLine) Len() int {
+	return len(a)
+}
+
+func (a ByLineContextLine) Less(i, j int) bool {
+	return a[i].Content.Line < a[j].Content.Line
+}
+
+func (a ByLineContextLine) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
 }
 
 type Context struct {
