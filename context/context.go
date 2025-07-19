@@ -113,3 +113,23 @@ type Context struct {
 	NextLines []*LineContent
 	Lines     []*LineContext
 }
+
+func (c *Context) Join(ctx *Context) *Context {
+	if c.File != ctx.File {
+		return nil
+	}
+
+	result := &Context{
+		File: c.File,
+	}
+
+	for _, line := range c.Lines {
+		for _, l := range ctx.Lines {
+			if line.Content == l.Content {
+				result.Lines = append(result.Lines, line.Join(l))
+			}
+		}
+	}
+
+	return result
+}
