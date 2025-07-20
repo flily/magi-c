@@ -102,19 +102,6 @@ func ReadFileData(filename string, data []byte) *FileContext {
 	return ctx
 }
 
-func (f *FileContext) Rune(line int, column int) (rune, bool) {
-	if line >= len(f.Contents) {
-		return 0, true
-	}
-
-	l := f.LineContent(line)
-	if column >= len(l.Content) {
-		return 0, true
-	}
-
-	return l.Content[column], false
-}
-
 func ReadFile(filename string) (*FileContext, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
@@ -124,11 +111,24 @@ func ReadFile(filename string) (*FileContext, error) {
 	return ReadFileData(filename, data), nil
 }
 
+func (f *FileContext) Rune(line int, column int) (rune, bool) {
+	if line >= len(f.Contents) {
+		return 0, true
+	}
+
+	l := f.Line(line)
+	if column >= len(l.Content) {
+		return 0, true
+	}
+
+	return l.Content[column], false
+}
+
 func (f *FileContext) Lines() int {
 	return len(f.Contents)
 }
 
-func (f *FileContext) LineContent(n int) *LineContent {
+func (f *FileContext) Line(n int) *LineContent {
 	if n < 0 || n >= len(f.Contents) {
 		return nil
 	}
@@ -138,14 +138,14 @@ func (f *FileContext) LineContent(n int) *LineContent {
 
 func (f *FileContext) LineContext(n int) *LineContext {
 	ctx := &LineContext{
-		Content: f.LineContent(n),
+		Content: f.Line(n),
 		File:    f,
 	}
 
 	return ctx
 }
 
-func (f *FileContext) FirstRune() *Cursor {
+func (f *FileContext) FirstCursor() *Cursor {
 	if len(f.Contents) <= 0 {
 		return nil
 	}
