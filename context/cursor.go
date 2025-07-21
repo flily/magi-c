@@ -13,7 +13,7 @@ func (c *Cursor) Rune() (rune, bool) {
 	}
 
 	// Cursor will never stop on a column that is out of bounds
-	l := c.File.LineContent(c.Line)
+	l := c.File.Line(c.Line)
 	return l.Content[c.Column], false
 }
 
@@ -37,7 +37,7 @@ func (c *Cursor) Peek() (rune, bool) {
 		return 0, true
 	}
 
-	l := c.File.LineContent(c.Line)
+	l := c.File.Line(c.Line)
 	if c.Column >= len(l.Content) {
 		return 0, true
 	}

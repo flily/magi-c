@@ -71,4 +71,20 @@ func TestReadFileData(t *testing.T) {
 	if ctx.Line(6).String() != "ut labore et dolore magna aliqua" {
 		t.Errorf("expected last line to be 'ut labore et dolore magna aliqua', got '%s'", ctx.Line(6).String())
 	}
+
+	if c, eol := ctx.Rune(0, 0); c != 'l' || eol {
+		t.Errorf("expected first rune to be 'l', got '%c', eof=%v", c, eol)
+	}
+
+	if c, eol := ctx.Rune(4, 5); c != 'o' || eol {
+		t.Errorf("expected rune at (4, 5) to be 'o', got '%c', eof=%v", c, eol)
+	}
+
+	if c, eol := ctx.Rune(0, 100); c != 0 || !eol {
+		t.Errorf("expected rune at (0, 100) to be EOF, got '%c', eof=%v", c, eol)
+	}
+
+	if c, eol := ctx.Rune(100, 0); c != 0 || !eol {
+		t.Errorf("expected rune at (100, 0) to be EOF, got '%c', eof=%v", c, eol)
+	}
 }
