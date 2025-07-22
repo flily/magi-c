@@ -2,6 +2,8 @@ package context
 
 import (
 	"testing"
+
+	"bytes"
 )
 
 func TestLineContentBasicInfo(t *testing.T) {
@@ -23,7 +25,7 @@ func TestLineContentBasicInfo(t *testing.T) {
 func TestLineContextMark(t *testing.T) {
 	s := "lorem ipsum dolor sit amet"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.Mark(6, 11)
+	ctx := line.MarkLine(6, 11)
 
 	if ctx.StringContent() != s {
 		t.Errorf("expected context content '%s', got '%s'", s, ctx.StringContent())
@@ -50,12 +52,7 @@ func TestReadFileData(t *testing.T) {
 		[]byte("ut labore et dolore magna aliqua\n"),
 	}
 
-	data := make([]byte, 0, 1024)
-	for _, line := range content {
-		data = append(data, line...)
-	}
-
-	ctx := ReadFileData(filename, data)
+	ctx := ReadFileData(filename, bytes.Join(content, nil))
 	if ctx.Filename != filename {
 		t.Errorf("expected filename %s, got %s", filename, ctx.Filename)
 	}

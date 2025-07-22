@@ -27,7 +27,7 @@ func (l *LineContent) Length() int {
 	return len(l.Content)
 }
 
-func (l *LineContent) Mark(start int, end int) *LineContext {
+func (l *LineContent) MarkLine(start int, end int) *LineContext {
 	if start > l.Length() || end > l.Length() {
 		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
 			start, end, l.Length())
@@ -39,6 +39,26 @@ func (l *LineContent) Mark(start int, end int) *LineContext {
 		Content: l,
 		Highlights: []Highlight{
 			NewHighlight(start, end),
+		},
+	}
+
+	return ctx
+}
+
+func (l *LineContent) Mark(start int, end int) *Context {
+	if start > l.Length() || end > l.Length() {
+		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
+			start, end, l.Length())
+
+		panic(err)
+	}
+
+	line := l.MarkLine(start, end)
+
+	ctx := &Context{
+		File: nil,
+		Lines: []*LineContext{
+			line,
 		},
 	}
 

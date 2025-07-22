@@ -133,3 +133,38 @@ func (c *Context) Join(ctx *Context) *Context {
 
 	return result
 }
+
+func (c *Context) Load(prev int, next int) {
+	first := true
+	lineFirst, lineLast := 100000000000, 0
+	for _, line := range c.Lines {
+		if first {
+			lineFirst, lineLast = line.Content.Line, line.Content.Line
+
+		} else {
+			if line.Content.Line < lineFirst {
+				lineFirst = line.Content.Line
+			}
+
+			if line.Content.Line > lineLast {
+				lineLast = line.Content.Line
+			}
+		}
+
+		first = false
+	}
+
+	c.PrevLines = make([]*LineContent, 0, prev)
+	c.NextLines = make([]*LineContent, 0, next)
+	for i := 0; i < len(c.File.Contents); i++ {
+		np, nl := lineFirst-i, i-lineLast
+		if np > 0 && np <= prev {
+			c.PrevLines = append(c.PrevLines, c.File.Line(i))
+		}
+
+		if nl > 0 && nl <= next {
+			c.NextLines = append(c.NextLines, c.File.Line(i))
+		}
+	}
+}
+
