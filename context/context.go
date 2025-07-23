@@ -3,6 +3,11 @@ package context
 import (
 	"fmt"
 	"sort"
+	"strings"
+)
+
+const (
+	FixedLeadingSpace = "        "
 )
 
 type Highlight struct {
@@ -36,11 +41,6 @@ func (a ByHighlight) Less(i, j int) bool {
 
 func (a ByHighlight) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
-}
-
-type Line struct {
-	Line    int
-	Content []rune
 }
 
 type LineContext struct {
@@ -91,6 +91,65 @@ func (l *LineContext) Join(lctxs ...*LineContext) *LineContext {
 
 	sort.Sort(ByHighlight(l.Highlights))
 	return result
+}
+
+func (l *LineContext) Mark(start int, end int) *LineContext {
+	if start < 0 || end < 0 || start > end || start > l.Length() || end > l.Length() {
+		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
+			start, end, l.Length())
+		panic(err)
+	}
+
+	h := NewHighlight(start, end)
+	l.Highlights = append(l.Highlights, h)
+	sort.Sort(ByHighlight(l.Highlights))
+
+	return l
+}
+
+func (l *LineContext) String() string {
+	return fmt.Sprintf("%4d:   %s", l.Content.Line, l.Content.String())
+}
+
+func (l *LineContext) Highlight(format string, args ...any) string {
+	message := fmt.Sprintf(format, args...)
+
+	parts := make([]string, 0, 2*len(l.Highlights))
+	last, lead := 0, ""
+	for i, highlight := range l.Highlights {
+		// highlight will store in order
+		if highlight.Start < 0 || highlight.End > l.Length() || highlight.Start > highlight.End {
+			err := fmt.Errorf("invalid highlight range: start=%d, end=%d, length=%d", highlight.Start, highlight.End, l.Length())
+			panic(err)
+		}
+
+		widthSpace, widthHighligh := 0, 0
+		for j := last; j < highlight.Start; j++ {
+			widthSpace += CharWidthIn(l.Content.Content[j], j)
+		}
+
+		for j := highlight.Start; j < highlight.End; j++ {
+			widthHighligh += CharWidthIn(l.Content.Content[j], j)
+		}
+
+		if i == 0 {
+			// the first highlight
+			lead = strings.Repeat(" ", widthSpace)
+		}
+
+		last = highlight.End
+		parts = append(parts,
+			strings.Repeat(" ", widthSpace),
+			strings.Repeat("^", widthHighligh),
+		)
+	}
+
+	content := l.String()
+	return fmt.Sprintf("%s\n%s%s\n%s%s%s",
+		content,
+		FixedLeadingSpace, strings.Join(parts, ""),
+		FixedLeadingSpace, strings.Repeat(" ", len(lead)), message,
+	)
 }
 
 type ByLineContextLine []*LineContext
@@ -167,4 +226,3 @@ func (c *Context) Load(prev int, next int) {
 		}
 	}
 }
-

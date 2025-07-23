@@ -37,12 +37,9 @@ func (l *LineContent) MarkLine(start int, end int) *LineContext {
 
 	ctx := &LineContext{
 		Content: l,
-		Highlights: []Highlight{
-			NewHighlight(start, end),
-		},
 	}
 
-	return ctx
+	return ctx.Mark(start, end)
 }
 
 func (l *LineContent) Mark(start int, end int) *Context {
