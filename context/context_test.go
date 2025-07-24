@@ -1,8 +1,9 @@
 package context
 
 import (
-	"strings"
 	"testing"
+
+	"strings"
 )
 
 func TestLineContextHighlight(t *testing.T) {
@@ -35,6 +36,45 @@ func TestLineContextHighlightMultiParts(t *testing.T) {
 	expected := strings.Join([]string{
 		"  42:   the quick brown fox jumps over the lazy dog",
 		"            ^^^^^       ^^^",
+		"            lorem ipsum",
+	}, "\n")
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+}
+
+func TestLineContextHighlightWithTabCharacters(t *testing.T) {
+	//    0         1         2         3         4
+	//    0    5    0    5    0    5    0    5    0
+	s := "the quick\tbrown fox jumps over the lazy dog"
+	line := NewLineFromBytes(42, []byte(s))
+	ctx := line.MarkLine(10, 15)
+
+	got := ctx.Highlight("lorem ipsum")
+	expected := strings.Join([]string{
+		"  42:   the quick\tbrown fox jumps over the lazy dog",
+		// 42:   the quick       brown fox jumps over the lazy dog
+		"                        ^^^^^",
+		"                        lorem ipsum",
+	}, "\n")
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+}
+
+func TestLineContextHighlightWithTabCharactersMultiParts(t *testing.T) {
+	//    0         1         2         3         4
+	//    0    5    0    5    0    5    0    5    0
+	s := "the quick\tbrown fox jumps over the lazy dog"
+	line := NewLineFromBytes(42, []byte(s))
+	ctx := line.MarkLine(10, 15)
+	ctx.Mark(4, 9)
+
+	got := ctx.Highlight("lorem ipsum")
+	expected := strings.Join([]string{
+		"  42:   the quick\tbrown fox jumps over the lazy dog",
+		// 42:   the quick       brown fox jumps over the lazy dog
+		"            ^^^^^       ^^^^^",
 		"            lorem ipsum",
 	}, "\n")
 	if got != expected {
