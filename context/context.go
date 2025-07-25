@@ -49,6 +49,17 @@ type LineContext struct {
 	Highlights []Highlight
 }
 
+func (l *LineContext) ToContext() *Context {
+	ctx := &Context{
+		File: l.File,
+		Lines: []*LineContext{
+			l,
+		},
+	}
+
+	return ctx
+}
+
 func (l *LineContext) StringContent() string {
 	return l.Content.String()
 }
@@ -111,7 +122,18 @@ func (l *LineContext) String() string {
 	return fmt.Sprintf("%4d:   %s", l.Content.Line, l.Content.String())
 }
 
-func (l *LineContext) Highlight(format string, args ...any) string {
+func repeatToLength(s string, length int) string {
+	l := len(s)
+	if l >= length {
+		return s[:length]
+	}
+
+	repeatCount := length / l
+	remainder := length % l
+	return strings.Repeat(s, repeatCount) + s[:remainder]
+}
+
+func (l *LineContext) HighlighTextWith(indicator string, format string, args ...any) string {
 	message := fmt.Sprintf(format, args...)
 
 	parts := make([]string, 0, 2*len(l.Highlights))
@@ -140,7 +162,7 @@ func (l *LineContext) Highlight(format string, args ...any) string {
 		last = highlight.End
 		parts = append(parts,
 			strings.Repeat(" ", widthSpace),
-			strings.Repeat("^", widthHighligh),
+			repeatToLength(indicator, widthHighligh),
 		)
 	}
 
@@ -150,6 +172,10 @@ func (l *LineContext) Highlight(format string, args ...any) string {
 		FixedLeadingSpace, strings.Join(parts, ""),
 		FixedLeadingSpace, strings.Repeat(" ", len(lead)), message,
 	)
+}
+
+func (l *LineContext) HighlighText(format string, args ...any) string {
+	return l.HighlighTextWith("^~", format, args...)
 }
 
 type ByLineContextLine []*LineContext

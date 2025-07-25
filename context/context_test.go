@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-func TestLineContextHighlight(t *testing.T) {
+func TestLineContextHighlightText(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox jumps over the lazy dog"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.MarkLine(4, 9)
+	lctx := line.MarkLine(4, 9)
 
-	got := ctx.Highlight("lorem ipsum")
+	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
 		"  42:   the quick brown fox jumps over the lazy dog",
 		"            ^^^^^",
@@ -24,15 +24,15 @@ func TestLineContextHighlight(t *testing.T) {
 	}
 }
 
-func TestLineContextHighlightMultiParts(t *testing.T) {
+func TestLineContextHighlightTextMultiParts(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox jumps over the lazy dog"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.MarkLine(4, 9)
-	ctx.Mark(16, 19)
+	lctx := line.MarkLine(4, 9)
+	lctx.Mark(16, 19)
 
-	got := ctx.Highlight("lorem ipsum")
+	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
 		"  42:   the quick brown fox jumps over the lazy dog",
 		"            ^^^^^       ^^^",
@@ -43,14 +43,14 @@ func TestLineContextHighlightMultiParts(t *testing.T) {
 	}
 }
 
-func TestLineContextHighlightWithTabCharacters(t *testing.T) {
+func TestLineContextHighlightTextWithTabCharacters(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick\tbrown fox jumps over the lazy dog"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.MarkLine(10, 15)
+	lctx := line.MarkLine(10, 15)
 
-	got := ctx.Highlight("lorem ipsum")
+	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
 		"  42:   the quick\tbrown fox jumps over the lazy dog",
 		// 42:   the quick       brown fox jumps over the lazy dog
@@ -62,15 +62,15 @@ func TestLineContextHighlightWithTabCharacters(t *testing.T) {
 	}
 }
 
-func TestLineContextHighlightWithTabCharactersMultiParts(t *testing.T) {
+func TestLineContextHighlightTextWithTabCharactersMultiParts(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick\tbrown fox jumps over the lazy dog"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.MarkLine(10, 15)
-	ctx.Mark(4, 9)
+	lctx := line.MarkLine(10, 15)
+	lctx.Mark(4, 9)
 
-	got := ctx.Highlight("lorem ipsum")
+	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
 		"  42:   the quick\tbrown fox jumps over the lazy dog",
 		// 42:   the quick       brown fox jumps over the lazy dog
@@ -82,14 +82,14 @@ func TestLineContextHighlightWithTabCharactersMultiParts(t *testing.T) {
 	}
 }
 
-func TestLineContextHighlightWithMixedLanguages1(t *testing.T) {
+func TestLineContextHighlightTextWithMixedLanguages1(t *testing.T) {
 	//    0         1         2         3         4         5         6
 	//    0    5    0    5    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.MarkLine(20, 24)
+	lctx := line.MarkLine(20, 24)
 
-	got := ctx.Highlight("lorem ipsum")
+	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
 		"  42:   the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog",
 		"                            ^^^^^^^^",
@@ -100,14 +100,14 @@ func TestLineContextHighlightWithMixedLanguages1(t *testing.T) {
 	}
 }
 
-func TestLineContextHighlightWithMixedLanguages2(t *testing.T) {
+func TestLineContextHighlightTextWithMixedLanguages2(t *testing.T) {
 	//    0         1         2         3         4         5         6
 	//    0    5    0    5    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog"
 	line := NewLineFromBytes(42, []byte(s))
-	ctx := line.MarkLine(32, 37)
+	lctx := line.MarkLine(32, 37)
 
-	got := ctx.Highlight("lorem ipsum")
+	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
 		"  42:   the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog",
 		"                                                   ^^^^^",
