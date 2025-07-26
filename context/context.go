@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 const (
@@ -118,8 +120,12 @@ func (l *LineContext) Mark(start int, end int) *LineContext {
 	return l
 }
 
+func (l *LineContext) LineNumber() string {
+	return fmt.Sprintf("%4d:   ", l.Content.Line)
+}
+
 func (l *LineContext) String() string {
-	return fmt.Sprintf("%4d:   %s", l.Content.Line, l.Content.String())
+	return l.LineNumber() + l.Content.String()
 }
 
 func repeatToLength(s string, length int) string {
@@ -175,7 +181,43 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 }
 
 func (l *LineContext) HighlighText(format string, args ...any) string {
-	return l.HighlighTextWith("^~", format, args...)
+	return l.HighlighTextWith("^", format, args...)
+}
+
+func (l *LineContext) HighlightColour(colour color.Color, format string, args ...any) string {
+	message := fmt.Sprintf(format, args...)
+
+	parts := make([]string, 0, 8+2*len(l.Highlights))
+	last, lead := 0, ""
+	parts = append(parts, FixedLeadingSpace, l.StringContent(), "\n")
+
+	for i, highlight := range l.Highlights {
+		// highlight will store in order
+		if highlight.Start < 0 || highlight.End > l.Length() || highlight.Start > highlight.End {
+			err := fmt.Errorf("invalid highlight range: start=%d, end=%d, length=%d", highlight.Start, highlight.End, l.Length())
+			panic(err)
+		}
+
+		parts = append(parts,
+			string(l.Content.Content[last:highlight.Start]),
+			colour.Sprint(string(l.Content.Content[highlight.Start:highlight.End])),
+		)
+
+		if i == 0 {
+			widthSpace := 0
+			for j := last; j < highlight.Start; j++ {
+				widthSpace += CharWidthIn(l.Content.Content[j], j)
+			}
+			lead = strings.Repeat(" ", widthSpace)
+		}
+
+		last = highlight.End
+	}
+
+	return fmt.Sprintf("%s%s\n%s%s%s",
+		FixedLeadingSpace, strings.Join(parts, ""),
+		FixedLeadingSpace, strings.Repeat(" ", len(lead)), message,
+	)
 }
 
 type ByLineContextLine []*LineContext
