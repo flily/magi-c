@@ -9,7 +9,9 @@ import (
 )
 
 const (
-	FixedLeadingSpace = "        "
+	FixedLeadingSpace  = "        "
+	DefaultIndicator   = "^"
+	NoHighlightMessage = ""
 )
 
 type Highlight struct {
@@ -140,8 +142,6 @@ func repeatToLength(s string, length int) string {
 }
 
 func (l *LineContext) HighlighTextWith(indicator string, format string, args ...any) string {
-	message := fmt.Sprintf(format, args...)
-
 	parts := make([]string, 0, 2*len(l.Highlights))
 	last, lead := 0, ""
 	for i, highlight := range l.Highlights {
@@ -173,15 +173,25 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 	}
 
 	content := l.String()
-	return fmt.Sprintf("%s\n%s%s\n%s%s%s",
+	highlight := fmt.Sprintf("%s\n%s%s",
 		content,
 		FixedLeadingSpace, strings.Join(parts, ""),
-		FixedLeadingSpace, strings.Repeat(" ", len(lead)), message,
 	)
+
+	message := ""
+
+	if len(format) > 0 {
+		message += "\n" +
+			FixedLeadingSpace +
+			strings.Repeat(" ", len(lead)) +
+			fmt.Sprintf(format, args...)
+	}
+
+	return highlight + message
 }
 
 func (l *LineContext) HighlighText(format string, args ...any) string {
-	return l.HighlighTextWith("^", format, args...)
+	return l.HighlighTextWith(DefaultIndicator, format, args...)
 }
 
 func (l *LineContext) HighlightColour(colour color.Color, format string, args ...any) string {

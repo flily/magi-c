@@ -24,6 +24,23 @@ func TestLineContextHighlightText(t *testing.T) {
 	}
 }
 
+func TestLineContextHighlightTextWithoutMessage(t *testing.T) {
+	//    0         1         2         3         4
+	//    0    5    0    5    0    5    0    5    0
+	s := "the quick brown fox jumps over the lazy dog"
+	line := NewLineFromBytes(42, []byte(s))
+	lctx := line.MarkLine(4, 9)
+
+	got := lctx.HighlighText(NoHighlightMessage)
+	expected := strings.Join([]string{
+		"  42:   the quick brown fox jumps over the lazy dog",
+		"            ^^^^^",
+	}, "\n")
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+}
+
 func TestLineContextHighlightTextMultiParts(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
