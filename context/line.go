@@ -108,7 +108,7 @@ func (l *LineContext) Join(lctxs ...*LineContext) *LineContext {
 	return result
 }
 
-func (l *LineContext) Mark(start int, end int) *LineContext {
+func (l *LineContext) MarkLine(start int, end int) *LineContext {
 	if start < 0 || end < 0 || start > end || start > l.Length() || end > l.Length() {
 		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
 			start, end, l.Length())
@@ -122,8 +122,18 @@ func (l *LineContext) Mark(start int, end int) *LineContext {
 	return l
 }
 
+func (l *LineContext) Mark(start int, end int) *Context {
+	l.MarkLine(start, end)
+	ctx := &Context{
+		File:  l.File,
+		Lines: []*LineContext{l},
+	}
+
+	return ctx
+}
+
 func (l *LineContext) LineNumber() string {
-	return fmt.Sprintf("%4d:   ", l.Content.Line)
+	return fmt.Sprintf("%4d:   ", l.Content.Line+1)
 }
 
 func (l *LineContext) String() string {

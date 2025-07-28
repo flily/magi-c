@@ -1,5 +1,9 @@
 package context
 
+import (
+	"strings"
+)
+
 type ByLineContextLine []*LineContext
 
 func (a ByLineContextLine) Len() int {
@@ -16,8 +20,8 @@ func (a ByLineContextLine) Swap(i, j int) {
 
 type Context struct {
 	File      *FileContext
-	PrevLines []*LineContent
-	NextLines []*LineContent
+	PrevLines []*LineContext
+	NextLines []*LineContext
 	Lines     []*LineContext
 }
 
@@ -61,16 +65,43 @@ func (c *Context) Load(prev int, next int) {
 		first = false
 	}
 
-	c.PrevLines = make([]*LineContent, 0, prev)
-	c.NextLines = make([]*LineContent, 0, next)
+	c.PrevLines = make([]*LineContext, 0, prev)
+	c.NextLines = make([]*LineContext, 0, next)
 	for i := 0; i < len(c.File.Contents); i++ {
 		np, nl := lineFirst-i, i-lineLast
 		if np > 0 && np <= prev {
-			c.PrevLines = append(c.PrevLines, c.File.Line(i))
+			c.PrevLines = append(c.PrevLines, c.File.LineContext(i))
 		}
 
 		if nl > 0 && nl <= next {
-			c.NextLines = append(c.NextLines, c.File.Line(i))
+			c.NextLines = append(c.NextLines, c.File.LineContext(i))
 		}
 	}
+}
+
+func (c *Context) HighlightTextWith(indicator string, format string, args ...any) string {
+	parts := make([]string, 0, len(c.Lines)+len(c.PrevLines)+len(c.NextLines)+3)
+
+	for _, line := range c.PrevLines {
+		parts = append(parts, line.String())
+	}
+
+	for i, line := range c.Lines {
+		if i == len(c.Lines)-1 {
+			// show message in last line
+			parts = append(parts, line.HighlighText(format, args...))
+		} else {
+			parts = append(parts, line.HighlighText(NoHighlightMessage))
+		}
+	}
+
+	for _, line := range c.NextLines {
+		parts = append(parts, line.String())
+	}
+
+	return strings.Join(parts, "\n")
+}
+
+func (c *Context) HighlightText(format string, args ...any) string {
+	return c.HighlightTextWith(DefaultIndicator, format, args...)
 }

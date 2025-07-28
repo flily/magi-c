@@ -27,6 +27,15 @@ func (l *LineContent) Length() int {
 	return len(l.Content)
 }
 
+func (l *LineContent) ToLineContext(file *FileContext) *LineContext {
+	ctx := &LineContext{
+		Content: l,
+		File:    file,
+	}
+
+	return ctx
+}
+
 func (l *LineContent) MarkLine(start int, end int) *LineContext {
 	if start > l.Length() || end > l.Length() {
 		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
@@ -39,7 +48,7 @@ func (l *LineContent) MarkLine(start int, end int) *LineContext {
 		Content: l,
 	}
 
-	return ctx.Mark(start, end)
+	return ctx.MarkLine(start, end)
 }
 
 func (l *LineContent) Mark(start int, end int) *Context {
@@ -77,7 +86,6 @@ func meetEOL(data []byte, i int) int {
 
 func ReadFileData(filename string, data []byte) *FileContext {
 	lines := make([]*LineContent, 0, 64)
-	line := 0
 	column := 0
 	i := 0
 	start := 0
@@ -89,7 +97,7 @@ func ReadFileData(filename string, data []byte) *FileContext {
 			continue
 		}
 
-		lineContent := NewLineFromBytes(line, data[start:i])
+		lineContent := NewLineFromBytes(len(lines), data[start:i])
 		lines = append(lines, &lineContent)
 		i += n
 		column = 0
