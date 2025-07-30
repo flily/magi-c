@@ -108,6 +108,18 @@ func (l *LineContext) Join(lctxs ...*LineContext) *LineContext {
 	return result
 }
 
+func (l *LineContext) IsSameLine(other *LineContext) bool {
+	if l.File != other.File {
+		return false
+	}
+
+	if l.Content.Line != other.Content.Line {
+		return false
+	}
+
+	return true
+}
+
 func (l *LineContext) MarkLine(start int, end int) *LineContext {
 	if start < 0 || end < 0 || start > end || start > l.Length() || end > l.Length() {
 		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
@@ -238,4 +250,14 @@ func (l *LineContext) HighlightColour(colour color.Color, format string, args ..
 		FixedLeadingSpace, strings.Join(parts, ""),
 		FixedLeadingSpace, strings.Repeat(" ", len(lead)), message,
 	)
+}
+
+func FindLineContextSameLine(list []*LineContext, lctx *LineContext) *LineContext {
+	for _, line := range list {
+		if line.IsSameLine(lctx) {
+			return line
+		}
+	}
+
+	return nil
 }

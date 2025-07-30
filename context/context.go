@@ -1,7 +1,6 @@
 package context
 
 import (
-	"slices"
 	"sort"
 	"strings"
 )
@@ -37,16 +36,16 @@ func (c *Context) Join(ctx *Context) *Context {
 	}
 
 	for _, line := range c.Lines {
-		lIndex := slices.Index(ctx.Lines, line)
-		if lIndex < 0 {
+		lctx := FindLineContextSameLine(ctx.Lines, line)
+		if lctx == nil {
 			result.Lines = append(result.Lines, line)
 		} else {
-			result.Lines = append(result.Lines, line.Join(ctx.Lines[lIndex]))
+			result.Lines = append(result.Lines, line.Join(lctx))
 		}
 	}
 
 	for _, line := range ctx.Lines {
-		if !slices.Contains(c.Lines, line) {
+		if lctx := FindLineContextSameLine(c.Lines, line); lctx == nil {
 			result.Lines = append(result.Lines, line)
 		}
 	}
