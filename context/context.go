@@ -28,9 +28,9 @@ type Context struct {
 }
 
 func (c *Context) Join(ctxs ...*Context) *Context {
-	lineMap := make(map[int]*LineContext)
+	lines := make([]*LineContext, 0, len(c.Lines)+len(ctxs)*10)
 	for _, line := range c.Lines {
-		lineMap[line.Content.Line] = line.Duplicate()
+		lines = append(lines, line.Duplicate())
 	}
 
 	for i, ctx := range ctxs {
@@ -40,9 +40,10 @@ func (c *Context) Join(ctxs ...*Context) *Context {
 		}
 
 		for _, l := range ctx.Lines {
-			line, found := lineMap[l.Content.Line]
-			if !found {
-				lineMap[l.Content.Line] = l.Duplicate()
+			line := FindLineContextSameLine(lines, l)
+			if line == nil {
+				lines = append(lines, l.Duplicate())
+
 			} else {
 				line.Highlights = append(line.Highlights, l.Highlights...)
 			}
@@ -51,10 +52,10 @@ func (c *Context) Join(ctxs ...*Context) *Context {
 
 	result := &Context{
 		File:  c.File,
-		Lines: make([]*LineContext, 0, len(lineMap)),
+		Lines: make([]*LineContext, 0, len(lines)),
 	}
 
-	for _, line := range lineMap {
+	for _, line := range lines {
 		sort.Sort(ByHighlight(line.Highlights))
 		result.Lines = append(result.Lines, line)
 	}
