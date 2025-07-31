@@ -1,6 +1,7 @@
 package context
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
@@ -26,28 +27,36 @@ type Context struct {
 	Lines     []*LineContext
 }
 
-func (c *Context) Join(ctx *Context) *Context {
-	if c.File != ctx.File {
-		return nil
+func (c *Context) Join(ctxs ...*Context) *Context {
+	lineMap := make(map[int]*LineContext)
+	for _, line := range c.Lines {
+		lineMap[line.Content.Line] = line.Duplicate()
+	}
+
+	for i, ctx := range ctxs {
+		if ctx.File != c.File {
+			err := fmt.Errorf("context %d does not match file", i)
+			panic(err)
+		}
+
+		for _, l := range ctx.Lines {
+			line, found := lineMap[l.Content.Line]
+			if !found {
+				lineMap[l.Content.Line] = l.Duplicate()
+			} else {
+				line.Highlights = append(line.Highlights, l.Highlights...)
+			}
+		}
 	}
 
 	result := &Context{
-		File: c.File,
+		File:  c.File,
+		Lines: make([]*LineContext, 0, len(lineMap)),
 	}
 
-	for _, line := range c.Lines {
-		lctx := FindLineContextSameLine(ctx.Lines, line)
-		if lctx == nil {
-			result.Lines = append(result.Lines, line)
-		} else {
-			result.Lines = append(result.Lines, line.Join(lctx))
-		}
-	}
-
-	for _, line := range ctx.Lines {
-		if lctx := FindLineContextSameLine(c.Lines, line); lctx == nil {
-			result.Lines = append(result.Lines, line)
-		}
+	for _, line := range lineMap {
+		sort.Sort(ByHighlight(line.Highlights))
+		result.Lines = append(result.Lines, line)
 	}
 
 	sort.Sort(ByLineContextLine(result.Lines))
@@ -113,4 +122,17 @@ func (c *Context) HighlightTextWith(indicator string, format string, args ...any
 
 func (c *Context) HighlightText(format string, args ...any) string {
 	return c.HighlightTextWith(DefaultIndicator, format, args...)
+}
+
+func Join(ctxs ...*Context) *Context {
+	if len(ctxs) == 0 {
+		return nil
+	}
+
+	first := ctxs[0]
+	if len(ctxs) == 1 {
+		return first
+	}
+
+	return first.Join(ctxs[1:]...)
 }

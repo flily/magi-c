@@ -53,6 +53,17 @@ type LineContext struct {
 	Highlights []Highlight
 }
 
+func (l *LineContext) Duplicate() *LineContext {
+	dup := &LineContext{
+		Content:    l.Content,
+		File:       l.File,
+		Highlights: make([]Highlight, len(l.Highlights)),
+	}
+
+	copy(dup.Highlights, l.Highlights)
+	return dup
+}
+
 func (l *LineContext) ToContext() *Context {
 	ctx := &Context{
 		File: l.File,
