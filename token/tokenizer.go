@@ -2,6 +2,8 @@ package token
 
 import (
 	"os"
+
+	"github.com/flily/magi-c/context"
 )
 
 type TokenizerState int
@@ -12,7 +14,7 @@ const (
 
 type TokenContext struct {
 	Token   Token
-	Context *LineContext
+	Context *context.Context
 }
 
 type Tokenizer struct {
@@ -63,85 +65,12 @@ func (t *Tokenizer) ReadFile(filename string) error {
 	return t.ReadBuffer(data, filename)
 }
 
-func (t *Tokenizer) nextRuneInLine() (rune, bool) {
-	if t.line >= len(t.Lines) {
-		return 0, true // No more lines
-	}
-
-	line := t.Lines[t.line]
-	if t.column >= line.Content.Length() {
-		return 0, true // No more characters in the current line
-	}
-
-	r := line.Content.Content[t.column]
-	t.column++
-
-	return r, false
-}
-
-func (t *Tokenizer) nextRune() (rune, bool) {
-	if t.line >= len(t.Lines) {
-		return 0, true // No more lines
-	}
-
-	line := t.Lines[t.line]
-	r := line.Content.Content[t.column]
-
-	t.column++
-	for t.column >= line.Content.Length() {
-		t.line++
-		t.column = 0
-		if t.line >= len(t.Lines) {
-			return 0, true // No more lines
-		}
-		line = t.Lines[t.line]
-	}
-
-	return r, false
-}
-
 func (t *Tokenizer) currentRune() rune {
 	line := t.Lines[t.line]
 	return line.Content.Content[t.column]
 }
 
 func (t *Tokenizer) SkipWhitespace() {
-}
-
-func IsValidIdentifierRune(r rune) bool {
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-
-	if '0' <= r && r <= '9' {
-		return true
-	}
-
-	if r == '_' {
-		return true
-	}
-
-	return false
-}
-
-func IsValidIdentifierInitialRune(r rune) bool {
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-
-	if r == '_' {
-		return true
-	}
-
-	return false
 }
 
 func (t *Tokenizer) scanIdentifier() *LineContext {

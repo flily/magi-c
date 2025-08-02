@@ -19,6 +19,14 @@ func NewLineFromBytes(line int, data []byte) LineContent {
 	return l
 }
 
+func (l *LineContent) Rune(n int) rune {
+	if n < 0 || n >= len(l.Content) {
+		return 0
+	}
+
+	return l.Content[n]
+}
+
 func (l *LineContent) String() string {
 	return string(l.Content)
 }
@@ -153,22 +161,4 @@ func (f *FileContext) LineContext(n int) *LineContext {
 	}
 
 	return ctx
-}
-
-func (f *FileContext) FirstCursor() *Cursor {
-	if len(f.Contents) <= 0 {
-		return nil
-	}
-
-	line := f.Contents[0]
-	if len(line.Content) <= 0 {
-		return nil
-	}
-
-	return &Cursor{
-		Line:        0,
-		Column:      0,
-		File:        f,
-		LineContext: f.LineContext(0),
-	}
 }
