@@ -1,6 +1,8 @@
 package token
 
 import (
+	"fmt"
+
 	"github.com/flily/magi-c/context"
 )
 
@@ -54,6 +56,10 @@ func NewCursor(file *context.FileContext) *Cursor {
 	return c
 }
 
+func (c *Cursor) Position() string {
+	return fmt.Sprintf("%s:%d:%d", c.File.Filename, c.Line+1, c.Column+1)
+}
+
 func (c *Cursor) Rune() (rune, bool) {
 	if c.Line >= len(c.File.Contents) {
 		return 0, true
@@ -77,33 +83,64 @@ func (c *Cursor) Peek() (rune, bool) {
 	return l.Content[c.Column], false
 }
 
-func (c *Cursor) moveNext(line int, column int) (int, int, *context.LineContent) {
-	content := c.File.Line(line)
+func (c *Cursor) nextInLine() (int, int, *context.LineContent) {
+	if c.Line >= len(c.File.Contents) {
+		return c.Line, c.Column, nil
+	}
+
+	content := c.File.Line(c.Line)
 	if content == nil {
-		return line, column, nil
+		return c.Line, c.Column, nil
 	}
 
-	column += 1
-	for column >= content.Length() {
-		line += 1
-		content = c.File.Line(line)
-		if content == nil {
-			return line, 0, nil
-		}
-		column = 0
+	if c.Column >= content.Length() {
+		return c.Line, c.Column, nil
 	}
 
-	return line, column, content
+	return c.Line, c.Column + 1, content
 }
 
-func (c *Cursor) Next() (rune, bool) {
-	line, column, content := c.moveNext(c.Line, c.Column)
+func (c *Cursor) NextInLine() (rune, bool) {
+	line, column, content := c.nextInLine()
 	if content == nil {
 		return 0, true
 	}
 
-	r := content.Rune(column) // checked in moveNext()
+	r := content.Rune(column) // checked in nextInLine()
 	c.Line = line
 	c.Column = column
 	return r, false
+}
+
+func (c *Cursor) NextLine() bool {
+	line := c.Line + 1
+	content := c.File.Line(line)
+	for content != nil && content.Length() <= 0 {
+		line += 1
+	}
+
+	return content == nil
+}
+
+func (c *Cursor) next() *context.LineContent {
+	content := c.File.Line(c.Line)
+	if content == nil {
+		return nil
+	}
+
+	c.Column += 1
+	if c.Column >= content.Length() {
+		c.NextLine()
+	}
+
+	return content
+}
+
+func (c *Cursor) Next() (rune, bool) {
+	content := c.next()
+	if content == nil {
+		return 0, true
+	}
+
+	return c.Rune()
 }
