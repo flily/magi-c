@@ -117,8 +117,11 @@ func (c *Cursor) NextLine() bool {
 	content := c.File.Line(line)
 	for content != nil && content.Length() <= 0 {
 		line += 1
+		content = c.File.Line(line)
 	}
 
+	c.Line = line
+	c.Column = 0
 	return content == nil
 }
 

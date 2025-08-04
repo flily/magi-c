@@ -40,7 +40,7 @@ func createTestCursor2() *Cursor {
 	return makeTestCursor("example.txt", bytes.Join(parts, []byte{}))
 }
 
-func TestCursorBasic1(t *testing.T) {
+func TestCursorRuneBasic(t *testing.T) {
 	cursor := createTestCursor1()
 
 	firstLine := []rune{
@@ -67,6 +67,66 @@ func TestCursorBasic1(t *testing.T) {
 		_, eol := cursor.NextInLine()
 		if !eol {
 			t.Errorf("expected to be at end of line at %s", cursor.Position())
+		}
+	}
+}
+
+func TestCursorNextLineBasic(t *testing.T) {
+	cursor := createTestCursor1()
+
+	firstLine := []rune{
+		'i', 'p', 's', 'u', 'm',
+	}
+
+	eof := cursor.NextLine()
+	if eof {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	for _, expChar := range firstLine {
+		r, eof := cursor.Rune()
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+
+		if r != expChar {
+			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
+		}
+
+		_, eol := cursor.NextInLine()
+		if eol {
+			t.Errorf("expected not to be at end of line at %s", cursor.Position())
+		}
+	}
+}
+
+func TestCursorNextLineWithEmptyLine(t *testing.T) {
+	cursor := createTestCursor2()
+
+	content := []rune{
+		's', 'e', 'd',
+	}
+
+	for range 2 {
+		eof := cursor.NextLine()
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+	}
+
+	for _, expChar := range content {
+		r, eof := cursor.Rune()
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+
+		if r != expChar {
+			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
+		}
+
+		_, eol := cursor.NextInLine()
+		if eol {
+			t.Errorf("expected not to be at end of line at %s", cursor.Position())
 		}
 	}
 }
