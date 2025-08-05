@@ -1,6 +1,7 @@
 package token
 
 import (
+	"fmt"
 	"testing"
 
 	"bytes"
@@ -47,7 +48,7 @@ func TestCursorRuneBasic(t *testing.T) {
 		'l', 'o', 'r', 'e', 'm',
 	}
 
-	for _, expChar := range firstLine {
+	for i, expChar := range firstLine {
 		r, eof := cursor.Rune()
 		if eof {
 			t.Fatalf("unexpected EOF at %s", cursor.Position())
@@ -55,6 +56,11 @@ func TestCursorRuneBasic(t *testing.T) {
 
 		if r != expChar {
 			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
+		}
+
+		expPosition := fmt.Sprintf("example.txt:1:%d", i+1)
+		if cursor.Position() != expPosition {
+			t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
 		}
 
 		_, eol := cursor.NextInLine()
@@ -68,6 +74,55 @@ func TestCursorRuneBasic(t *testing.T) {
 		if !eol {
 			t.Errorf("expected to be at end of line at %s", cursor.Position())
 		}
+	}
+}
+
+func TestCursorPeek(t *testing.T) {
+	cursor := createTestCursor1()
+
+	firstLine := []rune{
+		'l', 'o', 'r', 'e', 'm',
+	}
+
+	r0, eol := cursor.Rune()
+	if eol {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	if r0 != firstLine[0] {
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[0], cursor.Position(), r0)
+	}
+
+	r1, eol := cursor.Peek()
+	if eol {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	if r1 != firstLine[1] {
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[1], cursor.Position(), r1)
+	}
+
+	// move to end of line
+	for range 4 {
+		cursor.NextInLine()
+	}
+
+	re, eol := cursor.Rune()
+	if eol {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	if re != firstLine[4] {
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[4], cursor.Position(), re)
+	}
+
+	rp, eol := cursor.Peek()
+	if !eol {
+		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), rp)
+	}
+
+	if rp != 0 {
+		t.Errorf("expected rune to be 0 at end of line, got '%c'", rp)
 	}
 }
 

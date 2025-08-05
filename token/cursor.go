@@ -76,11 +76,11 @@ func (c *Cursor) Peek() (rune, bool) {
 	}
 
 	l := c.File.Line(c.Line)
-	if c.Column >= len(l.Content) {
+	if c.Column+1 >= len(l.Content) {
 		return 0, true
 	}
 
-	return l.Content[c.Column], false
+	return l.Content[c.Column+1], false
 }
 
 func (c *Cursor) nextInLine() (int, int, *context.LineContent) {
