@@ -83,25 +83,36 @@ func (c *Cursor) Peek() (rune, bool) {
 	return l.Content[c.Column+1], false
 }
 
-func (c *Cursor) nextInLine() (int, int, *context.LineContent) {
-	if c.Line >= len(c.File.Contents) {
-		return c.Line, c.Column, nil
+func (c *Cursor) next(line int, column int) (int, int, *context.LineContent) {
+	content := c.File.Line(line)
+	if content == nil {
+		return line, column, nil
 	}
 
-	content := c.File.Line(c.Line)
+	column += 1
+	if column >= content.Length() {
+		c.NextLine()
+		column = 0
+	}
+
+	return line, column, content
+}
+
+func (c *Cursor) nextInLine(line int, column int) (int, int, *context.LineContent) {
+	content := c.File.Line(line)
 	if content == nil {
-		return c.Line, c.Column, nil
+		return line, column, nil
 	}
 
 	if c.Column >= content.Length() {
-		return c.Line, c.Column, nil
+		return line, column, nil
 	}
 
-	return c.Line, c.Column + 1, content
+	return line, column + 1, content
 }
 
 func (c *Cursor) NextInLine() (rune, bool) {
-	line, column, content := c.nextInLine()
+	line, column, content := c.nextInLine(c.Line, c.Column)
 	if content == nil {
 		return 0, true
 	}
@@ -125,25 +136,13 @@ func (c *Cursor) NextLine() bool {
 	return content == nil
 }
 
-func (c *Cursor) next() *context.LineContent {
-	content := c.File.Line(c.Line)
-	if content == nil {
-		return nil
-	}
-
-	c.Column += 1
-	if c.Column >= content.Length() {
-		c.NextLine()
-	}
-
-	return content
-}
-
 func (c *Cursor) Next() (rune, bool) {
-	content := c.next()
+	line, column, content := c.next(c.Line, c.Column)
 	if content == nil {
 		return 0, true
 	}
 
+	c.Line = line
+	c.Column = column
 	return c.Rune()
 }
