@@ -1,10 +1,10 @@
 package token
 
 import (
-	"fmt"
 	"testing"
 
 	"bytes"
+	"fmt"
 
 	"github.com/flily/magi-c/context"
 )
@@ -183,5 +183,32 @@ func TestCursorNextLineWithEmptyLine(t *testing.T) {
 		if eol {
 			t.Errorf("expected not to be at end of line at %s", cursor.Position())
 		}
+	}
+}
+
+func TestCursorNextLineInThieLastLine(t *testing.T) {
+	cursor := createTestCursor1()
+
+	cursor.NextLine() // move to second line
+	for range 5 {
+		_, eof := cursor.NextInLine()
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+	}
+
+	r, eof := cursor.NextInLine()
+	if !eof {
+		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), r)
+	}
+
+	eof = cursor.NextLine()
+	if !eof {
+		t.Errorf("expected to be at end of file at %s, got rune '%c'", cursor.Position(), r)
+	}
+
+	r, eof = cursor.NextInLine()
+	if !eof {
+		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), r)
 	}
 }
