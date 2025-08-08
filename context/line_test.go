@@ -10,7 +10,7 @@ func TestLineContextHighlightText(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(4, 9)
 
 	got := lctx.HighlighText("lorem ipsum")
@@ -28,7 +28,7 @@ func TestLineContextHighlightTextWithoutMessage(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(4, 9)
 
 	got := lctx.HighlighText(NoHighlightMessage)
@@ -45,7 +45,7 @@ func TestLineContextHighlightTextMultiParts(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(4, 9)
 	lctx.MarkLine(16, 19)
 
@@ -64,7 +64,7 @@ func TestLineContextHighlightTextWithTabCharacters(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick\tbrown fox jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(10, 15)
 
 	got := lctx.HighlighText("lorem ipsum")
@@ -83,7 +83,7 @@ func TestLineContextHighlightTextWithTabCharactersMultiParts(t *testing.T) {
 	//    0         1         2         3         4
 	//    0    5    0    5    0    5    0    5    0
 	s := "the quick\tbrown fox jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(10, 15)
 	lctx.MarkLine(4, 9)
 
@@ -103,7 +103,7 @@ func TestLineContextHighlightTextWithMixedLanguages1(t *testing.T) {
 	//    0         1         2         3         4         5         6
 	//    0    5    0    5    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(20, 24)
 
 	got := lctx.HighlighText("lorem ipsum")
@@ -121,7 +121,7 @@ func TestLineContextHighlightTextWithMixedLanguages2(t *testing.T) {
 	//    0         1         2         3         4         5         6
 	//    0    5    0    5    0    5    0    5    0    5    0    5    0
 	s := "the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), EolLF)
 	lctx := line.MarkLine(32, 37)
 
 	got := lctx.HighlighText("lorem ipsum")

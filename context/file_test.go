@@ -8,7 +8,7 @@ import (
 
 func TestLineContentBasicInfo(t *testing.T) {
 	s := "lorem ipsum dolor sit amet"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), nil)
 	if line.Line != 42 {
 		t.Errorf("expected line number 42, got %d", line.Line)
 	}
@@ -24,7 +24,7 @@ func TestLineContentBasicInfo(t *testing.T) {
 
 func TestLineContextMark(t *testing.T) {
 	s := "lorem ipsum dolor sit amet"
-	line := NewLineFromBytes(42, []byte(s))
+	line := NewLineFromBytes(42, []byte(s), nil)
 	ctx := line.MarkLine(6, 11)
 
 	if ctx.StringContent() != s {
@@ -63,6 +63,18 @@ func TestReadFileData(t *testing.T) {
 
 	if ctx.Line(0).String() != "lorem ipsum" {
 		t.Errorf("expected first line to be 'lorem ipsum', got '%s'", ctx.Line(0).String())
+	}
+
+	if !bytes.Equal(ctx.Line(0).EOL, EolLF) {
+		t.Errorf("expected first line EOL to be LF, got %s", ctx.Line(0).EOL)
+	}
+
+	if ctx.Line(1).String() != "dolor sit amet" {
+		t.Errorf("expected second line to be 'dolor sit amet', got '%s'", ctx.Line(1).String())
+	}
+
+	if !bytes.Equal(ctx.Line(1).EOL, EolCRLF) {
+		t.Errorf("expected second line EOL to be CRLF, got %s", ctx.Line(1).EOL)
 	}
 
 	if ctx.Line(6).String() != "ut labore et dolore magna aliqua" {

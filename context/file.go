@@ -5,14 +5,22 @@ import (
 	"os"
 )
 
+var (
+	EolCR   = []byte{'\r'}
+	EolLF   = []byte{'\n'}
+	EolCRLF = []byte{'\r', '\n'}
+)
+
 type LineContent struct {
 	Line    int
+	EOL     []byte
 	Content []rune
 }
 
-func NewLineFromBytes(line int, data []byte) LineContent {
+func NewLineFromBytes(line int, data []byte, eol []byte) LineContent {
 	l := LineContent{
 		Line:    line,
+		EOL:     eol,
 		Content: []rune(string(data)),
 	}
 
@@ -70,26 +78,26 @@ type FileContext struct {
 }
 
 // meetEOL checks if current position is End of Line. A non-negative value indicates EOL.
-func meetEOL(data []byte, i int) int {
+func meetEOL(data []byte, i int) (int, []byte) {
 	if i >= len(data) {
-		return 0
+		return 0, nil
 	}
 
 	if data[i] == '\n' {
-		return 1
+		return 1, EolLF
 	}
 
 	if data[i] == '\r' {
 		if i+1 >= len(data) {
-			return 1
+			return 1, EolCR
 		}
 
 		if data[i+1] == '\n' {
-			return 2
+			return 2, EolCRLF
 		}
 	}
 
-	return -1
+	return -1, nil
 }
 
 func ReadFileData(filename string, data []byte) *FileContext {
@@ -98,14 +106,14 @@ func ReadFileData(filename string, data []byte) *FileContext {
 	i := 0
 	start := 0
 	for i < len(data) {
-		n := meetEOL(data, i)
+		n, eol := meetEOL(data, i)
 		if n < 0 {
 			i++
 			column++
 			continue
 		}
 
-		lineContent := NewLineFromBytes(len(lines), data[start:i])
+		lineContent := NewLineFromBytes(len(lines), data[start:i], eol)
 		lines = append(lines, &lineContent)
 		i += n
 		column = 0
