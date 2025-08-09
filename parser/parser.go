@@ -1,13 +1,13 @@
 package parser
 
 import (
-	"github.com/flily/magi-c/token"
+	"github.com/flily/magi-c/context"
 )
 
 type Parser struct {
 	Filename          string
-	Lines             []token.Line
-	LineContexts      []*token.LineContext
+	Lines             []context.LineContent
+	LineContexts      []*context.LineContext
 	PreviousLineCount int
 
 	line    int
