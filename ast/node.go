@@ -1,10 +1,8 @@
 package ast
 
-import (
-	"github.com/flily/magi-c/token"
-)
+import "github.com/flily/magi-c/context"
 
 type Node interface {
 	Terminal() bool
-	Context() *token.Context
+	Context() *context.Context
 }

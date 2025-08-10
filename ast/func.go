@@ -1,24 +1,26 @@
 package ast
 
 import (
-	"github.com/flily/magi-c/token"
+	"github.com/flily/magi-c/context"
 )
 
 // fun Name()
 type Func struct {
-	Function     *token.Context
-	FunctionName *token.Context
-	LeftParan    *token.Context
-	RightParan   *token.Context
+	Function     *context.Context
+	FunctionName *context.Context
+	LeftParan    *context.Context
+	RightParan   *context.Context
 }
 
 func (f *Func) Terminal() bool {
 	return false
 }
 
-func (f *Func) Context() *token.Context {
-	return token.JoinContexts(f.Function,
+func (f *Func) Context() *context.Context {
+	return context.Join(
+		f.Function,
 		f.FunctionName,
 		f.LeftParan,
-		f.RightParan)
+		f.RightParan,
+	)
 }
