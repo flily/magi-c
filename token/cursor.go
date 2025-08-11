@@ -42,10 +42,16 @@ func IsValidIdentifierInitialRune(r rune) bool {
 	return false
 }
 
-type Cursor struct {
+type CursorContext struct {
+	File   *context.FileContext
 	Line   int
 	Column int
+}
+
+type Cursor struct {
 	File   *context.FileContext
+	Line   int
+	Column int
 }
 
 func NewCursor(file *context.FileContext) *Cursor {
@@ -145,4 +151,27 @@ func (c *Cursor) Next() (rune, bool) {
 	c.Line = line
 	c.Column = column
 	return c.Rune()
+}
+
+func (c *Cursor) Start() *CursorContext {
+	ctx := &CursorContext{
+		File:   c.File,
+		Line:   c.Line,
+		Column: c.Column,
+	}
+
+	return ctx
+}
+
+func (c *Cursor) Finish(ctx *CursorContext) *context.Context {
+	if ctx.File != c.File {
+		panic(fmt.Sprintf("cursor context file %s does not match cursor file %s", ctx.File.Filename, c.File.Filename))
+	}
+
+	if ctx.Line != c.Line {
+		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", ctx.Line, c.Line))
+	}
+
+	line := c.File.Line(ctx.Line)
+	return line.Mark(ctx.Column, c.Column)
 }

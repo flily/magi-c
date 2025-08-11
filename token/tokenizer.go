@@ -36,6 +36,7 @@ func (t *Tokenizer) ReadBuffer(buffer []byte, filename string) {
 	file := context.ReadFileData(filename, buffer)
 	t.file = file
 	t.Filename = filename
+	t.cursor = NewCursor(file)
 }
 
 func (t *Tokenizer) ReadFile(filename string) error {
@@ -46,4 +47,12 @@ func (t *Tokenizer) ReadFile(filename string) error {
 
 	t.ReadBuffer(data, filename)
 	return nil
+}
+
+func (t *Tokenizer) Cursor() *Cursor {
+	if t.cursor == nil {
+		t.cursor = NewCursor(t.file)
+	}
+
+	return t.cursor
 }

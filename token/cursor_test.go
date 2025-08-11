@@ -1,6 +1,7 @@
 package token
 
 import (
+	"strings"
 	"testing"
 
 	"bytes"
@@ -210,5 +211,29 @@ func TestCursorNextLineInThieLastLine(t *testing.T) {
 	r, eof = cursor.NextInLine()
 	if !eof {
 		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), r)
+	}
+}
+
+func TestCursorMark(t *testing.T) {
+	cursor := createTestCursor2()
+
+	c := cursor.Start()
+	for {
+		r, _ := cursor.NextInLine()
+		if r == ' ' {
+			break
+		}
+	}
+
+	ctx := cursor.Finish(c)
+	got := ctx.HighlightText("here")
+	expected := strings.Join([]string{
+		"   1:   lorem ipsum dolor sit amet",
+		"        ^^^^^",
+		"        here",
+	}, "\n")
+
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
 }
