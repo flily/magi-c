@@ -12,9 +12,40 @@ const (
 	TokenizerStateInit TokenizerState = iota
 )
 
-type TokenContext struct {
-	Token   Token
-	Context *context.Context
+func IsValidIdentifierRune(r rune) bool {
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
+
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
+
+	if '0' <= r && r <= '9' {
+		return true
+	}
+
+	if r == '_' {
+		return true
+	}
+
+	return false
+}
+
+func IsValidIdentifierInitialRune(r rune) bool {
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
+
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
+
+	if r == '_' {
+		return true
+	}
+
+	return false
 }
 
 type Tokenizer struct {

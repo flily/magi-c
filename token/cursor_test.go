@@ -94,13 +94,22 @@ func TestCursorPeek(t *testing.T) {
 		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[0], cursor.Position(), r0)
 	}
 
-	r1, eol := cursor.Peek()
+	r1, eol := cursor.Peek(1)
 	if eol {
 		t.Fatalf("unexpected EOF at %s", cursor.Position())
 	}
 
 	if r1 != firstLine[1] {
 		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[1], cursor.Position(), r1)
+	}
+
+	r2, eol := cursor.Peek(2)
+	if eol {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	if r2 != firstLine[2] {
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[2], cursor.Position(), r2)
 	}
 
 	// move to end of line
@@ -117,7 +126,7 @@ func TestCursorPeek(t *testing.T) {
 		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[4], cursor.Position(), re)
 	}
 
-	rp, eol := cursor.Peek()
+	rp, eol := cursor.Peek(1)
 	if !eol {
 		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), rp)
 	}

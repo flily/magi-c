@@ -6,42 +6,6 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-func IsValidIdentifierRune(r rune) bool {
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-
-	if '0' <= r && r <= '9' {
-		return true
-	}
-
-	if r == '_' {
-		return true
-	}
-
-	return false
-}
-
-func IsValidIdentifierInitialRune(r rune) bool {
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-
-	if r == '_' {
-		return true
-	}
-
-	return false
-}
-
 type CursorContext struct {
 	File   *context.FileContext
 	Line   int
@@ -67,26 +31,20 @@ func (c *Cursor) Position() string {
 }
 
 func (c *Cursor) Rune() (rune, bool) {
-	if c.Line >= len(c.File.Contents) {
-		return 0, true
-	}
-
-	// Cursor will never stop on a column that is out of bounds
-	l := c.File.Line(c.Line)
-	return l.Content[c.Column], false
+	return c.Peek(0)
 }
 
-func (c *Cursor) Peek() (rune, bool) {
+func (c *Cursor) Peek(n int) (rune, bool) {
 	if c.Line >= len(c.File.Contents) {
 		return 0, true
 	}
 
 	l := c.File.Line(c.Line)
-	if c.Column+1 >= len(l.Content) {
+	if c.Column+n >= len(l.Content) {
 		return 0, true
 	}
 
-	return l.Content[c.Column+1], false
+	return l.Content[c.Column+n], false
 }
 
 func (c *Cursor) next(line int, column int) (int, int, *context.LineContent) {
