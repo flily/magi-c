@@ -6,12 +6,6 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-type CursorContext struct {
-	File   *context.FileContext
-	Line   int
-	Column int
-}
-
 type Cursor struct {
 	File   *context.FileContext
 	Line   int
@@ -111,25 +105,29 @@ func (c *Cursor) Next() (rune, bool) {
 	return c.Rune()
 }
 
-func (c *Cursor) Start() *CursorContext {
-	ctx := &CursorContext{
+func (c *Cursor) Duplicate() *Cursor {
+	cursor := &Cursor{
 		File:   c.File,
 		Line:   c.Line,
 		Column: c.Column,
 	}
 
-	return ctx
+	return cursor
 }
 
-func (c *Cursor) Finish(ctx *CursorContext) *context.Context {
-	if ctx.File != c.File {
-		panic(fmt.Sprintf("cursor context file %s does not match cursor file %s", ctx.File.Filename, c.File.Filename))
+func (c *Cursor) Start() *Cursor {
+	return c.Duplicate()
+}
+
+func (c *Cursor) Finish(begin *Cursor) *context.Context {
+	if begin.File != c.File {
+		panic(fmt.Sprintf("cursor context file %s does not match cursor file %s", begin.File.Filename, c.File.Filename))
 	}
 
-	if ctx.Line != c.Line {
-		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", ctx.Line, c.Line))
+	if begin.Line != c.Line {
+		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", begin.Line, c.Line))
 	}
 
-	line := c.File.Line(ctx.Line)
-	return line.Mark(ctx.Column, c.Column)
+	line := c.File.Line(begin.Line)
+	return line.Mark(begin.Column, c.Column)
 }
