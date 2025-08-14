@@ -246,3 +246,22 @@ func TestCursorMark(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
 }
+
+func TestCursorPeekString(t *testing.T) {
+	cursor := createTestCursor2()
+
+	if ctx := cursor.PeekString("lorem"); ctx == nil {
+		t.Errorf("expected to find 'lorem' at %s", cursor.Position())
+	}
+
+	for range 6 {
+		_, eof := cursor.NextInLine()
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+	}
+
+	if ctx := cursor.PeekString("ipsum"); ctx == nil {
+		t.Errorf("expected to find 'ipsum' at %s", cursor.Position())
+	}
+}

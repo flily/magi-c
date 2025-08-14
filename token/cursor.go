@@ -41,6 +41,20 @@ func (c *Cursor) Peek(n int) (rune, bool) {
 	return l.Content[c.Column+n], false
 }
 
+func (c *Cursor) PeekString(s string) *context.Context {
+	rs := []rune(s)
+	start := c.Start()
+	for i, r := range rs {
+		got, eol := c.Peek(i)
+		if got != r || eol {
+			return nil
+		}
+	}
+
+	ctx := c.Finish(start)
+	return ctx
+}
+
 func (c *Cursor) next(line int, column int) (int, int, *context.LineContent) {
 	content := c.File.Line(line)
 	if content == nil {
