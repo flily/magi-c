@@ -226,7 +226,7 @@ func TestCursorNextLineInThieLastLine(t *testing.T) {
 func TestCursorMark(t *testing.T) {
 	cursor := createTestCursor2()
 
-	c := cursor.Start()
+	s := cursor.State()
 	for {
 		r, _ := cursor.NextInLine()
 		if r == ' ' {
@@ -234,7 +234,7 @@ func TestCursorMark(t *testing.T) {
 		}
 	}
 
-	ctx := cursor.Finish(c)
+	ctx := cursor.Finish(s)
 	got := ctx.HighlightText("here")
 	expected := strings.Join([]string{
 		"   1:   lorem ipsum dolor sit amet",

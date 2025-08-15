@@ -6,15 +6,32 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-type Cursor struct {
-	File   *context.FileContext
+type CursorState struct {
 	Line   int
 	Column int
+}
+
+func NewCursorState(line int, column int) *CursorState {
+	s := &CursorState{
+		Line:   line,
+		Column: column,
+	}
+
+	return s
+}
+
+type Cursor struct {
+	CursorState
+	File *context.FileContext
 }
 
 func NewCursor(file *context.FileContext) *Cursor {
 	c := &Cursor{
 		File: file,
+		CursorState: CursorState{
+			Line:   0,
+			Column: 0,
+		},
 	}
 
 	return c
@@ -43,7 +60,7 @@ func (c *Cursor) Peek(n int) (rune, bool) {
 
 func (c *Cursor) PeekString(s string) *context.Context {
 	rs := []rune(s)
-	start := c.Start()
+	state := c.State()
 	for i, r := range rs {
 		got, eol := c.Peek(i)
 		if got != r || eol {
@@ -51,7 +68,7 @@ func (c *Cursor) PeekString(s string) *context.Context {
 		}
 	}
 
-	ctx := c.Finish(start)
+	ctx := c.Finish(state)
 	return ctx
 }
 
@@ -119,25 +136,15 @@ func (c *Cursor) Next() (rune, bool) {
 	return c.Rune()
 }
 
-func (c *Cursor) Duplicate() *Cursor {
-	cursor := &Cursor{
-		File:   c.File,
-		Line:   c.Line,
-		Column: c.Column,
-	}
-
-	return cursor
+func (c *Cursor) State() *CursorState {
+	return NewCursorState(c.Line, c.Column)
 }
 
-func (c *Cursor) Start() *Cursor {
-	return c.Duplicate()
+func (c *Cursor) SetState(state *CursorState) {
+	c.CursorState = *state
 }
 
-func (c *Cursor) Finish(begin *Cursor) *context.Context {
-	if begin.File != c.File {
-		panic(fmt.Sprintf("cursor context file %s does not match cursor file %s", begin.File.Filename, c.File.Filename))
-	}
-
+func (c *Cursor) Finish(begin *CursorState) *context.Context {
 	if begin.Line != c.Line {
 		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", begin.Line, c.Line))
 	}
