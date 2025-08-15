@@ -22,6 +22,11 @@ func TestLineContextHighlightText(t *testing.T) {
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
+
+	expLast := 9
+	if lctx.Last() != expLast {
+		t.Errorf("expected last highlight to be %d, got %d", expLast, lctx.Last())
+	}
 }
 
 func TestLineContextHighlightTextWithoutMessage(t *testing.T) {

@@ -263,6 +263,17 @@ func (l *LineContext) HighlightColour(colour color.Color, format string, args ..
 	)
 }
 
+func (l *LineContext) Last() int {
+	last := -1
+	for _, h := range l.Highlights {
+		if h.End > last {
+			last = h.End
+		}
+	}
+
+	return last
+}
+
 func FindLineContextSameLine(list []*LineContext, lctx *LineContext) *LineContext {
 	for _, line := range list {
 		if line.IsSameLine(lctx) {

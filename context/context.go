@@ -125,6 +125,21 @@ func (c *Context) HighlightText(format string, args ...any) string {
 	return c.HighlightTextWith(DefaultIndicator, format, args...)
 }
 
+func (c *Context) Last() (int, int) {
+	line, column := 0, 0
+	for _, lineCtx := range c.Lines {
+		lineNo := lineCtx.Content.Line
+		if lineNo < line {
+			continue
+
+		} else /* lineNo >= line */ {
+			line, column = lineNo, lineCtx.Last()
+		}
+	}
+
+	return line, column
+}
+
 func Join(ctxs ...*Context) *Context {
 	if len(ctxs) == 0 {
 		return nil

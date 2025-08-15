@@ -50,6 +50,12 @@ func TestContextHighlightText(t *testing.T) {
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
+
+	expRow, expCol := 3, 14
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
 }
 
 func TestContextHighlightTextMultipleParts1(t *testing.T) {
@@ -80,6 +86,12 @@ func TestContextHighlightTextMultipleParts1(t *testing.T) {
 
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+
+	expRow, expCol := 3, 21
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
 	}
 }
 
@@ -120,6 +132,12 @@ func TestContextHighlightTextMultipleParts2(t *testing.T) {
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
+
+	expRow, expCol := 4, 19
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
 }
 
 func TestContextHighlightTextMultipleParts3(t *testing.T) {
@@ -159,6 +177,12 @@ func TestContextHighlightTextMultipleParts3(t *testing.T) {
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
+
+	expRow, expCol := 4, 19
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
 }
 
 func TestContextHighlightTextMultipleLines1(t *testing.T) {
@@ -195,6 +219,12 @@ func TestContextHighlightTextMultipleLines1(t *testing.T) {
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
+
+	expRow, expCol := 4, 19
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
 }
 
 func TestJoinContext(t *testing.T) {
@@ -226,5 +256,11 @@ func TestJoinContext(t *testing.T) {
 
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+
+	expRow, expCol := 3, 14
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
 	}
 }

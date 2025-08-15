@@ -1,11 +1,11 @@
 package token
 
 import (
-	"strings"
 	"testing"
 
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/flily/magi-c/context"
 )
