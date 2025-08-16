@@ -108,7 +108,7 @@ func (c *Context) HighlightTextWith(indicator string, format string, args ...any
 	for i, line := range c.Lines {
 		if i == len(c.Lines)-1 {
 			// show message in last line
-			parts = append(parts, line.HighlighText(format, args...))
+			parts = append(parts, line.HighlighTextWith(indicator, format, args...))
 		} else {
 			parts = append(parts, line.HighlighText(NoHighlightMessage))
 		}

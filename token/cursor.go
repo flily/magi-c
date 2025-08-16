@@ -45,6 +45,19 @@ func (c *Cursor) Rune() (rune, bool) {
 	return c.Peek(0)
 }
 
+func (c *Cursor) PeekState(n int) *CursorState {
+	if c.Line >= len(c.File.Contents) {
+		return nil
+	}
+
+	l := c.File.Line(c.Line)
+	if c.Column+n > len(l.Content) {
+		return nil
+	}
+
+	return NewCursorState(c.Line, c.Column+n)
+}
+
 func (c *Cursor) Peek(n int) (rune, bool) {
 	if c.Line >= len(c.File.Contents) {
 		return 0, true
@@ -60,15 +73,17 @@ func (c *Cursor) Peek(n int) (rune, bool) {
 
 func (c *Cursor) PeekString(s string) *context.Context {
 	rs := []rune(s)
-	state := c.State()
-	for i, r := range rs {
+	begin := c.State()
+	i, r := 0, rune(0)
+	for i, r = range rs {
 		got, eol := c.Peek(i)
 		if got != r || eol {
 			return nil
 		}
 	}
 
-	ctx := c.Finish(state)
+	finish := c.PeekState(i + 1)
+	ctx := c.FinishWith(begin, finish)
 	return ctx
 }
 
@@ -144,11 +159,28 @@ func (c *Cursor) SetState(state *CursorState) {
 	c.CursorState = *state
 }
 
-func (c *Cursor) Finish(begin *CursorState) *context.Context {
-	if begin.Line != c.Line {
+func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) *context.Context {
+	if begin.Line != c.Line || finish.Line != c.Line {
 		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", begin.Line, c.Line))
 	}
 
 	line := c.File.Line(begin.Line)
-	return line.Mark(begin.Column, c.Column)
+	return line.Mark(begin.Column, finish.Column)
+}
+
+func (c *Cursor) Finish(begin *CursorState) *context.Context {
+	current := c.State()
+	return c.FinishWith(begin, current)
+}
+
+func (c *Cursor) NextString(s string) *context.Context {
+	ctx := c.PeekString(s)
+	if ctx == nil {
+		return nil
+	}
+
+	line, column := ctx.Last()
+	state := NewCursorState(line, column)
+	c.SetState(state)
+	return ctx
 }

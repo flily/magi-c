@@ -250,8 +250,23 @@ func TestCursorMark(t *testing.T) {
 func TestCursorPeekString(t *testing.T) {
 	cursor := createTestCursor2()
 
-	if ctx := cursor.PeekString("lorem"); ctx == nil {
-		t.Errorf("expected to find 'lorem' at %s", cursor.Position())
+	expPosition := "example.txt:1:1"
+	if cursor.Position() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	}
+
+	ctx1 := cursor.PeekString("lorem")
+	if ctx1 == nil {
+		t.Fatalf("expected to find 'lorem' at %s", cursor.Position())
+	}
+
+	expected1 := strings.Join([]string{
+		"   1:   lorem ipsum dolor sit amet",
+		"        ^^^^^",
+		"        here",
+	}, "\n")
+	if expected1 != ctx1.HighlightText("here") {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
 	}
 
 	for range 6 {
@@ -263,5 +278,33 @@ func TestCursorPeekString(t *testing.T) {
 
 	if ctx := cursor.PeekString("ipsum"); ctx == nil {
 		t.Errorf("expected to find 'ipsum' at %s", cursor.Position())
+	}
+}
+
+func TestCursorNextLiteral(t *testing.T) {
+	cursor := createTestCursor1()
+
+	expPosition := "example.txt:1:1"
+	if cursor.Position() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	}
+
+	ctx1 := cursor.PeekString("lorem")
+	if ctx1 == nil {
+		t.Fatalf("expected to find 'lorem' at %s", cursor.Position())
+	}
+
+	expected1 := strings.Join([]string{
+		"   1:   lorem",
+		"        ^^^^^",
+		"        here",
+	}, "\n")
+	if expected1 != ctx1.HighlightText("here") {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
+	}
+
+	expPosition = "example.txt:1:1"
+	if cursor.Position() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
 	}
 }
