@@ -269,15 +269,8 @@ func TestCursorPeekString(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
 	}
 
-	for range 6 {
-		_, eof := cursor.NextInLine()
-		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
-		}
-	}
-
-	if ctx := cursor.PeekString("ipsum"); ctx == nil {
-		t.Errorf("expected to find 'ipsum' at %s", cursor.Position())
+	if ctx := cursor.PeekString("ipsum"); ctx != nil {
+		t.Errorf("expected to not find 'ipsum' at %s, got %s", cursor.Position(), ctx.HighlightText("here"))
 	}
 }
 
@@ -304,6 +297,21 @@ func TestCursorNextLiteral(t *testing.T) {
 	}
 
 	expPosition = "example.txt:1:1"
+	if cursor.Position() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	}
+
+	ctx2 := cursor.NextString("ipsum")
+	if ctx2 != nil {
+		t.Fatalf("expected to not find 'ipsum' at %s, got %s", cursor.Position(), ctx2.HighlightText("here"))
+	}
+
+	ctx3 := cursor.NextString("lorem")
+	if expected1 != ctx3.HighlightText("here") {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx3.HighlightText("here"))
+	}
+
+	expPosition = "example.txt:1:6"
 	if cursor.Position() != expPosition {
 		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
 	}
