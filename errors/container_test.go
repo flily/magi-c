@@ -1,8 +1,9 @@
 package errors
 
 import (
-	"fmt"
 	"testing"
+
+	"fmt"
 )
 
 func TestErrorMessageWithBase(t *testing.T) {
