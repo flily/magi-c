@@ -316,3 +316,36 @@ func TestCursorNextLiteral(t *testing.T) {
 		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
 	}
 }
+
+func TestCursorNextLiteralInEndOfLine(t *testing.T) {
+	cursor := createTestCursor1()
+
+	ctx1 := cursor.NextString("lorem")
+	if ctx1 == nil {
+		t.Fatalf("expected to find 'lorem' at %s", cursor.Position())
+	}
+
+	expected1 := strings.Join([]string{
+		"   1:   lorem",
+		"        ^^^^^",
+		"        here",
+	}, "\n")
+	if expected1 != ctx1.HighlightText("here") {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
+	}
+
+	cursor.NextLine()
+
+	ctx2 := cursor.NextString("ipsum")
+	if ctx2 == nil {
+		t.Fatalf("expected to find 'ipsum' at %s", cursor.Position())
+	}
+	expected2 := strings.Join([]string{
+		"   2:   ipsum",
+		"        ^^^^^",
+		"        here",
+	}, "\n")
+	if expected2 != ctx2.HighlightText("here") {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected2, ctx2.HighlightText("here"))
+	}
+}
