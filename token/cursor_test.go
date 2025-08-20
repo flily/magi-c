@@ -143,7 +143,7 @@ func TestCursorNextLineBasic(t *testing.T) {
 		'i', 'p', 's', 'u', 'm',
 	}
 
-	eof := cursor.NextLine()
+	eof := cursor.NextNonEmptyLine()
 	if eof {
 		t.Fatalf("unexpected EOF at %s", cursor.Position())
 	}
@@ -173,7 +173,7 @@ func TestCursorNextLineWithEmptyLine(t *testing.T) {
 	}
 
 	for range 2 {
-		eof := cursor.NextLine()
+		eof := cursor.NextNonEmptyLine()
 		if eof {
 			t.Fatalf("unexpected EOF at %s", cursor.Position())
 		}
@@ -199,7 +199,7 @@ func TestCursorNextLineWithEmptyLine(t *testing.T) {
 func TestCursorNextLineInThieLastLine(t *testing.T) {
 	cursor := createTestCursor1()
 
-	cursor.NextLine() // move to second line
+	cursor.NextNonEmptyLine() // move to second line
 	for range 5 {
 		_, eof := cursor.NextInLine()
 		if eof {
@@ -212,7 +212,7 @@ func TestCursorNextLineInThieLastLine(t *testing.T) {
 		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), r)
 	}
 
-	eof = cursor.NextLine()
+	eof = cursor.NextNonEmptyLine()
 	if !eof {
 		t.Errorf("expected to be at end of file at %s, got rune '%c'", cursor.Position(), r)
 	}
@@ -334,7 +334,7 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
 	}
 
-	cursor.NextLine()
+	cursor.NextNonEmptyLine()
 
 	ctx2 := cursor.NextString("ipsum")
 	if ctx2 == nil {
@@ -347,5 +347,26 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 	}, "\n")
 	if expected2 != ctx2.HighlightText("here") {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected2, ctx2.HighlightText("here"))
+	}
+}
+
+func TestCursorNext(t *testing.T) {
+	cursor := createTestCursor1()
+
+	first, _ := cursor.Rune()
+	result := make([]rune, 0, 100)
+	result = append(result, first)
+	for {
+		r, eof := cursor.Next()
+		if eof {
+			break
+		}
+
+		result = append(result, r)
+	}
+
+	if len(result) != 10 {
+		t.Errorf("expected 10 runes, got %d", len(result))
+		t.Errorf("result: [%s]", string(result))
 	}
 }

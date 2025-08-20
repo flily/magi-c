@@ -95,11 +95,11 @@ func (c *Cursor) next(line int, column int) (int, int, *context.LineContent) {
 
 	column += 1
 	if column >= content.Length() {
-		c.NextLine()
+		c.NextNonEmptyLine()
 		column = 0
 	}
 
-	return line, column, content
+	return c.Line, column, content
 }
 
 func (c *Cursor) nextInLine(line int, column int) (int, int, *context.LineContent) {
@@ -127,7 +127,7 @@ func (c *Cursor) NextInLine() (rune, bool) {
 	return r, false
 }
 
-func (c *Cursor) NextLine() bool {
+func (c *Cursor) NextNonEmptyLine() bool {
 	line := c.Line + 1
 	content := c.File.Line(line)
 	for content != nil && content.Length() <= 0 {
