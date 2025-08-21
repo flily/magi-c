@@ -50,40 +50,28 @@ func IsValidIdentifierInitialRune(r rune) bool {
 
 type Tokenizer struct {
 	Filename string
-	file     *context.FileContext
 	state    TokenizerState
 	cursor   *Cursor
 }
 
-func NewTokenizer() *Tokenizer {
+func NewTokenizerFrom(buffer []byte, filename string) *Tokenizer {
+	file := context.ReadFileData(filename, buffer)
+
+	cursor := NewCursor(file)
 	t := &Tokenizer{
-		state: TokenizerStateInit,
+		Filename: filename,
+		state:    TokenizerStateInit,
+		cursor:   cursor,
 	}
 
 	return t
 }
 
-func (t *Tokenizer) ReadBuffer(buffer []byte, filename string) {
-	file := context.ReadFileData(filename, buffer)
-	t.file = file
-	t.Filename = filename
-	t.cursor = NewCursor(file)
-}
-
-func (t *Tokenizer) ReadFile(filename string) error {
-	data, err := os.ReadFile(filename)
+func NewTokenizerFromFile(filename string) (*Tokenizer, error) {
+	file, err := os.ReadFile(filename)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	t.ReadBuffer(data, filename)
-	return nil
-}
-
-func (t *Tokenizer) Cursor() *Cursor {
-	if t.cursor == nil {
-		t.cursor = NewCursor(t.file)
-	}
-
-	return t.cursor
+	return NewTokenizerFrom(file, filename), nil
 }
