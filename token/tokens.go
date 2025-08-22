@@ -54,7 +54,7 @@ const (
 	Equal              // ==
 	NotEqual           // !=
 	InstanceEqual      // ===
-	InstanceNotEqual   // !===
+	InstanceNotEqual   // !==
 	LessThan           // <
 	LessThanOrEqual    // <=
 	GreaterThan        // >
@@ -67,6 +67,7 @@ const (
 	ShiftRight         // >>
 	PointerAdd         // +>>
 	PointerSub         // -<<
+	// #
 
 	punctuationBegin
 	Assign          // =
@@ -84,11 +85,85 @@ const (
 	DualColon       // ::
 	QuestionMark    // ?
 	Bang            // !
+	Hash            // #
+	At              // @
 	CommentStart    // //
 
 	punctuationEnd
 	operatorEnd
 	LastToken
+
+	SIllegal            = "Illegal"
+	SEOF                = "EOF"
+	SAuto               = "auto"
+	SVar                = "var"
+	SConst              = "const"
+	SGlobal             = "global"
+	SFunction           = "func"
+	SStructure          = "struct"
+	SType               = "type"
+	SIf                 = "if"
+	SElif               = "elif"
+	SElse               = "else"
+	SFor                = "for"
+	SWhile              = "while"
+	SDo                 = "do"
+	SForeach            = "foreach"
+	SBreak              = "break"
+	SContinue           = "continue"
+	SAnd                = "and"
+	SOr                 = "or"
+	SNot                = "not"
+	SNew                = "new"
+	SDelete             = "delete"
+	SRef                = "ref"
+	SReturn             = "return"
+	SCall               = "call"
+	SExport             = "export"
+	SImport             = "import"
+	SModule             = "module"
+	SSizeof             = "sizeof"
+	SInclude            = "include"
+	SPlus               = "+"
+	SSub                = "-"
+	SAsterisk           = "*"
+	SSlash              = "/"
+	SBackslash          = "\\"
+	SPercent            = "%"
+	SEqual              = "=="
+	SNotEqual           = "!="
+	SInstanceEqual      = "==="
+	SInstanceNotEqual   = "!=="
+	SLessThan           = "<"
+	SLessThanOrEqual    = "<="
+	SGreaterThan        = ">"
+	SGreaterThanOrEqual = ">="
+	SAmpersand          = "&"
+	SVerticalBar        = "|"
+	STilde              = "~"
+	SCaret              = "^"
+	SShiftLeft          = "<<"
+	SShiftRight         = ">>"
+	SPointerAdd         = "+>>"
+	SPointerSub         = "-<<"
+	SAssign             = "="
+	SInferenceAssign    = ":="
+	SLeftParen          = "("
+	SRightParen         = ")"
+	SLeftBracket        = "["
+	SRightBracket       = "]"
+	SLeftBrace          = "{"
+	SRightBrace         = "}"
+	SComma              = ","
+	SPeriod             = "."
+	SColon              = ":"
+	SSemicolon          = ";"
+	SDualColon          = "::"
+	SQuestionMark       = "?"
+	SBang               = "!"
+	SHashTag            = "#"
+	SAt                 = "@"
+	SCommentStart       = "//"
 )
 
 func (t Token) IsOperator() bool {
