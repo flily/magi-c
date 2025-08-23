@@ -1,9 +1,13 @@
 package token
 
-type Token int
+import (
+	"github.com/flily/magi-c/context"
+)
+
+type TokenType int
 
 const (
-	Invalid Token = iota
+	Invalid TokenType = iota
 	literalBegin
 	Null
 	False
@@ -166,6 +170,20 @@ const (
 	SCommentStart       = "//"
 )
 
-func (t Token) IsOperator() bool {
+func (t TokenType) IsOperator() bool {
 	return t > operatorBegin && t < operatorEnd
+}
+
+type Token struct {
+	Type    TokenType
+	Context *context.Context
+}
+
+func NewToken(typ TokenType, ctx *context.Context) *Token {
+	t := &Token{
+		Type:    typ,
+		Context: ctx,
+	}
+
+	return t
 }
