@@ -1,6 +1,8 @@
 package token
 
 import (
+	"fmt"
+
 	"github.com/flily/magi-c/context"
 )
 
@@ -99,6 +101,9 @@ const (
 
 	SIllegal            = "Illegal"
 	SEOF                = "EOF"
+	SNull               = "null"
+	SFalse              = "false"
+	STrue               = "true"
 	SAuto               = "auto"
 	SVar                = "var"
 	SConst              = "const"
@@ -170,20 +175,111 @@ const (
 	SCommentStart       = "//"
 )
 
+var tokenStringMap = map[TokenType]string{
+	Null:               SNull,
+	False:              SFalse,
+	True:               STrue,
+	Auto:               SAuto,
+	Var:                SVar,
+	Const:              SConst,
+	Global:             SGlobal,
+	Function:           SFunction,
+	Structure:          SStructure,
+	Type:               SType,
+	If:                 SIf,
+	Elif:               SElif,
+	Else:               SElse,
+	For:                SFor,
+	While:              SWhile,
+	Do:                 SDo,
+	Foreach:            SForeach,
+	Break:              SBreak,
+	Continue:           SContinue,
+	And:                SAnd,
+	Or:                 SOr,
+	Not:                SNot,
+	New:                SNew,
+	Delete:             SDelete,
+	Ref:                SRef,
+	Return:             SReturn,
+	Call:               SCall,
+	Export:             SExport,
+	Import:             SImport,
+	Module:             SModule,
+	Sizeof:             SSizeof,
+	Plus:               SPlus,
+	Sub:                SSub,
+	Asterisk:           SAsterisk,
+	Slash:              SSlash,
+	Backslash:          SBackslash,
+	Percent:            SPercent,
+	Equal:              SEqual,
+	NotEqual:           SNotEqual,
+	InstanceEqual:      SInstanceEqual,
+	InstanceNotEqual:   SInstanceNotEqual,
+	LessThan:           SLessThan,
+	LessThanOrEqual:    SLessThanOrEqual,
+	GreaterThan:        SGreaterThan,
+	GreaterThanOrEqual: SGreaterThanOrEqual,
+	Ampersand:          SAmpersand,
+	VerticalBar:        SVerticalBar,
+	Tilde:              STilde,
+	Caret:              SCaret,
+	ShiftLeft:          SShiftLeft,
+	ShiftRight:         SShiftRight,
+	PointerAdd:         SPointerAdd,
+	PointerSub:         SPointerSub,
+	Assign:             SAssign,
+	InferenceAssign:    SInferenceAssign,
+	LeftParen:          SLeftParen,
+	RightParen:         SRightParen,
+	LeftBracket:        SLeftBracket,
+	RightBracket:       SRightBracket,
+	LeftBrace:          SLeftBrace,
+	RightBrace:         SRightBrace,
+	Comma:              SComma,
+	Period:             SPeriod,
+	Colon:              SColon,
+	Semicolon:          SSemicolon,
+	DualColon:          SDualColon,
+	QuestionMark:       SQuestionMark,
+	Bang:               SBang,
+	Hash:               SHashTag,
+	At:                 SAt,
+	CommentStart:       SCommentStart,
+}
+
 func (t TokenType) IsOperator() bool {
 	return t > operatorBegin && t < operatorEnd
 }
 
-type Token struct {
-	Type    TokenType
-	Context *context.Context
+func (t *Token) String() string {
+	s, ok := tokenStringMap[t.t]
+	if ok {
+		return s
+	}
+
+	return fmt.Sprintf("<Token %d>", t.t)
 }
 
-func NewToken(typ TokenType, ctx *context.Context) *Token {
+type Token struct {
+	t   TokenType
+	ctx *context.Context
+}
+
+func NewToken(ttype TokenType, ctx *context.Context) *Token {
 	t := &Token{
-		Type:    typ,
-		Context: ctx,
+		t:   ttype,
+		ctx: ctx,
 	}
 
 	return t
+}
+
+func (t *Token) Type() TokenType {
+	return t.t
+}
+
+func (t *Token) Context() *context.Context {
+	return t.ctx
 }
