@@ -253,13 +253,56 @@ func (t TokenType) IsOperator() bool {
 	return t > operatorBegin && t < operatorEnd
 }
 
-func (t *Token) String() string {
-	s, ok := tokenStringMap[t.t]
+func (t TokenType) String() string {
+	s, ok := tokenStringMap[t]
 	if ok {
 		return s
 	}
 
-	return fmt.Sprintf("<Token %d>", t.t)
+	return fmt.Sprintf("<Token %d>", t)
+}
+
+var keywordMap = map[string]TokenType{
+	SNull:      Null,
+	SFalse:     False,
+	STrue:      True,
+	SAuto:      Auto,
+	SVar:       Var,
+	SConst:     Const,
+	SGlobal:    Global,
+	SFunction:  Function,
+	SStructure: Structure,
+	SType:      Type,
+	SIf:        If,
+	SElif:      Elif,
+	SElse:      Else,
+	SFor:       For,
+	SWhile:     While,
+	SDo:        Do,
+	SForeach:   Foreach,
+	SBreak:     Break,
+	SContinue:  Continue,
+	SAnd:       And,
+	SOr:        Or,
+	SNot:       Not,
+	SNew:       New,
+	SDelete:    Delete,
+	SRef:       Ref,
+	SReturn:    Return,
+	SCall:      Call,
+	SExport:    Export,
+	SImport:    Import,
+	SModule:    Module,
+	SSizeof:    Sizeof,
+	SInclude:   Import,
+}
+
+func GetKeywordTokenType(s string) TokenType {
+	if t, ok := keywordMap[s]; ok {
+		return t
+	}
+
+	return Invalid
 }
 
 type Token struct {
