@@ -10,6 +10,7 @@ type TokenType int
 
 const (
 	Invalid TokenType = iota
+	notUsedToken
 	literalBegin
 	Null
 	False
@@ -176,6 +177,7 @@ const (
 )
 
 var tokenStringMap = map[TokenType]string{
+	Invalid:            SIllegal,
 	Null:               SNull,
 	False:              SFalse,
 	True:               STrue,
