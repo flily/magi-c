@@ -12,6 +12,10 @@ const (
 	TokenizerStateInit TokenizerState = iota
 )
 
+func IsWhitespace(r rune) bool {
+	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
+}
+
 func IsValidIdentifierRune(r rune) bool {
 	if 'a' <= r && r <= 'z' {
 		return true
@@ -74,4 +78,25 @@ func NewTokenizerFromFile(filename string) (*Tokenizer, error) {
 	}
 
 	return NewTokenizerFrom(file, filename), nil
+}
+
+func (t *Tokenizer) SkipWhitespace() {
+	for {
+		_, eol := t.cursor.Rune()
+		if eol {
+			if eof := t.cursor.NextNonEmptyLine(); eof {
+				return
+			}
+
+			continue
+		}
+
+		r, _ := t.cursor.Rune()
+		if IsWhitespace(r) {
+			t.cursor.Next()
+
+		} else {
+			break
+		}
+	}
 }
