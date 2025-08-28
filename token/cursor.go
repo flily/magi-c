@@ -41,6 +41,13 @@ func (c *Cursor) Position() string {
 	return fmt.Sprintf("%s:%d:%d", c.File.Filename, c.Line+1, c.Column+1)
 }
 
+func (c *Cursor) CurrentChar() *context.Context {
+	current := c.State()
+	next := c.PeekState(1)
+
+	return c.FinishWith(current, next)
+}
+
 func (c *Cursor) Rune() (rune, bool) {
 	return c.Peek(0)
 }

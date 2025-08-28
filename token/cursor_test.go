@@ -78,6 +78,45 @@ func TestCursorRuneBasic(t *testing.T) {
 	}
 }
 
+func TestCursorCurrentChar(t *testing.T) {
+	cursor := createTestCursor1()
+
+	c1 := cursor.CurrentChar()
+	exp1 := strings.Join([]string{
+		"   1:   lorem",
+		"        ^",
+		"        here",
+	}, "\n")
+	got1 := c1.HighlightText("here")
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	_, _ = cursor.Next()
+	c2 := cursor.CurrentChar()
+	exp2 := strings.Join([]string{
+		"   1:   lorem",
+		"         ^",
+		"         here",
+	}, "\n")
+	got2 := c2.HighlightText("here")
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	_ = cursor.NextNonEmptyLine()
+	c3 := cursor.CurrentChar()
+	exp3 := strings.Join([]string{
+		"   2:   ipsum",
+		"        ^",
+		"        here",
+	}, "\n")
+	got3 := c3.HighlightText("here")
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+}
+
 func TestCursorPeek(t *testing.T) {
 	cursor := createTestCursor1()
 
