@@ -120,6 +120,11 @@ func ReadFileData(filename string, data []byte) *FileContext {
 		start = i
 	}
 
+	if i > start {
+		lineContent := NewLineFromBytes(len(lines), data[start:i], nil)
+		lines = append(lines, &lineContent)
+	}
+
 	ctx := &FileContext{
 		Filename: filename,
 		Contents: lines,

@@ -97,3 +97,13 @@ func TestReadFileData(t *testing.T) {
 		t.Errorf("expected rune at (100, 0) to be EOF, got '%c', eof=%v", c, eol)
 	}
 }
+
+func TestReadFileWithoutEndOfLine(t *testing.T) {
+	filename := "example.txt"
+	data := []byte("the quick brown fox jumps over the lazy dog")
+
+	ctx := ReadFileData(filename, data)
+	if ctx.Lines() != 1 {
+		t.Errorf("expected 1 line, got %d", ctx.Lines())
+	}
+}
