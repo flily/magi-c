@@ -80,6 +80,10 @@ func NewTokenizerFromFile(filename string) (*Tokenizer, error) {
 	return NewTokenizerFrom(file, filename), nil
 }
 
+func (t *Tokenizer) CurrentChar() *context.Context {
+	return t.cursor.CurrentChar()
+}
+
 func (t *Tokenizer) SkipWhitespace() {
 	for {
 		_, eol := t.cursor.Rune()
@@ -99,4 +103,21 @@ func (t *Tokenizer) SkipWhitespace() {
 			break
 		}
 	}
+}
+
+func (t *Tokenizer) ScanWord() *context.Context {
+	t.SkipWhitespace()
+
+	r, eof := t.cursor.Rune()
+	if eof || !IsValidIdentifierInitialRune(r) {
+		return nil
+	}
+
+	start := t.cursor.State()
+	for IsValidIdentifierRune(r) && !eof {
+		t.cursor.Next()
+		r, eof = t.cursor.Rune()
+	}
+
+	return t.cursor.Finish(start)
 }
