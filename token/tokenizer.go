@@ -106,8 +106,6 @@ func (t *Tokenizer) SkipWhitespace() {
 }
 
 func (t *Tokenizer) ScanWord() *context.Context {
-	t.SkipWhitespace()
-
 	r, eof := t.cursor.Rune()
 	if eof || !IsValidIdentifierInitialRune(r) {
 		return nil
@@ -120,4 +118,8 @@ func (t *Tokenizer) ScanWord() *context.Context {
 	}
 
 	return t.cursor.Finish(start)
+}
+
+func (t *Tokenizer) ScanFixedString(s string) *context.Context {
+	return t.cursor.NextString(s)
 }
