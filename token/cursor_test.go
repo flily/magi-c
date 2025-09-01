@@ -50,9 +50,9 @@ func TestCursorRuneBasic(t *testing.T) {
 	}
 
 	for i, expChar := range firstLine {
-		r, eof := cursor.Rune()
-		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		r, eol, eof := cursor.Rune()
+		if eol || eof {
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 		}
 
 		if r != expChar {
@@ -64,7 +64,7 @@ func TestCursorRuneBasic(t *testing.T) {
 			t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
 		}
 
-		_, eol := cursor.NextInLine()
+		_, eol = cursor.NextInLine()
 		if eol {
 			t.Errorf("expected not to be at end of line at %s", cursor.Position())
 		}
@@ -92,7 +92,7 @@ func TestCursorCurrentChar(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
 	}
 
-	_, _ = cursor.Next()
+	_, _, _ = cursor.Next()
 	c2 := cursor.CurrentChar()
 	exp2 := strings.Join([]string{
 		"   1:   lorem",
@@ -124,27 +124,27 @@ func TestCursorPeek(t *testing.T) {
 		'l', 'o', 'r', 'e', 'm',
 	}
 
-	r0, eol := cursor.Rune()
-	if eol {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	r0, eol, eof := cursor.Rune()
+	if eol || eof {
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 	}
 
 	if r0 != firstLine[0] {
 		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[0], cursor.Position(), r0)
 	}
 
-	r1, eol := cursor.Peek(1)
-	if eol {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	r1, eol, eof := cursor.Peek(1)
+	if eol || eof {
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 	}
 
 	if r1 != firstLine[1] {
 		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[1], cursor.Position(), r1)
 	}
 
-	r2, eol := cursor.Peek(2)
-	if eol {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	r2, eol, eof := cursor.Peek(2)
+	if eol || eof {
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 	}
 
 	if r2 != firstLine[2] {
@@ -156,17 +156,17 @@ func TestCursorPeek(t *testing.T) {
 		cursor.NextInLine()
 	}
 
-	re, eol := cursor.Rune()
-	if eol {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	re, eol, eof := cursor.Rune()
+	if eol || eof {
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 	}
 
 	if re != firstLine[4] {
 		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[4], cursor.Position(), re)
 	}
 
-	rp, eol := cursor.Peek(1)
-	if !eol {
+	rp, eol, eof := cursor.Peek(1)
+	if !eol || eof {
 		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), rp)
 	}
 
@@ -188,16 +188,16 @@ func TestCursorNextLineBasic(t *testing.T) {
 	}
 
 	for _, expChar := range firstLine {
-		r, eof := cursor.Rune()
-		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		r, eol, eof := cursor.Rune()
+		if eol || eof {
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 		}
 
 		if r != expChar {
 			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
 		}
 
-		_, eol := cursor.NextInLine()
+		_, eol = cursor.NextInLine()
 		if eol {
 			t.Errorf("expected not to be at end of line at %s", cursor.Position())
 		}
@@ -219,16 +219,16 @@ func TestCursorNextLineWithEmptyLine(t *testing.T) {
 	}
 
 	for _, expChar := range content {
-		r, eof := cursor.Rune()
-		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		r, eol, eof := cursor.Rune()
+		if eol || eof {
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
 		}
 
 		if r != expChar {
 			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
 		}
 
-		_, eol := cursor.NextInLine()
+		_, eol = cursor.NextInLine()
 		if eol {
 			t.Errorf("expected not to be at end of line at %s", cursor.Position())
 		}
@@ -392,12 +392,12 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 func TestCursorNext(t *testing.T) {
 	cursor := createTestCursor1()
 
-	first, _ := cursor.Rune()
+	first, _, _ := cursor.Rune()
 	result := make([]rune, 0, 100)
 	result = append(result, first)
 	for {
-		r, eof := cursor.Next()
-		if eof {
+		r, eol, eof := cursor.Next()
+		if eol || eof {
 			break
 		}
 

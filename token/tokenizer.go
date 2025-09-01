@@ -86,7 +86,7 @@ func (t *Tokenizer) CurrentChar() *context.Context {
 
 func (t *Tokenizer) SkipWhitespace() {
 	for {
-		_, eol := t.cursor.Rune()
+		_, eol, _ := t.cursor.Rune()
 		if eol {
 			if eof := t.cursor.NextNonEmptyLine(); eof {
 				return
@@ -95,7 +95,7 @@ func (t *Tokenizer) SkipWhitespace() {
 			continue
 		}
 
-		r, _ := t.cursor.Rune()
+		r, _, _ := t.cursor.Rune()
 		if IsWhitespace(r) {
 			t.cursor.Next()
 
@@ -106,7 +106,7 @@ func (t *Tokenizer) SkipWhitespace() {
 }
 
 func (t *Tokenizer) ScanWord() *context.Context {
-	r, eof := t.cursor.Rune()
+	r, _, eof := t.cursor.Rune()
 	if eof || !IsValidIdentifierInitialRune(r) {
 		return nil
 	}
@@ -114,7 +114,7 @@ func (t *Tokenizer) ScanWord() *context.Context {
 	start := t.cursor.State()
 	for IsValidIdentifierRune(r) && !eof {
 		t.cursor.Next()
-		r, eof = t.cursor.Rune()
+		r, _, eof = t.cursor.Rune()
 	}
 
 	return t.cursor.Finish(start)

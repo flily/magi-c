@@ -48,7 +48,8 @@ func (c *Cursor) CurrentChar() *context.Context {
 	return c.FinishWith(current, next)
 }
 
-func (c *Cursor) Rune() (rune, bool) {
+// Rune returns the rune of current position, and EOL and EOF status
+func (c *Cursor) Rune() (rune, bool, bool) {
 	return c.Peek(0)
 }
 
@@ -65,17 +66,18 @@ func (c *Cursor) PeekState(n int) *CursorState {
 	return NewCursorState(c.Line, c.Column+n)
 }
 
-func (c *Cursor) Peek(n int) (rune, bool) {
+// Peek returns the rune at the offset of current position, and EOL and EOF status.
+func (c *Cursor) Peek(n int) (rune, bool, bool) {
 	if c.Line >= len(c.File.Contents) {
-		return 0, true
+		return 0, true, true
 	}
 
 	l := c.File.Line(c.Line)
 	if c.Column+n >= len(l.Content) {
-		return 0, true
+		return 0, true, false
 	}
 
-	return l.Content[c.Column+n], false
+	return l.Content[c.Column+n], false, false
 }
 
 func (c *Cursor) PeekString(s string) *context.Context {
@@ -83,8 +85,8 @@ func (c *Cursor) PeekString(s string) *context.Context {
 	begin := c.State()
 	i, r := 0, rune(0)
 	for i, r = range rs {
-		got, eol := c.Peek(i)
-		if got != r || eol {
+		got, eol, eof := c.Peek(i)
+		if got != r || eol || eof {
 			return nil
 		}
 	}
@@ -147,10 +149,10 @@ func (c *Cursor) NextNonEmptyLine() bool {
 	return content == nil
 }
 
-func (c *Cursor) Next() (rune, bool) {
+func (c *Cursor) Next() (rune, bool, bool) {
 	line, column, content := c.next(c.Line, c.Column)
 	if content == nil {
-		return 0, true
+		return 0, true, true
 	}
 
 	c.Line = line
