@@ -171,7 +171,7 @@ const (
 	SDualColon          = "::"
 	SQuestionMark       = "?"
 	SBang               = "!"
-	SHashTag            = "#"
+	SHash               = "#"
 	SAt                 = "@"
 	SCommentStart       = "//"
 )
@@ -246,7 +246,7 @@ var tokenStringMap = map[TokenType]string{
 	DualColon:          SDualColon,
 	QuestionMark:       SQuestionMark,
 	Bang:               SBang,
-	Hash:               SHashTag,
+	Hash:               SHash,
 	At:                 SAt,
 	CommentStart:       SCommentStart,
 }
@@ -301,6 +301,57 @@ var keywordMap = map[string]TokenType{
 
 func GetKeywordTokenType(s string) TokenType {
 	if t, ok := keywordMap[s]; ok {
+		return t
+	}
+
+	return Invalid
+}
+
+var operatorMap = map[string]TokenType{
+	SPlus:               Plus,
+	SSub:                Sub,
+	SAsterisk:           Asterisk,
+	SSlash:              Slash,
+	SBackslash:          Backslash,
+	SPercent:            Percent,
+	SEqual:              Equal,
+	SNotEqual:           NotEqual,
+	SInstanceEqual:      InstanceEqual,
+	SInstanceNotEqual:   InstanceNotEqual,
+	SLessThan:           LessThan,
+	SLessThanOrEqual:    LessThanOrEqual,
+	SGreaterThan:        GreaterThan,
+	SGreaterThanOrEqual: GreaterThanOrEqual,
+	SAmpersand:          Ampersand,
+	SVerticalBar:        VerticalBar,
+	STilde:              Tilde,
+	SCaret:              Caret,
+	SShiftLeft:          ShiftLeft,
+	SShiftRight:         ShiftRight,
+	SPointerAdd:         PointerAdd,
+	SPointerSub:         PointerSub,
+	SAssign:             Assign,
+	SInferenceAssign:    InferenceAssign,
+	SLeftParen:          LeftParen,
+	SRightParen:         RightParen,
+	SLeftBracket:        LeftBracket,
+	SRightBracket:       RightBracket,
+	SLeftBrace:          LeftBrace,
+	SRightBrace:         RightBrace,
+	SComma:              Comma,
+	SPeriod:             Period,
+	SColon:              Colon,
+	SSemicolon:          Semicolon,
+	SDualColon:          DualColon,
+	SQuestionMark:       QuestionMark,
+	SBang:               Bang,
+	SHash:               Hash,
+	SAt:                 At,
+	SCommentStart:       CommentStart,
+}
+
+func GetOperatorTokenType(s string) TokenType {
+	if t, ok := operatorMap[s]; ok {
 		return t
 	}
 
