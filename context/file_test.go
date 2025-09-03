@@ -65,16 +65,16 @@ func TestReadFileData(t *testing.T) {
 		t.Errorf("expected first line to be 'lorem ipsum', got '%s'", ctx.Line(0).String())
 	}
 
-	if !bytes.Equal(ctx.Line(0).EOL, EolLF) {
-		t.Errorf("expected first line EOL to be LF, got %s", ctx.Line(0).EOL)
+	if !bytes.Equal(ctx.Line(0).EOLBytes(), EolLF) {
+		t.Errorf("expected first line EOL to be LF, got %s", ctx.Line(0).EOLBytes())
 	}
 
 	if ctx.Line(1).String() != "dolor sit amet" {
 		t.Errorf("expected second line to be 'dolor sit amet', got '%s'", ctx.Line(1).String())
 	}
 
-	if !bytes.Equal(ctx.Line(1).EOL, EolCRLF) {
-		t.Errorf("expected second line EOL to be CRLF, got %s", ctx.Line(1).EOL)
+	if !bytes.Equal(ctx.Line(1).EOLBytes(), EolCRLF) {
+		t.Errorf("expected second line EOL to be CRLF, got %s", ctx.Line(1).EOLBytes())
 	}
 
 	if ctx.Line(6).String() != "ut labore et dolore magna aliqua" {

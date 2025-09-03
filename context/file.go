@@ -11,16 +11,32 @@ var (
 	EolCRLF = []byte{'\r', '\n'}
 )
 
+func BytesToRunes(bs []byte) []rune {
+	rs := make([]rune, len(bs))
+	for i, b := range bs {
+		rs[i] = rune(b)
+	}
+	return rs
+}
+
+func RunesToBytes(rs []rune) []byte {
+	bs := make([]byte, len(rs))
+	for i, r := range rs {
+		bs[i] = byte(r)
+	}
+	return bs
+}
+
 type LineContent struct {
 	Line    int
-	EOL     []byte
+	EOL     []rune
 	Content []rune
 }
 
 func NewLineFromBytes(line int, data []byte, eol []byte) LineContent {
 	l := LineContent{
 		Line:    line,
-		EOL:     eol,
+		EOL:     BytesToRunes(eol),
 		Content: []rune(string(data)),
 	}
 
@@ -33,6 +49,10 @@ func (l *LineContent) Rune(n int) rune {
 	}
 
 	return l.Content[n]
+}
+
+func (l *LineContent) EOLBytes() []byte {
+	return RunesToBytes(l.EOL)
 }
 
 func (l *LineContent) String() string {
