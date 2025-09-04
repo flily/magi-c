@@ -53,6 +53,15 @@ func (c *Cursor) Rune() (rune, bool, bool) {
 	return c.Peek(0)
 }
 
+func (c *Cursor) CurrentEOL() []rune {
+	line := c.File.Line(c.Line)
+	if line == nil {
+		return nil
+	}
+
+	return line.EOL
+}
+
 func (c *Cursor) PeekState(n int) *CursorState {
 	if c.Line >= len(c.File.Contents) {
 		return nil
@@ -158,6 +167,30 @@ func (c *Cursor) Next() (rune, bool, bool) {
 	c.Line = line
 	c.Column = column
 	return c.Rune()
+}
+
+func (c *Cursor) SearchInLine(s string) *CursorState {
+	line := c.File.Line(c.Line)
+	if line == nil {
+		return nil
+	}
+
+	rs := []rune(s)
+	for i := 0; i+len(rs) < len(line.Content); i++ {
+		found := true
+		for j := 0; j < len(rs); j++ {
+			if line.Content[i+j] != rs[j] {
+				found = false
+				break
+			}
+		}
+
+		if found {
+			return NewCursorState(c.Line, i)
+		}
+	}
+
+	return nil
 }
 
 func (c *Cursor) State() *CursorState {
