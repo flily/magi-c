@@ -52,6 +52,37 @@ func IsValidIdentifierInitialRune(r rune) bool {
 	return false
 }
 
+var validSymbolInitialRunes = []bool{
+	'!':  true,
+	'"':  true,
+	'#':  true,
+	'$':  true,
+	'%':  true,
+	'&':  true,
+	'\'': true,
+	'(':  true,
+	')':  true,
+	'*':  true,
+	'+':  true,
+	',':  true,
+	'-':  true,
+	'.':  true,
+	'/':  true,
+	'[':  true,
+	'\\': true,
+	']':  true,
+	'^':  true,
+	'~':  true,
+}
+
+func IsValidSymbolRune(r rune) bool {
+	if int(r) < len(validSymbolInitialRunes) {
+		return validSymbolInitialRunes[int(r)]
+	}
+
+	return false
+}
+
 type Tokenizer struct {
 	Filename string
 	state    TokenizerState
