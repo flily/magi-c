@@ -154,3 +154,14 @@ func (t *Tokenizer) ScanWord() *context.Context {
 func (t *Tokenizer) ScanFixedString(s string) *context.Context {
 	return t.cursor.NextString(s)
 }
+
+func (t *Tokenizer) ScanSymbol() *context.Context {
+	for _, op := range operatorList {
+		ctx := t.cursor.NextString(op)
+		if ctx != nil {
+			return ctx
+		}
+	}
+
+	return nil
+}

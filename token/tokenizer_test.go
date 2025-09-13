@@ -184,3 +184,36 @@ func TestTokenizerScanFixedString(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", expp3, gotp3)
 	}
 }
+
+func TestTokenizerScanSymbol(t *testing.T) {
+	{
+		buffer := []byte(strings.Join([]string{
+			"====================",
+		}, "\n"))
+
+		tokenizer := NewTokenizerFrom(buffer, "test.txt")
+		p1 := tokenizer.ScanSymbol()
+		exp1 := strings.Join([]string{
+			"   1:   ====================",
+			"        ^^^",
+			"        here",
+		}, "\n")
+
+		got1 := p1.HighlightText("here")
+		if got1 != exp1 {
+			t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+		}
+	}
+
+	{
+		buffer := []byte(strings.Join([]string{
+			"0123456789",
+		}, "\n"))
+
+		tokenizer := NewTokenizerFrom(buffer, "test.txt")
+		p1 := tokenizer.ScanSymbol()
+		if p1 != nil {
+			t.Errorf("expected nil, got %v", p1)
+		}
+	}
+}
