@@ -144,7 +144,7 @@ func (t *Tokenizer) ScanWord() *context.Context {
 
 	start := t.cursor.State()
 	for IsValidIdentifierRune(r) && !eof {
-		t.cursor.Next()
+		_, _ = t.cursor.NextInLine()
 		r, _, eof = t.cursor.Rune()
 	}
 
@@ -161,6 +161,23 @@ func (t *Tokenizer) ScanSymbol() *context.Context {
 		if ctx != nil {
 			return ctx
 		}
+	}
+
+	return nil
+}
+
+func (t *Tokenizer) ScanToken() *context.Context {
+	r, _, eof := t.cursor.Rune()
+	if eof {
+		return nil
+	}
+
+	if IsValidIdentifierInitialRune(r) {
+		return t.ScanWord()
+	}
+
+	if IsValidSymbolRune(r) {
+		return t.ScanSymbol()
 	}
 
 	return nil

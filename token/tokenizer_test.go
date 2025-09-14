@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"strings"
+
+	"github.com/flily/magi-c/context"
 )
 
 func TestTokenizerSkipWhitespace(t *testing.T) {
@@ -215,5 +217,54 @@ func TestTokenizerScanSymbol(t *testing.T) {
 		if p1 != nil {
 			t.Errorf("expected nil, got %v", p1)
 		}
+	}
+}
+
+func TestTokenizerScanToken(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  a + b",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	ctxList := []*context.Context{}
+	for i := range 3 {
+		tokenizer.SkipWhitespace()
+		tok := tokenizer.ScanToken()
+		if tok == nil {
+			t.Fatalf("[%d] expected a token, got nil", i)
+		}
+
+		ctxList = append(ctxList, tok)
+	}
+
+	exp1 := strings.Join([]string{
+		"   1:     a + b",
+		"          ^",
+		"          here",
+	}, "\n")
+	got1 := ctxList[0].HighlightText("here")
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	exp2 := strings.Join([]string{
+		"   1:     a + b",
+		"            ^",
+		"            here",
+	}, "\n")
+	got2 := ctxList[1].HighlightText("here")
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	exp3 := strings.Join([]string{
+		"   1:     a + b",
+		"              ^",
+		"              here",
+	}, "\n")
+	got3 := ctxList[2].HighlightText("here")
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
 	}
 }
