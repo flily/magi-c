@@ -220,7 +220,7 @@ func TestTokenizerScanSymbol(t *testing.T) {
 	}
 }
 
-func TestTokenizerScanToken(t *testing.T) {
+func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
 		"  a + b",
 	}, "\n"))
@@ -266,5 +266,65 @@ func TestTokenizerScanToken(t *testing.T) {
 	got3 := ctxList[2].HighlightText("here")
 	if got3 != exp3 {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+}
+
+func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  aaaa + bbb",
+		"ccc",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	ctxList := []*context.Context{}
+	for i := range 4 {
+		tokenizer.SkipWhitespace()
+		tok := tokenizer.ScanToken()
+		if tok == nil {
+			t.Fatalf("[%d] expected a token, got nil", i)
+		}
+
+		ctxList = append(ctxList, tok)
+	}
+
+	exp1 := strings.Join([]string{
+		"   1:     aaaa + bbb",
+		"          ^^^^",
+		"          here",
+	}, "\n")
+	got1 := ctxList[0].HighlightText("here")
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	exp2 := strings.Join([]string{
+		"   1:     aaaa + bbb",
+		"               ^",
+		"               here",
+	}, "\n")
+	got2 := ctxList[1].HighlightText("here")
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	exp3 := strings.Join([]string{
+		"   1:     aaaa + bbb",
+		"                 ^^^",
+		"                 here",
+	}, "\n")
+	got3 := ctxList[2].HighlightText("here")
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+
+	exp4 := strings.Join([]string{
+		"   2:   ccc",
+		"        ^^^",
+		"        here",
+	}, "\n")
+	got4 := ctxList[3].HighlightText("here")
+	if got4 != exp4 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp4, got4)
 	}
 }
