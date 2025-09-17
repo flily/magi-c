@@ -65,19 +65,29 @@ func (t *Tokenizer) SkipWhitespace() {
 	}
 }
 
-func (t *Tokenizer) ScanWord() *context.Context {
-	r, _, eof := t.cursor.Rune()
+func (t *Tokenizer) ScanWord(i int) *context.Context {
+	r, _, eof := t.cursor.Peek(i)
 	if eof || !IsValidIdentifierInitialRune(r) {
 		return nil
 	}
 
 	start := t.cursor.State()
 	for IsValidIdentifierRune(r) && !eof {
-		_, _ = t.cursor.NextInLine()
-		r, _, eof = t.cursor.Rune()
+		r, eol, eof := t.cursor.Peek(i)
+		if eol || eof {
+			break
+		}
+
+		if !IsValidIdentifierRune(r) {
+			break
+		}
+
+		i++
 	}
 
-	return t.cursor.Finish(start)
+	finish := t.cursor.PeekState(i)
+	t.cursor.SetState(finish)
+	return t.cursor.FinishWith(start, finish)
 }
 
 func (t *Tokenizer) ScanFixedString(s string) *context.Context {
@@ -102,7 +112,7 @@ func (t *Tokenizer) ScanToken() *context.Context {
 	}
 
 	if IsValidIdentifierInitialRune(r) {
-		return t.ScanWord()
+		return t.ScanWord(0)
 	}
 
 	if IsValidSymbolRune(r) {
