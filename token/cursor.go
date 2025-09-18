@@ -210,6 +210,13 @@ func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) *context.Co
 	return line.Mark(begin.Column, finish.Column)
 }
 
+func (c *Cursor) FinishTo(offset int) *context.Context {
+	begin := c.State()
+	finish := c.PeekState(offset)
+	c.SetState(finish)
+	return c.FinishWith(begin, finish)
+}
+
 func (c *Cursor) Finish(begin *CursorState) *context.Context {
 	current := c.State()
 	return c.FinishWith(begin, current)
