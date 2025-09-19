@@ -1,8 +1,9 @@
-package token
+package tokenizer
 
 import (
 	"os"
 
+	"github.com/flily/magi-c/ast"
 	"github.com/flily/magi-c/context"
 )
 
@@ -95,7 +96,7 @@ func (t *Tokenizer) ScanFixedString(s string) *context.Context {
 }
 
 func (t *Tokenizer) ScanSymbol() *context.Context {
-	for _, op := range operatorList {
+	for _, op := range ast.OperatorList {
 		ctx := t.cursor.NextString(op)
 		if ctx != nil {
 			return ctx

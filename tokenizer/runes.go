@@ -1,4 +1,4 @@
-package token
+package tokenizer
 
 func IsWhitespace(r rune) bool {
 	return r == ' ' || r == '\t' || r == '\n' || r == '\r'

@@ -1,6 +1,6 @@
-package token
+package ast
 
-var operatorList = []string{}
+var OperatorList = []string{}
 
 func initOperatorList() {
 	buckets := map[int][]string{}
@@ -16,7 +16,7 @@ func initOperatorList() {
 
 	for i := 10; i >= 1; i-- {
 		if ops, found := buckets[i]; found {
-			operatorList = append(operatorList, ops...)
+			OperatorList = append(OperatorList, ops...)
 		}
 	}
 }
