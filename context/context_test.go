@@ -26,6 +26,25 @@ func createTestFile1() *FileContext {
 	return file
 }
 
+func TestContextContentWithEmptyHighlight(t *testing.T) {
+	fd := createTestFile1()
+
+	line := fd.LineContext(3)
+	ctx := line.ToContext()
+
+	got := ctx.Content()
+	expected := ""
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+
+	ctx0 := &Context{}
+	got0 := ctx0.Content()
+	if got0 != "" {
+		t.Errorf("expected empty content, got:\n%s", got0)
+	}
+}
+
 func TestContextHighlightText(t *testing.T) {
 	fd := createTestFile1()
 
@@ -47,6 +66,29 @@ func TestContextHighlightText(t *testing.T) {
 		"   6:   ut enim ad minim veniam",
 	}, "\n")
 
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+
+	expRow, expCol := 3, 14
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
+}
+
+func TestContextContent(t *testing.T) {
+	fd := createTestFile1()
+
+	line := fd.LineContext(3)
+	// 0         1         2         3         4
+	// 0    5    0    5    0    5    0    5    0
+	// sed do eiusmod tempor incididunt
+	ctx := line.Mark(7, 14)
+	ctx.Load(2, 2)
+
+	got := ctx.Content()
+	expected := "eiusmod"
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
@@ -83,6 +125,35 @@ func TestContextHighlightTextMultipleParts1(t *testing.T) {
 		"   5:   ut labore et dolore magna aliqua",
 		"   6:   ut enim ad minim veniam",
 	}, "\n")
+
+	if got != expected {
+		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+
+	expRow, expCol := 3, 21
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
+}
+
+func TestContextContentMultipleParts1(t *testing.T) {
+	fd := createTestFile1()
+
+	line1 := fd.LineContext(3)
+	// 0         1         2         3         4
+	// 0    5    0    5    0    5    0    5    0
+	// sed do eiusmod tempor incididunt
+	ctx1 := line1.Mark(7, 14)
+
+	line2 := fd.LineContext(3)
+	ctx2 := line2.Mark(15, 21)
+
+	ctx := ctx1.Join(ctx2)
+	ctx.Load(2, 2)
+
+	got := ctx.Content()
+	expected := "eiusmod"
 
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)

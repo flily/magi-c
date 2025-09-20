@@ -140,6 +140,14 @@ func (c *Context) Last() (int, int) {
 	return line, column
 }
 
+func (c *Context) Content() string {
+	if len(c.Lines) <= 0 {
+		return ""
+	}
+
+	return c.Lines[0].HighlightContent()
+}
+
 func Join(ctxs ...*Context) *Context {
 	if len(ctxs) == 0 {
 		return nil

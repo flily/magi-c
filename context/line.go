@@ -223,6 +223,15 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 	return highlight + message
 }
 
+func (l *LineContext) HighlightContent() string {
+	if len(l.Highlights) <= 0 {
+		return ""
+	}
+
+	h := l.Highlights[0]
+	return string(l.Content.Content[h.Start:h.End])
+}
+
 func (l *LineContext) HighlighText(format string, args ...any) string {
 	return l.HighlighTextWith(DefaultIndicator, format, args...)
 }
