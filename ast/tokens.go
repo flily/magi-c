@@ -379,3 +379,7 @@ func (t *Token) Type() TokenType {
 func (t *Token) Context() *context.Context {
 	return t.ctx
 }
+
+func (t *Token) HighlightText(s string) string {
+	return t.ctx.HighlightText(s)
+}

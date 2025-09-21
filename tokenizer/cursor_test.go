@@ -273,7 +273,7 @@ func TestCursorMark(t *testing.T) {
 		}
 	}
 
-	ctx := cursor.Finish(s)
+	content, ctx := cursor.Finish(s)
 	got := ctx.HighlightText("here")
 	expected := strings.Join([]string{
 		"   1:   lorem ipsum dolor sit amet",
@@ -283,6 +283,10 @@ func TestCursorMark(t *testing.T) {
 
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
+	}
+
+	if content != "lorem" {
+		t.Errorf("expected content 'lorem', got '%s'", content)
 	}
 }
 

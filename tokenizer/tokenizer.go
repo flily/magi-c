@@ -66,7 +66,7 @@ func (t *Tokenizer) SkipWhitespace() {
 	}
 }
 
-func (t *Tokenizer) ScanWord(i int) *context.Context {
+func (t *Tokenizer) ScanWord(i int) *ast.Token {
 	r, _, eof := t.cursor.Peek(i)
 	if eof || !IsValidIdentifierInitialRune(r) {
 		return nil
@@ -88,25 +88,26 @@ func (t *Tokenizer) ScanWord(i int) *context.Context {
 
 	finish := t.cursor.PeekState(i)
 	t.cursor.SetState(finish)
-	return t.cursor.FinishWith(start, finish)
+	content, ctx := t.cursor.FinishWith(start, finish)
+	return ast.NewToken(ast.GetKeywordTokenType(content), ctx)
 }
 
 func (t *Tokenizer) ScanFixedString(s string) *context.Context {
 	return t.cursor.NextString(s)
 }
 
-func (t *Tokenizer) ScanSymbol() *context.Context {
+func (t *Tokenizer) ScanSymbol() *ast.Token {
 	for _, op := range ast.OperatorList {
 		ctx := t.cursor.NextString(op)
 		if ctx != nil {
-			return ctx
+			return ast.NewToken(ast.GetOperatorTokenType(op), ctx)
 		}
 	}
 
 	return nil
 }
 
-func (t *Tokenizer) ScanToken() *context.Context {
+func (t *Tokenizer) ScanToken() *ast.Token {
 	r, _, eof := t.cursor.Rune()
 	if eof {
 		return nil

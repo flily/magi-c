@@ -87,9 +87,10 @@ func (l *LineContent) MarkLine(start int, end int) *LineContext {
 	return ctx.MarkLine(start, end)
 }
 
-func (l *LineContent) Mark(start int, end int) *Context {
+func (l *LineContent) Mark(start int, end int) (string, *Context) {
 	lctx := l.MarkLine(start, end)
-	return lctx.ToContext()
+	content := lctx.Content.Content[start:end]
+	return string(content), lctx.ToContext()
 }
 
 type FileContext struct {

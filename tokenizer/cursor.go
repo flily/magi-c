@@ -45,7 +45,8 @@ func (c *Cursor) CurrentChar() *context.Context {
 	current := c.State()
 	next := c.PeekState(1)
 
-	return c.FinishWith(current, next)
+	_, ctx := c.FinishWith(current, next)
+	return ctx
 }
 
 // Rune returns the rune of current position, and EOL and EOF status
@@ -101,7 +102,7 @@ func (c *Cursor) PeekString(s string) *context.Context {
 	}
 
 	finish := c.PeekState(i + 1)
-	ctx := c.FinishWith(begin, finish)
+	_, ctx := c.FinishWith(begin, finish)
 	return ctx
 }
 
@@ -201,7 +202,7 @@ func (c *Cursor) SetState(state *CursorState) {
 	c.CursorState = *state
 }
 
-func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) *context.Context {
+func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *context.Context) {
 	if begin.Line != c.Line || finish.Line != c.Line {
 		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", begin.Line, c.Line))
 	}
@@ -210,14 +211,14 @@ func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) *context.Co
 	return line.Mark(begin.Column, finish.Column)
 }
 
-func (c *Cursor) FinishTo(offset int) *context.Context {
+func (c *Cursor) FinishTo(offset int) (string, *context.Context) {
 	begin := c.State()
 	finish := c.PeekState(offset)
 	c.SetState(finish)
 	return c.FinishWith(begin, finish)
 }
 
-func (c *Cursor) Finish(begin *CursorState) *context.Context {
+func (c *Cursor) Finish(begin *CursorState) (string, *context.Context) {
 	current := c.State()
 	return c.FinishWith(begin, current)
 }

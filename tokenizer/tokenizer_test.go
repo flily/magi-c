@@ -5,7 +5,7 @@ import (
 
 	"strings"
 
-	"github.com/flily/magi-c/context"
+	"github.com/flily/magi-c/ast"
 )
 
 func TestTokenizerSkipWhitespace(t *testing.T) {
@@ -227,7 +227,7 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	ctxList := []*context.Context{}
+	ctxList := []*ast.Token{}
 	for i := range 3 {
 		tokenizer.SkipWhitespace()
 		tok := tokenizer.ScanToken()
@@ -277,7 +277,7 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	ctxList := []*context.Context{}
+	ctxList := []*ast.Token{}
 	for i := range 4 {
 		tokenizer.SkipWhitespace()
 		tok := tokenizer.ScanToken()
