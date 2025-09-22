@@ -89,7 +89,11 @@ func (t *Tokenizer) ScanWord(i int) *ast.Token {
 	finish := t.cursor.PeekState(i)
 	t.cursor.SetState(finish)
 	content, ctx := t.cursor.FinishWith(start, finish)
-	return ast.NewToken(ast.GetKeywordTokenType(content), ctx)
+	tokenType:= ast.GetKeywordTokenType(content)
+	if tokenType == ast.Invalid {
+		tokenType = ast.IdentifierName
+	}
+	return ast.NewToken(tokenType, ctx)
 }
 
 func (t *Tokenizer) ScanFixedString(s string) *context.Context {

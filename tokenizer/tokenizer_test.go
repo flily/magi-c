@@ -298,6 +298,10 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
 	}
 
+	if ctxList[0].Type() != ast.IdentifierName {
+		t.Errorf("expected token type %s, got %s", ast.IdentifierName, ctxList[0].Type())
+	}
+
 	exp2 := strings.Join([]string{
 		"   1:     aaaa + bbb",
 		"               ^",
@@ -306,6 +310,10 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 	got2 := ctxList[1].HighlightText("here")
 	if got2 != exp2 {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	if ctxList[1].Type() != ast.Plus {
+		t.Errorf("expected token type %s, got %s", ast.Plus, ctxList[1].Type())
 	}
 
 	exp3 := strings.Join([]string{
@@ -318,6 +326,10 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
 	}
 
+	if ctxList[2].Type() != ast.IdentifierName {
+		t.Errorf("expected token type %s, got %s", ast.IdentifierName, ctxList[2].Type())
+	}
+
 	exp4 := strings.Join([]string{
 		"   2:   ccc",
 		"        ^^^",
@@ -326,5 +338,9 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 	got4 := ctxList[3].HighlightText("here")
 	if got4 != exp4 {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp4, got4)
+	}
+
+	if ctxList[3].Type() != ast.IdentifierName {
+		t.Errorf("expected token type %s, got %s", ast.IdentifierName, ctxList[3].Type())
 	}
 }

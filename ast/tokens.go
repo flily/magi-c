@@ -18,6 +18,7 @@ const (
 	Integer
 	Float
 	String
+	IdentifierName
 	literalEnd
 
 	keywordBegin
