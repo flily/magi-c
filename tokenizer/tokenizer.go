@@ -88,8 +88,9 @@ func (t *Tokenizer) ScanWord(i int) *ast.Token {
 
 	finish := t.cursor.PeekState(i)
 	t.cursor.SetState(finish)
+
 	content, ctx := t.cursor.FinishWith(start, finish)
-	tokenType:= ast.GetKeywordTokenType(content)
+	tokenType := ast.GetKeywordTokenType(content)
 	if tokenType == ast.Invalid {
 		tokenType = ast.IdentifierName
 	}
