@@ -18,9 +18,12 @@ func NewStringLiteral(ctx *context.Context, value string) *StringLiteral {
 	return l
 }
 
+func (l *StringLiteral) Type() TokenType {
+	return String
+}
+
 type IntegerLiteral struct {
 	TerminalNode
-	Type  BaseType
 	Sign  int
 	Value uint64
 }
@@ -33,6 +36,10 @@ func NewIntegerLiteral(ctx *context.Context, sign int, value uint64) *IntegerLit
 	}
 
 	return l
+}
+
+func (l *IntegerLiteral) Type() TokenType {
+	return Integer
 }
 
 type FloatLiteral struct {
@@ -51,6 +58,10 @@ func NewFloatLiteral(ctx *context.Context, sign int, value float64) *FloatLitera
 	return l
 }
 
+func (l *FloatLiteral) Type() TokenType {
+	return Float
+}
+
 type Identifier struct {
 	TerminalNode
 	Name string
@@ -63,4 +74,26 @@ func NewIdentifier(ctx *context.Context, name string) *Identifier {
 	}
 
 	return id
+}
+
+func (i *Identifier) Type() TokenType {
+	return IdentifierName
+}
+
+type TerminalToken struct {
+	TerminalNode
+	Token TokenType
+}
+
+func NewTerminalToken(ctx *context.Context, token TokenType) *TerminalToken {
+	t := &TerminalToken{
+		TerminalNode: NewTerminalNode(ctx),
+		Token:        token,
+	}
+
+	return t
+}
+
+func (t *TerminalToken) Type() TokenType {
+	return t.Token
 }

@@ -7,6 +7,8 @@ import (
 type Node interface {
 	Terminal() bool
 	Context() *context.Context
+	Type() TokenType
+	HighlightText(message string, args ...any) string
 }
 
 type nodeContext struct {
@@ -15,6 +17,10 @@ type nodeContext struct {
 
 func (n *nodeContext) Context() *context.Context {
 	return n.context
+}
+
+func (n *nodeContext) HighlightText(message string, args ...any) string {
+	return n.context.HighlightText(message, args...)
 }
 
 type TerminalNode struct {

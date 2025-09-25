@@ -227,7 +227,7 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	ctxList := []*ast.Token{}
+	ctxList := []ast.Node{}
 	for i := range 3 {
 		tokenizer.SkipWhitespace()
 		tok := tokenizer.ScanToken()
@@ -277,7 +277,7 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	ctxList := []*ast.Token{}
+	ctxList := []ast.Node{}
 	for i := range 4 {
 		tokenizer.SkipWhitespace()
 		tok := tokenizer.ScanToken()
