@@ -66,10 +66,10 @@ func (t *Tokenizer) SkipWhitespace() {
 	}
 }
 
-func (t *Tokenizer) ScanWord(i int) ast.Node {
+func (t *Tokenizer) ScanWord(i int) (ast.Node, error) {
 	r, _, eof := t.cursor.Peek(i)
 	if eof || !IsValidIdentifierInitialRune(r) {
-		return nil
+		return nil, nil
 	}
 
 	start := t.cursor.State()
@@ -93,32 +93,32 @@ func (t *Tokenizer) ScanWord(i int) ast.Node {
 	tokenType := ast.GetKeywordTokenType(content)
 
 	if tokenType == ast.Invalid {
-		return ast.NewIdentifier(ctx, content)
+		return ast.NewIdentifier(ctx, content), nil
 	}
 
-	return ast.NewTerminalToken(ctx, tokenType)
+	return ast.NewTerminalToken(ctx, tokenType), nil
 }
 
 func (t *Tokenizer) ScanFixedString(s string) *context.Context {
 	return t.cursor.NextString(s)
 }
 
-func (t *Tokenizer) ScanSymbol() ast.Node {
+func (t *Tokenizer) ScanSymbol() (ast.Node, error) {
 	for _, op := range ast.OperatorList {
 		ctx := t.cursor.NextString(op)
 		if ctx != nil {
 			tokenType := ast.GetOperatorTokenType(op)
-			return ast.NewTerminalToken(ctx, tokenType)
+			return ast.NewTerminalToken(ctx, tokenType), nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
-func (t *Tokenizer) ScanToken() ast.Node {
+func (t *Tokenizer) ScanToken() (ast.Node, error) {
 	r, _, eof := t.cursor.Rune()
 	if eof {
-		return nil
+		return nil, nil
 	}
 
 	if IsValidIdentifierInitialRune(r) {
@@ -129,5 +129,5 @@ func (t *Tokenizer) ScanToken() ast.Node {
 		return t.ScanSymbol()
 	}
 
-	return nil
+	return nil, nil
 }

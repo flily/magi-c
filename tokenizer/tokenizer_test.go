@@ -78,9 +78,13 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
 	}
 
-	word := tokenizer.ScanWord(0)
+	word, err := tokenizer.ScanWord(0)
 	if word == nil {
 		t.Fatalf("expected a word token, got nil")
+	}
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 
 	expWord := strings.Join([]string{
@@ -194,12 +198,16 @@ func TestTokenizerScanSymbol(t *testing.T) {
 		}, "\n"))
 
 		tokenizer := NewTokenizerFrom(buffer, "test.txt")
-		p1 := tokenizer.ScanSymbol()
+		p1, err := tokenizer.ScanSymbol()
 		exp1 := strings.Join([]string{
 			"   1:   ====================",
 			"        ^^^",
 			"        here",
 		}, "\n")
+
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 
 		got1 := p1.HighlightText("here")
 		if got1 != exp1 {
@@ -213,7 +221,11 @@ func TestTokenizerScanSymbol(t *testing.T) {
 		}, "\n"))
 
 		tokenizer := NewTokenizerFrom(buffer, "test.txt")
-		p1 := tokenizer.ScanSymbol()
+		p1, err := tokenizer.ScanSymbol()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
 		if p1 != nil {
 			t.Errorf("expected nil, got %v", p1)
 		}
@@ -230,7 +242,11 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 	ctxList := []ast.Node{}
 	for i := range 3 {
 		tokenizer.SkipWhitespace()
-		tok := tokenizer.ScanToken()
+		tok, err := tokenizer.ScanToken()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
 		if tok == nil {
 			t.Fatalf("[%d] expected a token, got nil", i)
 		}
@@ -280,7 +296,11 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 	ctxList := []ast.Node{}
 	for i := range 4 {
 		tokenizer.SkipWhitespace()
-		tok := tokenizer.ScanToken()
+		tok, err := tokenizer.ScanToken()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
 		if tok == nil {
 			t.Fatalf("[%d] expected a token, got nil", i)
 		}
