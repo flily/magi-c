@@ -24,14 +24,12 @@ func (l *StringLiteral) Type() TokenType {
 
 type IntegerLiteral struct {
 	TerminalNode
-	Sign  int
 	Value uint64
 }
 
-func NewIntegerLiteral(ctx *context.Context, sign int, value uint64) *IntegerLiteral {
+func NewIntegerLiteral(ctx *context.Context, value uint64) *IntegerLiteral {
 	l := &IntegerLiteral{
 		TerminalNode: NewTerminalNode(ctx),
-		Sign:         sign,
 		Value:        value,
 	}
 
@@ -44,14 +42,12 @@ func (l *IntegerLiteral) Type() TokenType {
 
 type FloatLiteral struct {
 	TerminalNode
-	Sign  int
 	Value float64
 }
 
-func NewFloatLiteral(ctx *context.Context, sign int, value float64) *FloatLiteral {
+func NewFloatLiteral(ctx *context.Context, value float64) *FloatLiteral {
 	l := &FloatLiteral{
 		TerminalNode: NewTerminalNode(ctx),
-		Sign:         sign,
 		Value:        value,
 	}
 

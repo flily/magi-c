@@ -40,6 +40,18 @@ func IsValidIdentifierInitialRune(r rune) bool {
 	return false
 }
 
+func IsValidNumberInitialRune(r rune) bool {
+	if '0' <= r && r <= '9' {
+		return true
+	}
+
+	if r == '.' {
+		return true
+	}
+
+	return false
+}
+
 var validSymbolInitialRunes = []bool{
 	'!':  true,
 	'"':  true,
