@@ -429,3 +429,68 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[2].Type())
 	}
 }
+
+func TestTokenizerScanTokenOctalNumber(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  01234 + 0777",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	ctxList := []ast.Node{}
+	for i := range 3 {
+		tokenizer.SkipWhitespace()
+		tok, err := tokenizer.ScanToken()
+		if err != nil {
+			t.Fatalf("unexpected error:\n%v", err)
+		}
+
+		if tok == nil {
+			t.Fatalf("[%d] expected a token, got nil", i)
+		}
+
+		ctxList = append(ctxList, tok)
+	}
+
+	exp1 := strings.Join([]string{
+		"   1:     01234 + 0777",
+		"          ^^^^^",
+		"          here",
+	}, "\n")
+	got1 := ctxList[0].HighlightText("here")
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	if ctxList[0].Type() != ast.Integer {
+		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
+	}
+
+	exp2 := strings.Join([]string{
+		"   1:     01234 + 0777",
+		"                ^",
+		"                here",
+	}, "\n")
+	got2 := ctxList[1].HighlightText("here")
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	if ctxList[1].Type() != ast.Plus {
+		t.Errorf("expected token type %s, got %s", ast.Plus, ctxList[1].Type())
+	}
+
+	exp3 := strings.Join([]string{
+		"   1:     01234 + 0777",
+		"                  ^^^^",
+		"                  here",
+	}, "\n")
+	got3 := ctxList[2].HighlightText("here")
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+
+	if ctxList[2].Type() != ast.Integer {
+		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[2].Type())
+	}
+}

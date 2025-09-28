@@ -153,7 +153,7 @@ func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
 		i++
 	}
 
-	if i > 18 {
+	if i > 2+16 {
 		state := t.cursor.PeekState(i)
 		s, ctx := t.cursor.FinishWith(begin, state)
 		return nil, ast.NewError(ctx, "hexadecimal number '%s' is too large", s)
@@ -165,9 +165,57 @@ func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
 	return ast.NewIntegerLiteral(ctx, v), nil
 }
 
+func (t *Tokenizer) scanOctalNumber() (ast.Node, error) {
+	i := 1 // skip "0"
+	begin := t.cursor.State()
+	v := uint64(0)
+	for {
+		r, eol, eof := t.cursor.Peek(i)
+		if eol || eof {
+			if i > 1 {
+				break
+			}
+
+			// "0" only
+			state := t.cursor.PeekState(i)
+			s, ctx := t.cursor.FinishWith(begin, state)
+			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+		}
+
+		if '0' <= r && r <= '7' {
+			v = (v << 3) | uint64(r-'0')
+
+		} else if r == '8' || r == '9' || ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
+			state := t.cursor.PeekState(i)
+			s, ctx := t.cursor.FinishWith(begin, state)
+			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+
+		} else {
+			break
+		}
+
+		i++
+	}
+
+	if i > 1+21 {
+		state := t.cursor.PeekState(i)
+		s, ctx := t.cursor.FinishWith(begin, state)
+		return nil, ast.NewError(ctx, "octal number '%s' is too large", s)
+	}
+
+	state := t.cursor.PeekState(i)
+	_, ctx := t.cursor.FinishWith(begin, state)
+	t.cursor.SetState(state)
+	return ast.NewIntegerLiteral(ctx, v), nil
+}
+
 func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 	if ctx := t.cursor.PeekString("0x"); ctx != nil {
 		return t.scanHexadecimalNumber()
+	}
+
+	if ctx := t.cursor.PeekString("0"); ctx != nil {
+		return t.scanOctalNumber()
 	}
 
 	return nil, nil
