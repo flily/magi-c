@@ -209,16 +209,74 @@ func (t *Tokenizer) scanOctalNumber() (ast.Node, error) {
 	return ast.NewIntegerLiteral(ctx, v), nil
 }
 
+func (t *Tokenizer) scanDecimalInteger() (ast.Node, error) {
+	i := 0
+	begin := t.cursor.State()
+	v := uint64(0)
+	for {
+		r, eol, eof := t.cursor.Peek(i)
+		if eol || eof {
+			break
+		}
+
+		if '0' <= r && r <= '9' {
+			v = v*10 + uint64(r-'0')
+
+		} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
+			state := t.cursor.PeekState(i)
+			s, ctx := t.cursor.FinishWith(begin, state)
+			return nil, ast.NewError(ctx, "invalid decimal number '%s'", s)
+
+		} else {
+			break
+		}
+
+		i++
+	}
+
+	if i > 20 {
+		state := t.cursor.PeekState(i)
+		s, ctx := t.cursor.FinishWith(begin, state)
+		return nil, ast.NewError(ctx, "decimal number '%s' is too large", s)
+	}
+
+	state := t.cursor.PeekState(i)
+	_, ctx := t.cursor.FinishWith(begin, state)
+	t.cursor.SetState(state)
+	return ast.NewIntegerLiteral(ctx, v), nil
+}
+
 func (t *Tokenizer) ScanNumber() (ast.Node, error) {
-	if ctx := t.cursor.PeekString("0x"); ctx != nil {
-		return t.scanHexadecimalNumber()
-	}
+	r0, _, _ := t.cursor.Rune()
+	begin := t.cursor.State()
 
-	if ctx := t.cursor.PeekString("0"); ctx != nil {
-		return t.scanOctalNumber()
-	}
+	if r0 == '0' {
+		r1, eol, eof := t.cursor.Peek(1)
+		if eol || eof {
+			_, ctx := t.cursor.Finish(begin)
+			return ast.NewIntegerLiteral(ctx, 0), nil
+		}
 
-	return nil, nil
+		if r1 == 'x' {
+			return t.scanHexadecimalNumber()
+
+		} else if '0' <= r1 && r1 <= '7' {
+			return t.scanOctalNumber()
+
+		} else if r1 == '8' || r1 == '9' || ('a' <= r1 && r1 <= 'z') || ('A' <= r1 && r1 <= 'Z') {
+			// r1 == 'x' is excluded above
+			state := t.cursor.PeekState(2)
+			s, ctx := t.cursor.FinishWith(begin, state)
+			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+
+		} else {
+			_, ctx := t.cursor.Finish(begin)
+			return ast.NewIntegerLiteral(ctx, 0), nil
+		}
+
+	} else {
+		return t.scanDecimalInteger()
+	}
 }
 
 func (t *Tokenizer) ScanToken() (ast.Node, error) {
