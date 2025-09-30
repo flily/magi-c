@@ -1,6 +1,7 @@
 package tokenizer
 
 import (
+	"math"
 	"os"
 
 	"github.com/flily/magi-c/ast"
@@ -227,6 +228,10 @@ func (t *Tokenizer) scanDecimalInteger() (ast.Node, error) {
 			s, ctx := t.cursor.FinishWith(begin, state)
 			return nil, ast.NewError(ctx, "invalid decimal number '%s'", s)
 
+		} else if r == '.' || r == 'e' || r == 'E' {
+			// float
+			return t.scanDecimalFloat()
+
 		} else {
 			break
 		}
@@ -244,6 +249,106 @@ func (t *Tokenizer) scanDecimalInteger() (ast.Node, error) {
 	_, ctx := t.cursor.FinishWith(begin, state)
 	t.cursor.SetState(state)
 	return ast.NewIntegerLiteral(ctx, v), nil
+}
+
+func (t *Tokenizer) scanDecimalFloat() (ast.Node, error) {
+	i := 0
+	begin := t.cursor.State()
+	dotIndex, expIndex := -1, -1
+	negExp := false
+	integer, fraction, exponent := uint64(0), uint64(0), int(0)
+	fractionExp := 1
+	for {
+		r, eol, eof := t.cursor.Peek(i)
+		if eol || eof {
+			// i MUST NOT be 0 here
+			break
+		}
+
+		if dotIndex < 0 && expIndex < 0 {
+			// integer part
+			if '0' <= r && r <= '9' {
+				integer = integer*10 + uint64(r-'0')
+
+			} else if r == '.' {
+				dotIndex = i
+
+			} else if r == 'e' || r == 'E' {
+				expIndex = i
+
+			} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
+				state := t.cursor.PeekState(i)
+				s, ctx := t.cursor.FinishWith(begin, state)
+				return nil, ast.NewError(ctx, "invalid decimal float '%s'", s)
+
+			} else {
+				break
+			}
+
+		} else if dotIndex >= 0 && expIndex < 0 {
+			// fraction part
+			if '0' <= r && r <= '9' {
+				fraction = fraction*10 + uint64(r-'0')
+				fractionExp *= 10
+
+			} else if r == 'e' || r == 'E' {
+				expIndex = i
+
+			} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
+				state := t.cursor.PeekState(i)
+				s, ctx := t.cursor.FinishWith(begin, state)
+				return nil, ast.NewError(ctx, "invalid decimal float '%s'", s)
+
+			} else {
+				break
+			}
+
+		} else if expIndex > 0 {
+			// exponent part
+			if '0' <= r && r <= '9' {
+				exponent = (exponent * 10) + int(r-'0')
+
+			} else if (i == expIndex+1) && (r == '+' || r == '-') {
+				if r == '-' {
+					negExp = true
+				}
+
+			} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
+				state := t.cursor.PeekState(i)
+				s, ctx := t.cursor.FinishWith(begin, state)
+				return nil, ast.NewError(ctx, "invalid decimal float '%s'", s)
+
+			} else {
+				break
+			}
+		}
+
+		i++
+	}
+
+	state := t.cursor.PeekState(i)
+	_, ctx := t.cursor.FinishWith(begin, state)
+	t.cursor.SetState(state)
+
+	if dotIndex < 0 && expIndex < 0 {
+		// integer only
+		return ast.NewIntegerLiteral(ctx, integer), nil
+
+	} else if dotIndex >= 0 && expIndex < 0 {
+		// fraction only
+		fraction := float64(fraction) / float64(fractionExp)
+		return ast.NewFloatLiteral(ctx, float64(integer)+fraction), nil
+
+	} else {
+		fraction := float64(fraction) / float64(fractionExp)
+		base := float64(integer) + fraction
+
+		if negExp {
+			exponent = -exponent
+		}
+
+		return ast.NewFloatLiteral(ctx, math.Pow10(int(exponent))*base), nil
+	}
 }
 
 func (t *Tokenizer) ScanNumber() (ast.Node, error) {
@@ -268,6 +373,9 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 			state := t.cursor.PeekState(2)
 			s, ctx := t.cursor.FinishWith(begin, state)
 			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+
+		} else if r1 == '.' || r1 == 'e' || r1 == 'E' {
+			return t.scanDecimalFloat()
 
 		} else {
 			_, ctx := t.cursor.Finish(begin)

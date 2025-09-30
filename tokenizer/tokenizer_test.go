@@ -559,3 +559,96 @@ func TestTokenizerScanDecimalInteger(t *testing.T) {
 		t.Errorf("expected token Type %s, got %s", ast.Integer, ctxList[2].Type())
 	}
 }
+
+func TestTokenizerScanFloatLiteral(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	ctxList := []ast.Node{}
+	for i := range 9 {
+		tokenizer.SkipWhitespace()
+		tok, err := tokenizer.ScanToken()
+		if err != nil {
+			t.Fatalf("unexpected error:\n%v", err)
+		}
+
+		if tok == nil {
+			t.Fatalf("[%d] expected a token, got nil", i)
+		}
+
+		ctxList = append(ctxList, tok)
+	}
+
+	exp1 := strings.Join([]string{
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"          ^^^^^^^^^",
+		"          here",
+	}, "\n")
+	got1 := ctxList[0].HighlightText("here")
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	if ctxList[0].Type() != ast.Float {
+		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[0].Type())
+	}
+
+	exp3 := strings.Join([]string{
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"                      ^^^^^",
+		"                      here",
+	}, "\n")
+	got3 := ctxList[2].HighlightText("here")
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+
+	if ctxList[2].Type() != ast.Float {
+		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[2].Type())
+	}
+
+	exp5 := strings.Join([]string{
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"                              ^^^^^^",
+		"                              here",
+	}, "\n")
+	got5 := ctxList[4].HighlightText("here")
+	if got5 != exp5 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp5, got5)
+	}
+
+	if ctxList[4].Type() != ast.Float {
+		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[4].Type())
+	}
+
+	exp7 := strings.Join([]string{
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"                                       ^^^^^^",
+		"                                       here",
+	}, "\n")
+	got7 := ctxList[6].HighlightText("here")
+	if got7 != exp7 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp7, got7)
+	}
+
+	if ctxList[6].Type() != ast.Float {
+		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[6].Type())
+	}
+
+	exp9 := strings.Join([]string{
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"                                                ^^^^^^",
+		"                                                here",
+	}, "\n")
+	got9 := ctxList[8].HighlightText("here")
+	if got9 != exp9 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp9, got9)
+	}
+
+	if ctxList[8].Type() != ast.Float {
+		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[8].Type())
+	}
+}
