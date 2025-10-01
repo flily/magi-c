@@ -210,48 +210,7 @@ func (t *Tokenizer) scanOctalNumber() (ast.Node, error) {
 	return ast.NewIntegerLiteral(ctx, v), nil
 }
 
-func (t *Tokenizer) scanDecimalInteger() (ast.Node, error) {
-	i := 0
-	begin := t.cursor.State()
-	v := uint64(0)
-	for {
-		r, eol, eof := t.cursor.Peek(i)
-		if eol || eof {
-			break
-		}
-
-		if '0' <= r && r <= '9' {
-			v = v*10 + uint64(r-'0')
-
-		} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
-			state := t.cursor.PeekState(i)
-			s, ctx := t.cursor.FinishWith(begin, state)
-			return nil, ast.NewError(ctx, "invalid decimal number '%s'", s)
-
-		} else if r == '.' || r == 'e' || r == 'E' {
-			// float
-			return t.scanDecimalFloat()
-
-		} else {
-			break
-		}
-
-		i++
-	}
-
-	if i > 20 {
-		state := t.cursor.PeekState(i)
-		s, ctx := t.cursor.FinishWith(begin, state)
-		return nil, ast.NewError(ctx, "decimal number '%s' is too large", s)
-	}
-
-	state := t.cursor.PeekState(i)
-	_, ctx := t.cursor.FinishWith(begin, state)
-	t.cursor.SetState(state)
-	return ast.NewIntegerLiteral(ctx, v), nil
-}
-
-func (t *Tokenizer) scanDecimalFloat() (ast.Node, error) {
+func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 	i := 0
 	begin := t.cursor.State()
 	dotIndex, expIndex := -1, -1
@@ -368,22 +327,12 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 		} else if '0' <= r1 && r1 <= '7' {
 			return t.scanOctalNumber()
 
-		} else if r1 == '8' || r1 == '9' || ('a' <= r1 && r1 <= 'z') || ('A' <= r1 && r1 <= 'Z') {
-			// r1 == 'x' is excluded above
-			state := t.cursor.PeekState(2)
-			s, ctx := t.cursor.FinishWith(begin, state)
-			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
-
-		} else if r1 == '.' || r1 == 'e' || r1 == 'E' {
-			return t.scanDecimalFloat()
-
 		} else {
-			_, ctx := t.cursor.Finish(begin)
-			return ast.NewIntegerLiteral(ctx, 0), nil
+			return t.scanDecimalNumber()
 		}
 
 	} else {
-		return t.scanDecimalInteger()
+		return t.scanDecimalNumber()
 	}
 }
 
