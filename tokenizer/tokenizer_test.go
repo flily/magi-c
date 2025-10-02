@@ -401,6 +401,15 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
 	}
 
+	num1, ok := ctxList[0].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[0])
+	}
+
+	if num1.Value != 0x1234 {
+		t.Errorf("expected integer value 0x1234, got %d", num1.Value)
+	}
+
 	exp2 := strings.Join([]string{
 		"   1:     0x1234 + 0xBEEF",
 		"                 ^",
@@ -427,6 +436,15 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 
 	if ctxList[2].Type() != ast.Integer {
 		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[2].Type())
+	}
+
+	num3, ok := ctxList[2].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[2])
+	}
+
+	if num3.Value != 0xbeef {
+		t.Errorf("expected integer value 0xBEEF, got %d", num3.Value)
 	}
 }
 
@@ -466,6 +484,15 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
 	}
 
+	num1, ok := ctxList[0].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[0])
+	}
+
+	if num1.Value != 01234 {
+		t.Errorf("expected integer value 01234, got %d", num1.Value)
+	}
+
 	exp2 := strings.Join([]string{
 		"   1:     01234 + 0777",
 		"                ^",
@@ -492,6 +519,15 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 
 	if ctxList[2].Type() != ast.Integer {
 		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[2].Type())
+	}
+
+	num3, ok := ctxList[2].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[2])
+	}
+
+	if num3.Value != 0777 {
+		t.Errorf("expected integer value 0777, got %d", num3.Value)
 	}
 }
 
@@ -531,6 +567,15 @@ func TestTokenizerScanDecimalInteger(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
 	}
 
+	num1, ok := ctxList[0].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[0])
+	}
+
+	if num1.Value != 1234 {
+		t.Errorf("expected integer value 1234, got %d", num1.Value)
+	}
+
 	exp2 := strings.Join([]string{
 		"   1:     1234 + 5678",
 		"               ^",
@@ -558,9 +603,18 @@ func TestTokenizerScanDecimalInteger(t *testing.T) {
 	if ctxList[2].Type() != ast.Integer {
 		t.Errorf("expected token Type %s, got %s", ast.Integer, ctxList[2].Type())
 	}
+
+	num3, ok := ctxList[2].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[2])
+	}
+
+	if num3.Value != 5678 {
+		t.Errorf("expected integer value 5678, got %d", num3.Value)
+	}
 }
 
-func TestTokenizerScanFloatLiteral(t *testing.T) {
+func TestTokenizerScanDecimalFloat(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
 		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
 	}, "\n"))
@@ -596,6 +650,15 @@ func TestTokenizerScanFloatLiteral(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[0].Type())
 	}
 
+	num1, ok := ctxList[0].(*ast.FloatLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.FloatLiteral, got %T", ctxList[0])
+	}
+
+	if num1.Value != 1234.5678 {
+		t.Errorf("expected float value 1234.5678, got %f", num1.Value)
+	}
+
 	exp3 := strings.Join([]string{
 		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
 		"                      ^^^^^",
@@ -608,6 +671,15 @@ func TestTokenizerScanFloatLiteral(t *testing.T) {
 
 	if ctxList[2].Type() != ast.Float {
 		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[2].Type())
+	}
+
+	num3, ok := ctxList[2].(*ast.FloatLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.FloatLiteral, got %T", ctxList[2])
+	}
+
+	if num3.Value != 0.001 {
+		t.Errorf("expected float value 0.001, got %f", num3.Value)
 	}
 
 	exp5 := strings.Join([]string{
@@ -624,6 +696,15 @@ func TestTokenizerScanFloatLiteral(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[4].Type())
 	}
 
+	num5, ok := ctxList[4].(*ast.FloatLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.FloatLiteral, got %T", ctxList[4])
+	}
+
+	if num5.Value != 1.5e10 {
+		t.Errorf("expected float value 1.5e10, got %f", num5.Value)
+	}
+
 	exp7 := strings.Join([]string{
 		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
 		"                                       ^^^^^^",
@@ -638,6 +719,15 @@ func TestTokenizerScanFloatLiteral(t *testing.T) {
 		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[6].Type())
 	}
 
+	num7, ok := ctxList[6].(*ast.FloatLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.FloatLiteral, got %T", ctxList[6])
+	}
+
+	if num7.Value != 2.5e-3 {
+		t.Errorf("expected float value 2.5e-3, got %f", num7.Value)
+	}
+
 	exp9 := strings.Join([]string{
 		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
 		"                                                ^^^^^^",
@@ -650,5 +740,14 @@ func TestTokenizerScanFloatLiteral(t *testing.T) {
 
 	if ctxList[8].Type() != ast.Float {
 		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[8].Type())
+	}
+
+	num9, ok := ctxList[8].(*ast.FloatLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.FloatLiteral, got %T", ctxList[8])
+	}
+
+	if num9.Value != 3.5e2 {
+		t.Errorf("expected float value 3.5e2, got %f", num9.Value)
 	}
 }
