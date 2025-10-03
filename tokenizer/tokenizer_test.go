@@ -367,13 +367,13 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 
 func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
-		"  0x1234 + 0xBEEF",
+		"  0x1234 + 0xBEEF + 0xc0de",
 	}, "\n"))
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
 	ctxList := []ast.Node{}
-	for i := range 3 {
+	for i := range 5 {
 		tokenizer.SkipWhitespace()
 		tok, err := tokenizer.ScanToken()
 		if err != nil {
@@ -388,7 +388,7 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF",
+		"   1:     0x1234 + 0xBEEF + 0xc0de",
 		"          ^^^^^^",
 		"          here",
 	}, "\n")
@@ -411,7 +411,7 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	}
 
 	exp2 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF",
+		"   1:     0x1234 + 0xBEEF + 0xc0de",
 		"                 ^",
 		"                 here",
 	}, "\n")
@@ -425,7 +425,7 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	}
 
 	exp3 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF",
+		"   1:     0x1234 + 0xBEEF + 0xc0de",
 		"                   ^^^^^^",
 		"                   here",
 	}, "\n")
@@ -445,6 +445,113 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 
 	if num3.Value != 0xbeef {
 		t.Errorf("expected integer value 0xBEEF, got %d", num3.Value)
+	}
+
+	exp5 := strings.Join([]string{
+		"   1:     0x1234 + 0xBEEF + 0xc0de",
+		"                            ^^^^^^",
+		"                            here",
+	}, "\n")
+	got5 := ctxList[4].HighlightText("here")
+
+	if got5 != exp5 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp5, got5)
+	}
+
+	if ctxList[4].Type() != ast.Integer {
+		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[4].Type())
+	}
+
+	num5, ok := ctxList[4].(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", ctxList[4])
+	}
+
+	if num5.Value != 0xc0de {
+		t.Errorf("expected integer value 0xc0de, got %d", num5.Value)
+	}
+}
+
+func TestTokenizerScanTokenHexadecimalNumberErrorNoNumberEOL(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  0x",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     0x",
+		"          ^^",
+		"          invalid hexadecimal number '0x'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestTokenizerScanTokenHexadecimalNumberErrorInvalidFormat(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  0xGHIJ+0xghij",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     0xGHIJ+0xghij",
+		"          ^^^^^^",
+		"          invalid hexadecimal number '0xGHIJ'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestTokenizerScanTokenHexadecimalNumberErrorTooLargeNumber(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  0x01234567890ABCDEF1234 + 0xbeef",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     0x01234567890ABCDEF1234 + 0xbeef",
+		"          ^^^^^^^^^^^^^^^^^^^^^^^",
+		"          hexadecimal number '0x01234567890ABCDEF1234' is too large",
+	}, "\n")
+
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
 	}
 }
 
@@ -614,7 +721,7 @@ func TestTokenizerScanDecimalInteger(t *testing.T) {
 	}
 }
 
-func TestTokenizerScanDecimalFloat(t *testing.T) {
+func TestTokenizerScanDecimalNumberFloat(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
 		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
 	}, "\n"))

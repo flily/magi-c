@@ -120,17 +120,17 @@ func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
 	i := 2 // skip "0x"
 	begin := t.cursor.State()
 	v := uint64(0)
+	invalidFormat := false
+
 	for {
 		r, eol, eof := t.cursor.Peek(i)
 		if eol || eof {
-			if i > 2 {
-				break
+			if i <= 2 {
+				// "0x" only
+				invalidFormat = true
 			}
 
-			// "0x" only
-			state := t.cursor.PeekState(i)
-			s, ctx := t.cursor.FinishWith(begin, state)
-			return nil, ast.NewError(ctx, "invalid hexadecimal number '%s'", s)
+			break
 		}
 
 		if '0' <= r && r <= '9' {
@@ -143,15 +143,19 @@ func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
 			v = (v << 4) | uint64(r-'A'+10)
 
 		} else if ('g' <= r && r <= 'z') || ('G' <= r && r <= 'Z') {
-			state := t.cursor.PeekState(i)
-			s, ctx := t.cursor.FinishWith(begin, state)
-			return nil, ast.NewError(ctx, "invalid hexadecimal number '%s'", s)
+			invalidFormat = true
 
 		} else {
 			break
 		}
 
 		i++
+	}
+
+	if invalidFormat {
+		state := t.cursor.PeekState(i)
+		s, ctx := t.cursor.FinishWith(begin, state)
+		return nil, ast.NewError(ctx, "invalid hexadecimal number '%s'", s)
 	}
 
 	if i > 2+16 {
