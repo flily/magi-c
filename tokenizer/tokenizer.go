@@ -174,32 +174,31 @@ func (t *Tokenizer) scanOctalNumber() (ast.Node, error) {
 	i := 1 // skip "0"
 	begin := t.cursor.State()
 	v := uint64(0)
+	invalidFormat := false
+
 	for {
 		r, eol, eof := t.cursor.Peek(i)
 		if eol || eof {
-			if i > 1 {
-				break
-			}
-
-			// "0" only
-			state := t.cursor.PeekState(i)
-			s, ctx := t.cursor.FinishWith(begin, state)
-			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+			break
 		}
 
 		if '0' <= r && r <= '7' {
 			v = (v << 3) | uint64(r-'0')
 
 		} else if r == '8' || r == '9' || ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
-			state := t.cursor.PeekState(i)
-			s, ctx := t.cursor.FinishWith(begin, state)
-			return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+			invalidFormat = true
 
 		} else {
 			break
 		}
 
 		i++
+	}
+
+	if invalidFormat {
+		state := t.cursor.PeekState(i)
+		s, ctx := t.cursor.FinishWith(begin, state)
+		return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
 	}
 
 	if i > 1+21 {

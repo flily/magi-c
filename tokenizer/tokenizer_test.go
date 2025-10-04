@@ -638,7 +638,63 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 	}
 }
 
-func TestTokenizerScanDecimalInteger(t *testing.T) {
+func TestTokenizerScanTokenOctalNumberErrorInvalidFormat(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  0123456789",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     0123456789",
+		"          ^^^^^^^^^^",
+		"          invalid octal number '0123456789'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestTokenizerScanTokenOctalNumberErrorTooLargeNumber(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  01234567012345670123456701234567",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     01234567012345670123456701234567",
+		"          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"          octal number '01234567012345670123456701234567' is too large",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
 		"  1234 + 5678",
 	}, "\n"))
@@ -721,7 +777,7 @@ func TestTokenizerScanDecimalInteger(t *testing.T) {
 	}
 }
 
-func TestTokenizerScanDecimalNumberFloat(t *testing.T) {
+func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
 		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
 	}, "\n"))
