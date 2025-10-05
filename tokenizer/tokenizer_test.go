@@ -777,9 +777,39 @@ func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 	}
 }
 
+func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  0",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer.SkipWhitespace()
+	tok, err := tokenizer.ScanToken()
+	if err != nil {
+		t.Fatalf("unexpected error:\n%v", err)
+	}
+
+	if tok == nil {
+		t.Fatalf("expected a token, got nil")
+	}
+
+	if tok.Type() != ast.Integer {
+		t.Errorf("expected token type %s, got %s", ast.Integer, tok.Type())
+	}
+
+	num, ok := tok.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("expected *ast.IntegerLiteral, got %T", tok)
+	}
+
+	if num.Value != 0 {
+		t.Errorf("expected integer value 0, got %d", num.Value)
+	}
+}
+
 func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	buffer := []byte(strings.Join([]string{
-		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
 	}, "\n"))
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
@@ -800,7 +830,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
 		"          ^^^^^^^^^",
 		"          here",
 	}, "\n")
@@ -823,7 +853,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp3 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
 		"                      ^^^^^",
 		"                      here",
 	}, "\n")
@@ -846,7 +876,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp5 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
 		"                              ^^^^^^",
 		"                              here",
 	}, "\n")
@@ -869,7 +899,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp7 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
 		"                                       ^^^^^^",
 		"                                       here",
 	}, "\n")
@@ -892,8 +922,8 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp9 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3.5e+2",
-		"                                                ^^^^^^",
+		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
+		"                                                ^^^^",
 		"                                                here",
 	}, "\n")
 	got9 := ctxList[8].HighlightText("here")
@@ -910,7 +940,91 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 		t.Fatalf("expected *ast.FloatLiteral, got %T", ctxList[8])
 	}
 
-	if num9.Value != 3.5e2 {
-		t.Errorf("expected float value 3.5e2, got %f", num9.Value)
+	if num9.Value != 3e2 {
+		t.Errorf("expected float value 3e2, got %f", num9.Value)
+	}
+}
+
+func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInIntegerPart(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  123dfg + 3.14",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     123dfg + 3.14",
+		"          ^^^^^^",
+		"          invalid decimal number '123dfg'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInFractionPart(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  3.14xyz + 123",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     3.14xyz + 123",
+		"          ^^^^^^^",
+		"          invalid decimal number '3.14xyz'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t *testing.T) {
+	buffer := []byte(strings.Join([]string{
+		"  1.5e10xyz + 123",
+	}, "\n"))
+
+	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+
+	tokenizer.SkipWhitespace()
+	result, err := tokenizer.ScanToken()
+	if err == nil {
+		t.Fatalf("expected an error, got nil")
+	}
+
+	if result != nil {
+		t.Fatalf("expected nil result, got %v", result)
+	}
+
+	exp := strings.Join([]string{
+		"   1:     1.5e10xyz + 123",
+		"          ^^^^^^^^^",
+		"          invalid decimal number '1.5e10xyz'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
 	}
 }

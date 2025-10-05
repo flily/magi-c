@@ -220,6 +220,8 @@ func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 	negExp := false
 	integer, fraction, exponent := uint64(0), uint64(0), int(0)
 	fractionExp := 1
+	invalidFormat := false
+
 	for {
 		r, eol, eof := t.cursor.Peek(i)
 		if eol || eof {
@@ -239,9 +241,7 @@ func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 				expIndex = i
 
 			} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
-				state := t.cursor.PeekState(i)
-				s, ctx := t.cursor.FinishWith(begin, state)
-				return nil, ast.NewError(ctx, "invalid decimal float '%s'", s)
+				invalidFormat = true
 
 			} else {
 				break
@@ -257,9 +257,7 @@ func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 				expIndex = i
 
 			} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
-				state := t.cursor.PeekState(i)
-				s, ctx := t.cursor.FinishWith(begin, state)
-				return nil, ast.NewError(ctx, "invalid decimal float '%s'", s)
+				invalidFormat = true
 
 			} else {
 				break
@@ -276,9 +274,7 @@ func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 				}
 
 			} else if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') {
-				state := t.cursor.PeekState(i)
-				s, ctx := t.cursor.FinishWith(begin, state)
-				return nil, ast.NewError(ctx, "invalid decimal float '%s'", s)
+				invalidFormat = true
 
 			} else {
 				break
@@ -286,6 +282,12 @@ func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 		}
 
 		i++
+	}
+
+	if invalidFormat {
+		state := t.cursor.PeekState(i)
+		s, ctx := t.cursor.FinishWith(begin, state)
+		return nil, ast.NewError(ctx, "invalid decimal number '%s'", s)
 	}
 
 	state := t.cursor.PeekState(i)
@@ -317,22 +319,21 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 	r0, _, _ := t.cursor.Rune()
 	begin := t.cursor.State()
 
-	if r0 == '0' {
-		r1, eol, eof := t.cursor.Peek(1)
-		if eol || eof {
-			_, ctx := t.cursor.Finish(begin)
-			return ast.NewIntegerLiteral(ctx, 0), nil
-		}
+	if r0 != '0' {
+		return t.scanDecimalNumber()
+	}
 
-		if r1 == 'x' {
-			return t.scanHexadecimalNumber()
+	r1, eol, eof := t.cursor.Peek(1)
+	if eol || eof {
+		_, ctx := t.cursor.Finish(begin)
+		return ast.NewIntegerLiteral(ctx, 0), nil
+	}
 
-		} else if '0' <= r1 && r1 <= '7' {
-			return t.scanOctalNumber()
+	if r1 == 'x' {
+		return t.scanHexadecimalNumber()
 
-		} else {
-			return t.scanDecimalNumber()
-		}
+	} else if '0' <= r1 && r1 <= '7' {
+		return t.scanOctalNumber()
 
 	} else {
 		return t.scanDecimalNumber()
