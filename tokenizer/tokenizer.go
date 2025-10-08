@@ -67,10 +67,10 @@ func (t *Tokenizer) SkipWhitespace() {
 	}
 }
 
-func (t *Tokenizer) ScanWord(i int) (ast.Node, error) {
+func (t *Tokenizer) scanWord(i int) (string, *context.Context, error) {
 	r, _, eof := t.cursor.Peek(i)
 	if eof || !IsValidIdentifierInitialRune(r) {
-		return nil, nil
+		return "", nil, nil
 	}
 
 	start := t.cursor.State()
@@ -91,8 +91,16 @@ func (t *Tokenizer) ScanWord(i int) (ast.Node, error) {
 	t.cursor.SetState(finish)
 
 	content, ctx := t.cursor.FinishWith(start, finish)
-	tokenType := ast.GetKeywordTokenType(content)
+	return content, ctx, nil
+}
 
+func (t *Tokenizer) ScanWordToken(i int) (ast.Node, error) {
+	content, ctx, err := t.scanWord(i)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenType := ast.GetKeywordTokenType(content)
 	if tokenType == ast.Invalid {
 		return ast.NewIdentifier(ctx, content), nil
 	}
@@ -351,7 +359,7 @@ func (t *Tokenizer) ScanToken() (ast.Node, error) {
 	}
 
 	if IsValidIdentifierInitialRune(r) {
-		return t.ScanWord(0)
+		return t.ScanWordToken(0)
 	}
 
 	if IsValidSymbolRune(r) {
