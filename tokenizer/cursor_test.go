@@ -413,3 +413,59 @@ func TestCursorNext(t *testing.T) {
 		t.Errorf("result: [%s]", string(result))
 	}
 }
+
+func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
+	text := [][]byte{
+		[]byte("the quick brown fox\n"),
+		[]byte("   jumps over the lazy dog\n"),
+	}
+
+	cursor := makeTestCursor("example.txt", bytes.Join(text, []byte{}))
+
+	if !cursor.IsFirstNonWhiteChar() {
+		t.Errorf("expected to be first non-white char at %s", cursor.Position())
+	}
+
+	for {
+		_, eol := cursor.NextInLine()
+		if eol {
+			break
+		}
+
+		if cursor.IsFirstNonWhiteChar() {
+			t.Errorf("expected to not be first non-white char at %s", cursor.Position())
+		}
+	}
+
+	cursor.NextNonEmptyLine()
+
+	if !cursor.IsFirstNonWhiteChar() {
+		t.Errorf("expected to be first non-white char at %s", cursor.Position())
+	}
+
+	for {
+		r, eol := cursor.NextInLine()
+		if eol {
+			break
+		}
+
+		if !cursor.IsFirstNonWhiteChar() {
+			t.Errorf("expected to be first non-white char at %s", cursor.Position())
+		}
+
+		if r != ' ' {
+			break
+		}
+	}
+
+	for {
+		_, eol := cursor.NextInLine()
+		if eol {
+			break
+		}
+
+		if cursor.IsFirstNonWhiteChar() {
+			t.Errorf("expected to not be first non-white char at %s", cursor.Position())
+		}
+	}
+}

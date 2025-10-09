@@ -234,3 +234,19 @@ func (c *Cursor) NextString(s string) *context.Context {
 	c.SetState(state)
 	return ctx
 }
+
+func (c *Cursor) IsFirstNonWhiteChar() bool {
+	line := c.File.Line(c.Line)
+	if line == nil {
+		return false
+	}
+
+	for i := 0; i < c.Column; i++ {
+		r := line.Rune(i)
+		if !IsWhitespace(r) {
+			return false
+		}
+	}
+
+	return true
+}
