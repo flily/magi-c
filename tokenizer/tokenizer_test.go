@@ -78,13 +78,9 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
 	}
 
-	word, err := tokenizer.ScanWordToken(0)
+	word := tokenizer.ScanWordToken(0)
 	if word == nil {
 		t.Fatalf("expected a word token, got nil")
-	}
-
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
 	}
 
 	expWord := strings.Join([]string{

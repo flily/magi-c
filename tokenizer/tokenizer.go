@@ -46,6 +46,15 @@ func (t *Tokenizer) CurrentChar() *context.Context {
 	return t.cursor.CurrentChar()
 }
 
+func (t *Tokenizer) SkipWhitespaceInLine() {
+	for {
+		r, eol, _ := t.cursor.Rune()
+		if eol || !IsWhitespace(r) {
+			break
+		}
+	}
+}
+
 func (t *Tokenizer) SkipWhitespace() {
 	for {
 		_, eol, _ := t.cursor.Rune()
@@ -67,10 +76,10 @@ func (t *Tokenizer) SkipWhitespace() {
 	}
 }
 
-func (t *Tokenizer) scanWord(i int) (string, *context.Context, error) {
+func (t *Tokenizer) scanWord(i int) (string, *context.Context) {
 	r, _, eof := t.cursor.Peek(i)
 	if eof || !IsValidIdentifierInitialRune(r) {
-		return "", nil, nil
+		return "", nil
 	}
 
 	start := t.cursor.State()
@@ -91,21 +100,18 @@ func (t *Tokenizer) scanWord(i int) (string, *context.Context, error) {
 	t.cursor.SetState(finish)
 
 	content, ctx := t.cursor.FinishWith(start, finish)
-	return content, ctx, nil
+	return content, ctx
 }
 
-func (t *Tokenizer) ScanWordToken(i int) (ast.Node, error) {
-	content, ctx, err := t.scanWord(i)
-	if err != nil {
-		return nil, err
-	}
+func (t *Tokenizer) ScanWordToken(i int) ast.Node {
+	content, ctx := t.scanWord(i)
 
 	tokenType := ast.GetKeywordTokenType(content)
 	if tokenType == ast.Invalid {
-		return ast.NewIdentifier(ctx, content), nil
+		return ast.NewIdentifier(ctx, content)
 	}
 
-	return ast.NewTerminalToken(ctx, tokenType), nil
+	return ast.NewTerminalToken(ctx, tokenType)
 }
 
 func (t *Tokenizer) ScanFixedString(s string) *context.Context {
@@ -121,7 +127,8 @@ func (t *Tokenizer) ScanSymbol() (ast.Node, error) {
 		}
 	}
 
-	return nil, nil
+	ctx := t.cursor.CurrentChar()
+	return nil, ast.NewError(ctx, "invalid symbol '%s'", ctx.Content())
 }
 
 func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
@@ -359,7 +366,7 @@ func (t *Tokenizer) ScanToken() (ast.Node, error) {
 	}
 
 	if IsValidIdentifierInitialRune(r) {
-		return t.ScanWordToken(0)
+		return t.ScanWordToken(0), nil
 	}
 
 	if IsValidSymbolRune(r) {
