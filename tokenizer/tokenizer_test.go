@@ -202,7 +202,7 @@ func TestTokenizerScanSymbol(t *testing.T) {
 		}, "\n")
 
 		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+			t.Fatalf("unexpected error:\n%v", err)
 		}
 
 		got1 := p1.HighlightText("here")
@@ -217,13 +217,20 @@ func TestTokenizerScanSymbol(t *testing.T) {
 		}, "\n"))
 
 		tokenizer := NewTokenizerFrom(buffer, "test.txt")
+		exp := strings.Join([]string{
+			"   1:   0123456789",
+			"        ^",
+			"        invalid symbol '0'",
+		}, "\n")
+
 		p1, err := tokenizer.ScanSymbol()
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
+		if p1 != nil {
+			t.Fatalf("expected nil, got %v", p1)
 		}
 
-		if p1 != nil {
-			t.Errorf("expected nil, got %v", p1)
+		got := err.Error()
+		if got != exp {
+			t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
 		}
 	}
 }

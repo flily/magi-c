@@ -69,7 +69,7 @@ func (t *Tokenizer) SkipWhitespace() {
 		r, _, _ := t.cursor.Rune()
 		if IsWhitespace(r) {
 			t.cursor.Next()
-
+ 
 		} else {
 			break
 		}
