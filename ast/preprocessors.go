@@ -4,22 +4,44 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-type InlineBlock struct {
-	TerminalNode
-	Begin     *context.Context
-	BlockType *context.Context
-	Content   string
-	End       *context.Context
+type PreprocessorDirectiveType int
+
+const (
+	PreprocessorOneLine PreprocessorDirectiveType = iota
+	PreprocessorBlock
+)
+
+type PreprocessorDirectiveInfo struct {
+	Command string
+	Type    PreprocessorDirectiveType
 }
 
-func NewInlineBlock(begin *context.Context, blockType *context.Context, end *context.Context, content string) *InlineBlock {
-	block := &InlineBlock{
-		TerminalNode: NewTerminalNode(context.Join(begin, blockType)),
-		Begin:        begin,
-		BlockType:    blockType,
-		End:          end,
-		Content:      content,
+var preprocessorDirectives = []*PreprocessorDirectiveInfo{
+	{"include", PreprocessorOneLine},
+}
+
+func GetPreprocessorDirectiveInfo(command string) *PreprocessorDirectiveInfo {
+	for _, info := range preprocessorDirectives {
+		if info.Command == command {
+			return info
+		}
 	}
 
-	return block
+	return nil
+}
+
+type PreprocessorOneLineDirective struct {
+	TerminalNode
+	Hash      *context.Context
+	Command   *context.Context
+	Arguments []*context.Context
+}
+
+type PreprocessorInlineBlock struct {
+	TerminalNode
+	Hash      *context.Context
+	Begin     *context.Context
+	Arguments []*context.Context
+	Content   string
+	End       *context.Context
 }
