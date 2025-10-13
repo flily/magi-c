@@ -17,13 +17,13 @@ const (
 type Tokenizer struct {
 	Filename string
 	state    TokenizerState
-	cursor   *Cursor
+	cursor   *context.Cursor
 }
 
 func NewTokenizerFrom(buffer []byte, filename string) *Tokenizer {
 	file := context.ReadFileData(filename, buffer)
 
-	cursor := NewCursor(file)
+	cursor := context.NewCursor(file)
 	t := &Tokenizer{
 		Filename: filename,
 		state:    TokenizerStateInit,
@@ -69,7 +69,7 @@ func (t *Tokenizer) SkipWhitespace() {
 		r, _, _ := t.cursor.Rune()
 		if IsWhitespace(r) {
 			t.cursor.Next()
- 
+
 		} else {
 			break
 		}

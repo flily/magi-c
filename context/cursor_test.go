@@ -1,4 +1,4 @@
-package tokenizer
+package context
 
 import (
 	"testing"
@@ -6,12 +6,10 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-
-	"github.com/flily/magi-c/context"
 )
 
 func makeTestCursor(filename string, data []byte) *Cursor {
-	file := context.ReadFileData(filename, data)
+	file := ReadFileData(filename, data)
 	cursor := NewCursor(file)
 	return cursor
 }

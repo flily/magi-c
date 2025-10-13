@@ -1,9 +1,7 @@
-package tokenizer
+package context
 
 import (
 	"fmt"
-
-	"github.com/flily/magi-c/context"
 )
 
 type CursorState struct {
@@ -22,10 +20,10 @@ func NewCursorState(line int, column int) *CursorState {
 
 type Cursor struct {
 	CursorState
-	File *context.FileContext
+	File *FileContext
 }
 
-func NewCursor(file *context.FileContext) *Cursor {
+func NewCursor(file *FileContext) *Cursor {
 	c := &Cursor{
 		File: file,
 		CursorState: CursorState{
@@ -41,7 +39,7 @@ func (c *Cursor) Position() string {
 	return fmt.Sprintf("%s:%d:%d", c.File.Filename, c.Line+1, c.Column+1)
 }
 
-func (c *Cursor) CurrentChar() *context.Context {
+func (c *Cursor) CurrentChar() *Context {
 	current := c.State()
 	next := c.PeekState(1)
 
@@ -90,7 +88,7 @@ func (c *Cursor) Peek(n int) (rune, bool, bool) {
 	return l.Content[c.Column+n], false, false
 }
 
-func (c *Cursor) PeekString(s string) *context.Context {
+func (c *Cursor) PeekString(s string) *Context {
 	rs := []rune(s)
 	begin := c.State()
 	i, r := 0, rune(0)
@@ -106,7 +104,7 @@ func (c *Cursor) PeekString(s string) *context.Context {
 	return ctx
 }
 
-func (c *Cursor) next(line int, column int) (int, int, *context.LineContent) {
+func (c *Cursor) next(line int, column int) (int, int, *LineContent) {
 	content := c.File.Line(line)
 	if content == nil {
 		return line, column, nil
@@ -121,7 +119,7 @@ func (c *Cursor) next(line int, column int) (int, int, *context.LineContent) {
 	return c.Line, column, content
 }
 
-func (c *Cursor) nextInLine(line int, column int) (int, int, *context.LineContent) {
+func (c *Cursor) nextInLine(line int, column int) (int, int, *LineContent) {
 	content := c.File.Line(line)
 	if content == nil {
 		return line, column, nil
@@ -202,7 +200,7 @@ func (c *Cursor) SetState(state *CursorState) {
 	c.CursorState = *state
 }
 
-func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *context.Context) {
+func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *Context) {
 	if begin.Line != c.Line || finish.Line != c.Line {
 		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", begin.Line, c.Line))
 	}
@@ -211,19 +209,19 @@ func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *c
 	return line.Mark(begin.Column, finish.Column)
 }
 
-func (c *Cursor) FinishTo(offset int) (string, *context.Context) {
+func (c *Cursor) FinishTo(offset int) (string, *Context) {
 	begin := c.State()
 	finish := c.PeekState(offset)
 	c.SetState(finish)
 	return c.FinishWith(begin, finish)
 }
 
-func (c *Cursor) Finish(begin *CursorState) (string, *context.Context) {
+func (c *Cursor) Finish(begin *CursorState) (string, *Context) {
 	current := c.State()
 	return c.FinishWith(begin, current)
 }
 
-func (c *Cursor) NextString(s string) *context.Context {
+func (c *Cursor) NextString(s string) *Context {
 	ctx := c.PeekString(s)
 	if ctx == nil {
 		return nil
@@ -235,6 +233,10 @@ func (c *Cursor) NextString(s string) *context.Context {
 	return ctx
 }
 
+func isWhitespace(r rune) bool {
+	return r == ' ' || r == '\t'
+}
+
 func (c *Cursor) IsFirstNonWhiteChar() bool {
 	line := c.File.Line(c.Line)
 	if line == nil {
@@ -243,7 +245,7 @@ func (c *Cursor) IsFirstNonWhiteChar() bool {
 
 	for i := 0; i < c.Column; i++ {
 		r := line.Rune(i)
-		if !IsWhitespace(r) {
+		if !isWhitespace(r) {
 			return false
 		}
 	}
