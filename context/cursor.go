@@ -237,6 +237,51 @@ func isWhitespace(r rune) bool {
 	return r == ' ' || r == '\t'
 }
 
+func (c *Cursor) Skip(n int) {
+	for i := 0; i < n; i++ {
+		_, eof, _ := c.Next()
+		if eof {
+			return
+		}
+	}
+}
+
+func (c *Cursor) SkipWhitespaceInLine() {
+	for {
+		r, eol, _ := c.Peek(0)
+		if eol || !isWhitespace(r) {
+			break
+		}
+
+		if _, eol, _ := c.Peek(1); eol {
+			break
+		}
+
+		c.Next()
+	}
+}
+
+func (c *Cursor) SkipWhitespace() {
+	for {
+		_, eol, _ := c.Rune()
+		if eol {
+			if eof := c.NextNonEmptyLine(); eof {
+				return
+			}
+
+			continue
+		}
+
+		r, _, _ := c.Rune()
+		if isWhitespace(r) {
+			c.Next()
+
+		} else {
+			break
+		}
+	}
+}
+
 func (c *Cursor) IsFirstNonWhiteChar() bool {
 	line := c.File.Line(c.Line)
 	if line == nil {

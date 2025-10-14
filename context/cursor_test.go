@@ -467,3 +467,133 @@ func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
 		}
 	}
 }
+
+func TestCursorSkipWhitespace(t *testing.T) {
+	text := []byte(strings.Join([]string{
+		"                lorem ipsum",
+	}, "\n"))
+
+	cursor := makeTestCursor("example.txt", text)
+
+	got1 := cursor.CurrentChar().HighlightText("here")
+	exp1 := strings.Join([]string{
+		"   1:                   lorem ipsum",
+		"        ^",
+		"        here",
+	}, "\n")
+
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	cursor.SkipWhitespace()
+
+	got2 := cursor.CurrentChar().HighlightText("here")
+	exp2 := strings.Join([]string{
+		"   1:                   lorem ipsum",
+		"                        ^",
+		"                        here",
+	}, "\n")
+
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+}
+
+func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
+	text := []byte(strings.Join([]string{
+		"        lorem        ",
+		"    ",
+		"        \t\t\t        ",
+		"      ipsum dolor sit amet",
+	}, "\n"))
+
+	cursor := makeTestCursor("example.txt", text)
+
+	got1 := cursor.CurrentChar().HighlightText("here")
+	exp1 := strings.Join([]string{
+		"   1:           lorem        ",
+		"        ^",
+		"        here",
+	}, "\n")
+
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	cursor.SkipWhitespace()
+
+	got2 := cursor.CurrentChar().HighlightText("here")
+	exp2 := strings.Join([]string{
+		"   1:           lorem        ",
+		"                ^",
+		"                here",
+	}, "\n")
+
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	cursor.Skip(5)
+	cursor.SkipWhitespace()
+
+	got3 := cursor.CurrentChar().HighlightText("here")
+	exp3 := strings.Join([]string{
+		"   4:         ipsum dolor sit amet",
+		"              ^",
+		"              here",
+	}, "\n")
+
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+}
+
+func TestCursorSkipWhitespaceInLine(t *testing.T) {
+	text := []byte(strings.Join([]string{
+		"        lorem        ",
+		"    ",
+		"        \t\t\t        ",
+		"      ipsum dolor sit amet",
+	}, "\n"))
+
+	cursor := makeTestCursor("example.txt", text)
+
+	got1 := cursor.CurrentChar().HighlightText("here")
+	exp1 := strings.Join([]string{
+		"   1:           lorem        ",
+		"        ^",
+		"        here",
+	}, "\n")
+
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	cursor.SkipWhitespaceInLine()
+
+	got2 := cursor.CurrentChar().HighlightText("here")
+	exp2 := strings.Join([]string{
+		"   1:           lorem        ",
+		"                ^",
+		"                here",
+	}, "\n")
+
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	cursor.Skip(5)
+	cursor.SkipWhitespaceInLine()
+
+	got3 := cursor.CurrentChar().HighlightText("here")
+	exp3 := strings.Join([]string{
+		"   1:           lorem        ",
+		"                            ^",
+		"                            here",
+	}, "\n")
+
+	if got3 != exp3 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+}

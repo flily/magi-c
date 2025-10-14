@@ -47,33 +47,11 @@ func (t *Tokenizer) CurrentChar() *context.Context {
 }
 
 func (t *Tokenizer) SkipWhitespaceInLine() {
-	for {
-		r, eol, _ := t.cursor.Rune()
-		if eol || !IsWhitespace(r) {
-			break
-		}
-	}
+	t.cursor.SkipWhitespaceInLine()
 }
 
 func (t *Tokenizer) SkipWhitespace() {
-	for {
-		_, eol, _ := t.cursor.Rune()
-		if eol {
-			if eof := t.cursor.NextNonEmptyLine(); eof {
-				return
-			}
-
-			continue
-		}
-
-		r, _, _ := t.cursor.Rune()
-		if IsWhitespace(r) {
-			t.cursor.Next()
-
-		} else {
-			break
-		}
-	}
+	t.cursor.SkipWhitespace()
 }
 
 func (t *Tokenizer) scanWord(i int) (string, *context.Context) {
