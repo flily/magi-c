@@ -73,7 +73,7 @@ func (l *LineContent) ToLineContext(file *FileContext) *LineContext {
 }
 
 func (l *LineContent) MarkLine(start int, end int) *LineContext {
-	if start > l.Length() || end > l.Length() {
+	if start > l.Length() || end > l.Length()+1 {
 		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
 			start, end, l.Length())
 

@@ -67,7 +67,7 @@ func (c *Cursor) PeekState(n int) *CursorState {
 	}
 
 	l := c.File.Line(c.Line)
-	if c.Column+n > len(l.Content) {
+	if c.Column+n > len(l.Content)+1 {
 		return nil
 	}
 
@@ -111,7 +111,7 @@ func (c *Cursor) next(line int, column int) (int, int, *LineContent) {
 	}
 
 	column += 1
-	if column >= content.Length() {
+	if column > content.Length() {
 		c.NextNonEmptyLine()
 		column = 0
 	}
@@ -125,7 +125,7 @@ func (c *Cursor) nextInLine(line int, column int) (int, int, *LineContent) {
 		return line, column, nil
 	}
 
-	if c.Column >= content.Length() {
+	if c.Column > content.Length() {
 		return line, column, nil
 	}
 
@@ -141,7 +141,7 @@ func (c *Cursor) NextInLine() (rune, bool) {
 	r := content.Rune(column) // checked in nextInLine()
 	c.Line = line
 	c.Column = column
-	return r, false
+	return r, column >= content.Length()
 }
 
 func (c *Cursor) NextNonEmptyLine() bool {
@@ -160,7 +160,7 @@ func (c *Cursor) NextNonEmptyLine() bool {
 func (c *Cursor) Next() (rune, bool, bool) {
 	line, column, content := c.next(c.Line, c.Column)
 	if content == nil {
-		return 0, true, true
+		return 0, false, true
 	}
 
 	c.Line = line
@@ -253,11 +253,9 @@ func (c *Cursor) SkipWhitespaceInLine() {
 			break
 		}
 
-		if _, eol, _ := c.Peek(1); eol {
-			break
-		}
+		fmt.Printf("%s\n", c.CurrentChar().HighlightText("here"))
 
-		c.Next()
+		c.NextInLine()
 	}
 }
 

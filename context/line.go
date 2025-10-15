@@ -132,7 +132,7 @@ func (l *LineContext) IsSameLine(other *LineContext) bool {
 }
 
 func (l *LineContext) MarkLine(start int, end int) *LineContext {
-	if start < 0 || end < 0 || start > end || start > l.Length() || end > l.Length() {
+	if start < 0 || end < 0 || start > end || start > l.Length() || end > l.Length()+1 {
 		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
 			start, end, l.Length())
 		panic(err)
@@ -179,7 +179,7 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 	last, lead := 0, ""
 	for i, highlight := range l.Highlights {
 		// highlight will store in order
-		if highlight.Start < 0 || highlight.End > l.Length() || highlight.Start > highlight.End {
+		if highlight.Start < 0 || highlight.End > l.Length()+1 || highlight.Start > highlight.End {
 			err := fmt.Errorf("invalid highlight range: start=%d, end=%d, length=%d", highlight.Start, highlight.End, l.Length())
 			panic(err)
 		}
@@ -190,7 +190,11 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 		}
 
 		for j := highlight.Start; j < highlight.End; j++ {
-			widthHighligh += CharWidthIn(l.Content.Content[j], j)
+			if j >= l.Length() {
+				widthHighligh += 1
+			} else {
+				widthHighligh += CharWidthIn(l.Content.Content[j], j)
+			}
 		}
 
 		if i == 0 {
