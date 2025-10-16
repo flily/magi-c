@@ -594,8 +594,8 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 
 	got3 := cursor.CurrentChar().HighlightText("here")
 	exp3 := strings.Join([]string{
-		"   1:           lorem        ",
-		"                             ^",
+		"   1:           lorem        <EOL LF>",
+		"                             ^^^^^^^^",
 		"                             here",
 	}, "\n")
 

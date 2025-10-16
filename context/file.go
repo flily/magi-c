@@ -55,8 +55,35 @@ func (l *LineContent) EOLBytes() []byte {
 	return RunesToBytes(l.EOL)
 }
 
+func (l *LineContent) EOLString() string {
+	if l.EOL == nil {
+		return "<EOF>"
+
+	} else if len(l.EOL) == 1 && l.EOL[0] == '\n' {
+		return "<EOL LF>"
+
+	} else if len(l.EOL) == 1 && l.EOL[0] == '\r' {
+		return "<EOL CR>"
+
+	} else if len(l.EOL) == 2 && l.EOL[0] == '\r' && l.EOL[1] == '\n' {
+		return "<EOL CRLF>"
+
+	}
+
+	parts := make([]string, 0, len(l.EOL))
+	for _, r := range l.EOL {
+		parts = append(parts, fmt.Sprintf("0x%X", r))
+	}
+
+	return "<EOL " + fmt.Sprintf("%s", parts) + ">"
+}
+
 func (l *LineContent) String() string {
 	return string(l.Content)
+}
+
+func (l *LineContent) StringWithEOL() string {
+	return l.String() + l.EOLString()
 }
 
 func (l *LineContent) Length() int {

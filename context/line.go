@@ -177,6 +177,8 @@ func repeatToLength(s string, length int) string {
 func (l *LineContext) HighlighTextWith(indicator string, format string, args ...any) string {
 	parts := make([]string, 0, 2*len(l.Highlights))
 	last, lead := 0, ""
+	eol := ""
+
 	for i, highlight := range l.Highlights {
 		// highlight will store in order
 		if highlight.Start < 0 || highlight.End > l.Length()+1 || highlight.Start > highlight.End {
@@ -191,7 +193,9 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 
 		for j := highlight.Start; j < highlight.End; j++ {
 			if j >= l.Length() {
-				widthHighligh += 1
+				eol = l.Content.EOLString()
+				widthHighligh += len(eol)
+
 			} else {
 				widthHighligh += CharWidthIn(l.Content.Content[j], j)
 			}
@@ -211,7 +215,7 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 
 	content := l.String()
 	highlight := fmt.Sprintf("%s\n%s%s",
-		content,
+		content+eol,
 		FixedLeadingSpace, strings.Join(parts, ""),
 	)
 
