@@ -253,8 +253,6 @@ func (c *Cursor) SkipWhitespaceInLine() {
 			break
 		}
 
-		fmt.Printf("%s\n", c.CurrentChar().HighlightText("here"))
-
 		c.NextInLine()
 	}
 }
