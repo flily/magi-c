@@ -42,7 +42,7 @@ func NewTokenizerFromFile(filename string) (*Tokenizer, error) {
 	return NewTokenizerFrom(file, filename), nil
 }
 
-func (t *Tokenizer) CurrentChar() *context.Context {
+func (t *Tokenizer) CurrentChar() (rune, *context.Context) {
 	return t.cursor.CurrentChar()
 }
 
@@ -105,7 +105,7 @@ func (t *Tokenizer) ScanSymbol() (ast.Node, error) {
 		}
 	}
 
-	ctx := t.cursor.CurrentChar()
+	_, ctx := t.cursor.CurrentChar()
 	return nil, ast.NewError(ctx, "invalid symbol '%s'", ctx.Content())
 }
 

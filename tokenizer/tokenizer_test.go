@@ -15,7 +15,7 @@ func TestTokenizerSkipWhitespace(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	p1 := tokenizer.CurrentChar()
+	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
 		"   1:                   lorem ipsum",
 		"        ^",
@@ -29,7 +29,7 @@ func TestTokenizerSkipWhitespace(t *testing.T) {
 
 	tokenizer.SkipWhitespace()
 
-	p2 := tokenizer.CurrentChar()
+	_, p2 := tokenizer.CurrentChar()
 	exp2 := strings.Join([]string{
 		"   1:                   lorem ipsum",
 		"                        ^",
@@ -52,7 +52,7 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	p1 := tokenizer.CurrentChar()
+	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
 		"   1:           lorem        ",
 		"        ^",
@@ -66,7 +66,7 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	tokenizer.SkipWhitespace()
 
-	p2 := tokenizer.CurrentChar()
+	_, p2 := tokenizer.CurrentChar()
 	exp2 := strings.Join([]string{
 		"   1:           lorem        ",
 		"                ^",
@@ -94,7 +94,7 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", expWord, gotWord)
 	}
 
-	p3 := tokenizer.CurrentChar()
+	_, p3 := tokenizer.CurrentChar()
 	exp3 := strings.Join([]string{
 		"   1:           lorem        ",
 		"                     ^",
@@ -108,7 +108,7 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	tokenizer.SkipWhitespace()
 
-	p4 := tokenizer.CurrentChar()
+	_, p4 := tokenizer.CurrentChar()
 	exp4 := strings.Join([]string{
 		"   4:         ipsum dolor sit amet",
 		"              ^",
@@ -128,7 +128,7 @@ func TestTokenizerScanFixedString(t *testing.T) {
 
 	tokenizer := NewTokenizerFrom(buffer, "test.txt")
 
-	p1 := tokenizer.CurrentChar()
+	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
 		"   1:   ====================",
 		"        ^",
@@ -141,7 +141,7 @@ func TestTokenizerScanFixedString(t *testing.T) {
 	}
 
 	t2 := tokenizer.ScanFixedString("=")
-	p2 := tokenizer.CurrentChar()
+	_, p2 := tokenizer.CurrentChar()
 	expt2 := strings.Join([]string{
 		"   1:   ====================",
 		"        ^",
@@ -164,7 +164,7 @@ func TestTokenizerScanFixedString(t *testing.T) {
 	}
 
 	t3 := tokenizer.ScanFixedString("==")
-	p3 := tokenizer.CurrentChar()
+	_, p3 := tokenizer.CurrentChar()
 	expt3 := strings.Join([]string{
 		"   1:   ====================",
 		"         ^^",

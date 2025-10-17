@@ -39,12 +39,13 @@ func (c *Cursor) Position() string {
 	return fmt.Sprintf("%s:%d:%d", c.File.Filename, c.Line+1, c.Column+1)
 }
 
-func (c *Cursor) CurrentChar() *Context {
+func (c *Cursor) CurrentChar() (rune, *Context) {
 	current := c.State()
+	r, _, _ := c.Rune()
 	next := c.PeekState(1)
 
 	_, ctx := c.FinishWith(current, next)
-	return ctx
+	return r, ctx
 }
 
 // Rune returns the rune of current position, and EOL and EOF status

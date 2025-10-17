@@ -79,7 +79,7 @@ func TestCursorRuneBasic(t *testing.T) {
 func TestCursorCurrentChar(t *testing.T) {
 	cursor := createTestCursor1()
 
-	c1 := cursor.CurrentChar()
+	r, c1 := cursor.CurrentChar()
 	exp1 := strings.Join([]string{
 		"   1:   lorem",
 		"        ^",
@@ -90,8 +90,12 @@ func TestCursorCurrentChar(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
 	}
 
+	if r != 'l' {
+		t.Errorf("expected rune 'l' at %s, got '%c'", cursor.Position(), r)
+	}
+
 	_, _, _ = cursor.Next()
-	c2 := cursor.CurrentChar()
+	r, c2 := cursor.CurrentChar()
 	exp2 := strings.Join([]string{
 		"   1:   lorem",
 		"         ^",
@@ -102,8 +106,12 @@ func TestCursorCurrentChar(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
 	}
 
+	if r != 'o' {
+		t.Errorf("expected rune 'o' at %s, got '%c'", cursor.Position(), r)
+	}
+
 	_ = cursor.NextNonEmptyLine()
-	c3 := cursor.CurrentChar()
+	r, c3 := cursor.CurrentChar()
 	exp3 := strings.Join([]string{
 		"   2:   ipsum",
 		"        ^",
@@ -112,6 +120,10 @@ func TestCursorCurrentChar(t *testing.T) {
 	got3 := c3.HighlightText("here")
 	if got3 != exp3 {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
+	}
+
+	if r != 'i' {
+		t.Errorf("expected rune 'i' at %s, got '%c'", cursor.Position(), r)
 	}
 }
 
@@ -481,7 +493,8 @@ func TestCursorSkipWhitespace(t *testing.T) {
 
 	cursor := makeTestCursor("example.txt", text)
 
-	got1 := cursor.CurrentChar().HighlightText("here")
+	_, ctx1 := cursor.CurrentChar()
+	got1 := ctx1.HighlightText("here")
 	exp1 := strings.Join([]string{
 		"   1:                   lorem ipsum",
 		"        ^",
@@ -494,7 +507,8 @@ func TestCursorSkipWhitespace(t *testing.T) {
 
 	cursor.SkipWhitespace()
 
-	got2 := cursor.CurrentChar().HighlightText("here")
+	_, ctx2 := cursor.CurrentChar()
+	got2 := ctx2.HighlightText("here")
 	exp2 := strings.Join([]string{
 		"   1:                   lorem ipsum",
 		"                        ^",
@@ -516,7 +530,8 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 
 	cursor := makeTestCursor("example.txt", text)
 
-	got1 := cursor.CurrentChar().HighlightText("here")
+	_, ctx1 := cursor.CurrentChar()
+	got1 := ctx1.HighlightText("here")
 	exp1 := strings.Join([]string{
 		"   1:           lorem        ",
 		"        ^",
@@ -529,7 +544,8 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 
 	cursor.SkipWhitespace()
 
-	got2 := cursor.CurrentChar().HighlightText("here")
+	_, ctx2 := cursor.CurrentChar()
+	got2 := ctx2.HighlightText("here")
 	exp2 := strings.Join([]string{
 		"   1:           lorem        ",
 		"                ^",
@@ -543,7 +559,8 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 	cursor.Skip(5)
 	cursor.SkipWhitespace()
 
-	got3 := cursor.CurrentChar().HighlightText("here")
+	_, ctx3 := cursor.CurrentChar()
+	got3 := ctx3.HighlightText("here")
 	exp3 := strings.Join([]string{
 		"   4:         ipsum dolor sit amet",
 		"              ^",
@@ -565,7 +582,8 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 
 	cursor := makeTestCursor("example.txt", text)
 
-	got1 := cursor.CurrentChar().HighlightText("here")
+	_, ctx1 := cursor.CurrentChar()
+	got1 := ctx1.HighlightText("here")
 	exp1 := strings.Join([]string{
 		"   1:           lorem        ",
 		"        ^",
@@ -575,10 +593,10 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 	if got1 != exp1 {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
 	}
-
 	cursor.SkipWhitespaceInLine()
 
-	got2 := cursor.CurrentChar().HighlightText("here")
+	_, ctx2 := cursor.CurrentChar()
+	got2 := ctx2.HighlightText("here")
 	exp2 := strings.Join([]string{
 		"   1:           lorem        ",
 		"                ^",
@@ -592,7 +610,8 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 	cursor.Skip(5)
 	cursor.SkipWhitespaceInLine()
 
-	got3 := cursor.CurrentChar().HighlightText("here")
+	_, ctx3 := cursor.CurrentChar()
+	got3 := ctx3.HighlightText("here")
 	exp3 := strings.Join([]string{
 		"   1:           lorem        <EOL LF>",
 		"                             ^^^^^^^^",
