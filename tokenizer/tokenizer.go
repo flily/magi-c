@@ -6,6 +6,7 @@ import (
 
 	"github.com/flily/magi-c/ast"
 	"github.com/flily/magi-c/context"
+	"github.com/flily/magi-c/preprocessor"
 )
 
 type TokenizerState int
@@ -15,9 +16,10 @@ const (
 )
 
 type Tokenizer struct {
-	Filename string
-	state    TokenizerState
-	cursor   *context.Cursor
+	Filename      string
+	state         TokenizerState
+	cursor        *context.Cursor
+	Preprocessors map[string]preprocessor.PreprocessorInitializer
 }
 
 func NewTokenizerFrom(buffer []byte, filename string) *Tokenizer {
@@ -333,6 +335,27 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 	}
 }
 
+func (t *Tokenizer) scanPreprocessorDirective() (ast.Node, error) {
+	_, ctxHash := t.cursor.CurrentChar()
+	_, eol := t.cursor.NextInLine()
+	if eol {
+		return nil, ast.NewError(ctxHash, "expected preprocessor directive after '#', got EOL")
+	}
+
+	cmd, ctxCmd := t.scanWord(0)
+	if cmd == "" {
+		return nil, ast.NewError(ctxHash, "expected preprocessor directive after '#', got invalid command")
+	}
+
+	p, ok := t.Preprocessors[cmd]
+	if !ok {
+		return nil, ast.NewError(ctxCmd, "unknown preprocessor directive '%s'", cmd)
+	}
+
+	pp := p(t.cursor)
+	return pp.Process(ctxHash, ctxCmd)
+}
+
 func (t *Tokenizer) ScanToken() (ast.Node, error) {
 	r, _, eof := t.cursor.Rune()
 	if eof {
@@ -345,6 +368,10 @@ func (t *Tokenizer) ScanToken() (ast.Node, error) {
 
 	if IsValidIdentifierInitialRune(r) {
 		return t.ScanWordToken(0), nil
+	}
+
+	if r == '#' && t.cursor.IsFirstNonWhiteChar() {
+		return t.scanPreprocessorDirective()
 	}
 
 	if IsValidSymbolRune(r) {
