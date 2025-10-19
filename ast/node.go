@@ -7,7 +7,7 @@ import (
 type Node interface {
 	Terminal() bool
 	Context() *context.Context
-	Type() TokenType
+	Type() NodeType
 	HighlightText(message string, args ...any) string
 }
 

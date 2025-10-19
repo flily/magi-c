@@ -18,7 +18,7 @@ func NewStringLiteral(ctx *context.Context, value string) *StringLiteral {
 	return l
 }
 
-func (l *StringLiteral) Type() TokenType {
+func (l *StringLiteral) Type() NodeType {
 	return String
 }
 
@@ -36,7 +36,7 @@ func NewIntegerLiteral(ctx *context.Context, value uint64) *IntegerLiteral {
 	return l
 }
 
-func (l *IntegerLiteral) Type() TokenType {
+func (l *IntegerLiteral) Type() NodeType {
 	return Integer
 }
 
@@ -54,7 +54,7 @@ func NewFloatLiteral(ctx *context.Context, value float64) *FloatLiteral {
 	return l
 }
 
-func (l *FloatLiteral) Type() TokenType {
+func (l *FloatLiteral) Type() NodeType {
 	return Float
 }
 
@@ -72,16 +72,16 @@ func NewIdentifier(ctx *context.Context, name string) *Identifier {
 	return id
 }
 
-func (i *Identifier) Type() TokenType {
+func (i *Identifier) Type() NodeType {
 	return IdentifierName
 }
 
 type TerminalToken struct {
 	TerminalNode
-	Token TokenType
+	Token NodeType
 }
 
-func NewTerminalToken(ctx *context.Context, token TokenType) *TerminalToken {
+func NewTerminalToken(ctx *context.Context, token NodeType) *TerminalToken {
 	t := &TerminalToken{
 		TerminalNode: NewTerminalNode(ctx),
 		Token:        token,
@@ -90,6 +90,6 @@ func NewTerminalToken(ctx *context.Context, token TokenType) *TerminalToken {
 	return t
 }
 
-func (t *TerminalToken) Type() TokenType {
+func (t *TerminalToken) Type() NodeType {
 	return t.Token
 }

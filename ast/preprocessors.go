@@ -7,8 +7,8 @@ import (
 type PreprocessorDirectiveType int
 
 const (
-	PreprocessorOneLine PreprocessorDirectiveType = iota
-	PreprocessorBlock
+	PreprocessorDirectiveUnknown PreprocessorDirectiveType = iota
+	PreprocessorDirectiveInclude
 )
 
 type PreprocessorDirectiveInfo struct {
@@ -17,7 +17,7 @@ type PreprocessorDirectiveInfo struct {
 }
 
 var preprocessorDirectives = []*PreprocessorDirectiveInfo{
-	{"include", PreprocessorOneLine},
+	{"include", PreprocessorDirectiveInclude},
 }
 
 func GetPreprocessorDirectiveInfo(command string) *PreprocessorDirectiveInfo {
@@ -30,18 +30,15 @@ func GetPreprocessorDirectiveInfo(command string) *PreprocessorDirectiveInfo {
 	return nil
 }
 
-type PreprocessorOneLineDirective struct {
+type PreprocessorInclude struct {
 	TerminalNode
-	Hash      *context.Context
-	Command   *context.Context
-	Arguments []*context.Context
+	Hash     *context.Context
+	Command  *context.Context
+	LBracket *context.Context
+	Content  *context.Context
+	RBracket *context.Context
 }
 
-type PreprocessorInlineBlock struct {
-	TerminalNode
-	Hash      *context.Context
-	Begin     *context.Context
-	Arguments []*context.Context
-	Content   string
-	End       *context.Context
+func (p *PreprocessorInclude) Type() NodeType {
+	return NodePreprocessorInclude
 }

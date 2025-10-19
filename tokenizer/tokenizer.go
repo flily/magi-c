@@ -86,7 +86,7 @@ func (t *Tokenizer) scanWord(i int) (string, *context.Context) {
 func (t *Tokenizer) ScanWordToken(i int) ast.Node {
 	content, ctx := t.scanWord(i)
 
-	tokenType := ast.GetKeywordTokenType(content)
+	tokenType := ast.GetKeywordNodeType(content)
 	if tokenType == ast.Invalid {
 		return ast.NewIdentifier(ctx, content)
 	}
@@ -102,7 +102,7 @@ func (t *Tokenizer) ScanSymbol() (ast.Node, error) {
 	for _, op := range ast.OperatorList {
 		ctx := t.cursor.NextString(op)
 		if ctx != nil {
-			tokenType := ast.GetOperatorTokenType(op)
+			tokenType := ast.GetOperatorNodeType(op)
 			return ast.NewTerminalToken(ctx, tokenType), nil
 		}
 	}
@@ -352,6 +352,7 @@ func (t *Tokenizer) scanPreprocessorDirective() (ast.Node, error) {
 		return nil, ast.NewError(ctxCmd, "unknown preprocessor directive '%s'", cmd)
 	}
 
+	t.cursor.SkipWhitespaceInLine()
 	pp := p(t.cursor)
 	return pp.Process(ctxHash, ctxCmd)
 }
