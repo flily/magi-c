@@ -35,6 +35,15 @@ func NewCursor(file *FileContext) *Cursor {
 	return c
 }
 
+func NewCursorFromBytes(filename string, data []byte) *Cursor {
+	file := ReadFileData(filename, data)
+	return NewCursor(file)
+}
+
+func NewCursorFromString(filename string, s string) *Cursor {
+	return NewCursorFromBytes(filename, []byte(s))
+}
+
 func (c *Cursor) Position() string {
 	return fmt.Sprintf("%s:%d:%d", c.File.Filename, c.Line+1, c.Column+1)
 }

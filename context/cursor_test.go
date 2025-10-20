@@ -3,41 +3,34 @@ package context
 import (
 	"testing"
 
-	"bytes"
 	"fmt"
 	"strings"
 )
 
-func makeTestCursor(filename string, data []byte) *Cursor {
-	file := ReadFileData(filename, data)
-	cursor := NewCursor(file)
-	return cursor
-}
-
 func createTestCursor1() *Cursor {
-	parts := [][]byte{
-		[]byte("lorem\n"),
-		[]byte("ipsum\n"),
+	parts := []string{
+		"lorem\n",
+		"ipsum\n",
 	}
 
-	return makeTestCursor("example.txt", bytes.Join(parts, []byte{}))
+	return NewCursorFromString("example.txt", strings.Join(parts, ""))
 }
 
 func createTestCursor2() *Cursor {
-	parts := [][]byte{
-		[]byte("lorem ipsum dolor sit amet\n"),
-		[]byte("consectetur adipiscing elit\n"),
-		[]byte("\n"),
-		[]byte("sed do eiusmod tempor incididunt\n"),
-		[]byte("ut labore et dolore magna aliqua\n"),
-		[]byte("ut enim ad minim veniam\r\n"),
-		[]byte("\r\n"),
-		[]byte("quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat\n"),
-		[]byte("duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur\n"),
-		[]byte("excepteur sint occaecat cupid atat non proident\n"),
+	parts := []string{
+		"lorem ipsum dolor sit amet\n",
+		"consectetur adipiscing elit\n",
+		"\n",
+		"sed do eiusmod tempor incididunt\n",
+		"ut labore et dolore magna aliqua\n",
+		"ut enim ad minim veniam\r\n",
+		"\r\n",
+		"quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat\n",
+		"duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur\n",
+		"excepteur sint occaecat cupid atat non proident\n",
 	}
 
-	return makeTestCursor("example.txt", bytes.Join(parts, []byte{}))
+	return NewCursorFromString("example.txt", strings.Join(parts, ""))
 }
 
 func TestCursorRuneBasic(t *testing.T) {
@@ -431,12 +424,12 @@ func TestCursorNext(t *testing.T) {
 }
 
 func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
-	text := [][]byte{
-		[]byte("the quick brown fox\n"),
-		[]byte("   jumps over the lazy dog\n"),
+	text := []string{
+		"the quick brown fox\n",
+		"   jumps over the lazy dog\n",
 	}
 
-	cursor := makeTestCursor("example.txt", bytes.Join(text, []byte{}))
+	cursor := NewCursorFromString("example.txt", strings.Join(text, ""))
 
 	if !cursor.IsFirstNonWhiteChar() {
 		t.Errorf("expected to be first non-white char at %s", cursor.Position())
@@ -487,11 +480,11 @@ func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
 }
 
 func TestCursorSkipWhitespace(t *testing.T) {
-	text := []byte(strings.Join([]string{
+	text := strings.Join([]string{
 		"                lorem ipsum",
-	}, "\n"))
+	}, "\n")
 
-	cursor := makeTestCursor("example.txt", text)
+	cursor := NewCursorFromString("example.txt", text)
 
 	_, ctx1 := cursor.CurrentChar()
 	got1 := ctx1.HighlightText("here")
@@ -521,14 +514,14 @@ func TestCursorSkipWhitespace(t *testing.T) {
 }
 
 func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
-	text := []byte(strings.Join([]string{
+	text := strings.Join([]string{
 		"        lorem        ",
 		"    ",
 		"        \t\t\t        ",
 		"      ipsum dolor sit amet",
-	}, "\n"))
+	}, "\n")
 
-	cursor := makeTestCursor("example.txt", text)
+	cursor := NewCursorFromString("example.txt", text)
 
 	_, ctx1 := cursor.CurrentChar()
 	got1 := ctx1.HighlightText("here")
@@ -573,14 +566,14 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 }
 
 func TestCursorSkipWhitespaceInLine(t *testing.T) {
-	text := []byte(strings.Join([]string{
+	text := strings.Join([]string{
 		"        lorem        ",
 		"    ",
 		"        \t\t\t        ",
 		"      ipsum dolor sit amet",
-	}, "\n"))
+	}, "\n")
 
-	cursor := makeTestCursor("example.txt", text)
+	cursor := NewCursorFromString("example.txt", text)
 
 	_, ctx1 := cursor.CurrentChar()
 	got1 := ctx1.HighlightText("here")
