@@ -336,15 +336,9 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 }
 
 func (t *Tokenizer) scanPreprocessorDirective() (ast.Node, error) {
-	_, ctxHash := t.cursor.CurrentChar()
-	_, eol := t.cursor.NextInLine()
-	if eol {
-		return nil, ast.NewError(ctxHash, "expected preprocessor directive after '#', got EOL")
-	}
-
-	cmd, ctxCmd := t.scanWord(0)
-	if cmd == "" {
-		return nil, ast.NewError(ctxHash, "expected preprocessor directive after '#', got invalid command")
+	cmd, ctxHash, ctxCmd, err := preprocessor.ScanDirective(t.cursor)
+	if err != nil {
+		return nil, err
 	}
 
 	p, ok := t.Preprocessors[cmd]
