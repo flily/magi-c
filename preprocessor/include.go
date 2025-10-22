@@ -23,15 +23,19 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 		Command: name,
 	}
 
+	p.cursor.SkipWhitespaceInLine()
 	lb, lbCtx := p.cursor.CurrentChar()
 	pos := rune(0)
-	if lb == '<' {
+	switch lb {
+	case '<':
 		pos = '>'
-	} else if lb == '"' {
+	case '"':
 		pos = '"'
-	} else {
+	default:
 		return nil, ast.NewError(lbCtx, "expected '<' or '\"' after '#include', got '%c'", lb)
 	}
+
+	p.cursor.NextInLine()
 	content, contentCtx := cursorScanUntil(p.cursor, pos)
 	if len(content) <= 0 {
 		return nil, ast.NewError(contentCtx, "expected file name after '#include', got empty string")

@@ -54,3 +54,13 @@ func ScanDirective(cursor *context.Cursor) (string, *context.Context, *context.C
 
 	return name, hashCtx, nameCtx, nil
 }
+
+func scanDirectiveOn(cursor *context.Cursor, prep PreprocessorInitializer) (ast.Node, error) {
+	_, ctxHash, ctxCmd, err := ScanDirective(cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	p := prep(cursor)
+	return p.Process(ctxHash, ctxCmd)
+}
