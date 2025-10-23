@@ -56,7 +56,7 @@ func (l *LineContent) EOLBytes() []byte {
 }
 
 func (l *LineContent) EOLString() string {
-	if l.EOL == nil {
+	if len(l.EOL) <= 0 {
 		return "<EOF>"
 
 	} else if len(l.EOL) == 1 && l.EOL[0] == '\n' {

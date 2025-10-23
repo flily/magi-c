@@ -36,6 +36,37 @@ func (p *preprocessorInclude) Type() ast.NodeType {
 	return ast.NodePreprocessorInclude
 }
 
+func isValidDirectiveNameChar(r rune) bool {
+	if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') || ('0' <= r && r <= '9') {
+		return true
+	}
+
+	if r == '_' || r == '-' {
+		return true
+	}
+
+	return false
+}
+
+func scanDirectiveName(cursor *context.Cursor) (string, *context.Context) {
+	begin := cursor.State()
+	for {
+		r, eol, eof := cursor.Rune()
+		if eol || eof {
+			break
+		}
+
+		if !isValidDirectiveNameChar(r) {
+			break
+		}
+
+		cursor.NextInLine()
+	}
+
+	result, ctx := cursor.Finish(begin)
+	return result, ctx
+}
+
 func ScanDirective(cursor *context.Cursor) (string, *context.Context, *context.Context, error) {
 	hash, hashCtx := cursor.CurrentChar()
 	if hash != '#' {
@@ -47,7 +78,7 @@ func ScanDirective(cursor *context.Cursor) (string, *context.Context, *context.C
 	}
 
 	cursor.NextInLine()
-	name, nameCtx := cursorScanUntil(cursor, ' ', '\t')
+	name, nameCtx := scanDirectiveName(cursor)
 	if len(name) <= 0 {
 		return "", nil, nil, ast.NewError(nameCtx, "expected preprocessor directive name after '#', got empty string")
 	}
