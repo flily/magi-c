@@ -36,14 +36,20 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 	}
 
 	p.cursor.NextInLine()
-	content, contentCtx := cursorScanUntil(p.cursor, pos)
-	if len(content) <= 0 {
-		return nil, ast.NewError(contentCtx, "expected file name after '#include', got empty string")
+	content, contentCtx := cursorScanUntilInLine(p.cursor, '>', '"')
+	rb, rbCtx := p.cursor.CurrentChar()
+	if rb == 0 {
+		ctx := context.Join(lbCtx, rbCtx)
+		return nil, ast.NewError(ctx, "quote not closed")
 	}
 
-	rb, rbCtx := p.cursor.CurrentChar()
 	if rb != pos {
-		return nil, ast.NewError(rbCtx, "expected '%c' after file name in '#include', got '%c'", pos, rb)
+		ctx := context.Join(lbCtx, rbCtx)
+		return nil, ast.NewError(ctx, "quote mismatch, expected '%c', got '%c'", pos, rb)
+	}
+
+	if len(content) <= 0 {
+		return nil, ast.NewError(lbCtx, "expected file name after '#include', got empty string")
 	}
 
 	directive.LBracket = lbCtx

@@ -13,7 +13,7 @@ type Preprocessor interface {
 
 type PreprocessorInitializer func(cursor *context.Cursor) Preprocessor
 
-func cursorScanUntil(cursor *context.Cursor, flags ...rune) (string, *context.Context) {
+func cursorScanUntilInLine(cursor *context.Cursor, flags ...rune) (string, *context.Context) {
 	begin := cursor.State()
 	for {
 		r, eol, eof := cursor.Rune()

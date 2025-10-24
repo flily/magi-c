@@ -209,3 +209,92 @@ func TestIncludeDirectiveWithoutSpace(t *testing.T) {
 		t.Errorf("expected RBracket context highlight:\n%s\ngot:\n%s", expRBracket, gotRBracket)
 	}
 }
+
+func TestIncludeDirectiveWithWrongQuote(t *testing.T) {
+	code := strings.Join([]string{
+		`#include stdio.h`,
+	}, "\n")
+
+	cursor := context.NewCursorFromString("example.c", code)
+	_, err := scanDirectiveOn(cursor, Include)
+	if err == nil {
+		t.Fatalf("expected error, got nil")
+	}
+
+	exp := strings.Join([]string{
+		`   1:   #include stdio.h`,
+		"                 ^",
+		"                 expected '<' or '\"' after '#include', got 's'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestIncludeDirectiveWithNoName(t *testing.T) {
+	code := strings.Join([]string{
+		`#include <>`,
+	}, "\n")
+
+	cursor := context.NewCursorFromString("example.c", code)
+	_, err := scanDirectiveOn(cursor, Include)
+	if err == nil {
+		t.Fatalf("expected error, got nil")
+	}
+
+	exp := strings.Join([]string{
+		`   1:   #include <>`,
+		"                 ^",
+		"                 expected file name after '#include', got empty string",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestIncludeDirectiveWithUnclosedQuote(t *testing.T) {
+	code := strings.Join([]string{
+		`#include <stdio.h`,
+		"",
+	}, "\n")
+
+	cursor := context.NewCursorFromString("example.c", code)
+	_, err := scanDirectiveOn(cursor, Include)
+	if err == nil {
+		t.Fatalf("expected error, got nil")
+	}
+
+	exp := strings.Join([]string{
+		`   1:   #include <stdio.h<EOL LF>`,
+		"                 ^       ^^^^^^^^",
+		"                 quote not closed",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
+	}
+}
+
+func TestIncludeDirectiveWithQuoteNotMatched(t *testing.T) {
+	code := strings.Join([]string{
+		`#include "stdio.h>`,
+	}, "\n")
+
+	cursor := context.NewCursorFromString("example.c", code)
+	_, err := scanDirectiveOn(cursor, Include)
+	if err == nil {
+		t.Fatalf("expected error, got nil")
+	}
+
+	exp := strings.Join([]string{
+		`   1:   #include "stdio.h>`,
+		"                 ^       ^",
+		"                 quote mismatch, expected '\"', got '>'",
+	}, "\n")
+	got := err.Error()
+	if got != exp {
+		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
+	}
+}
