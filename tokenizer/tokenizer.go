@@ -35,6 +35,10 @@ func NewTokenizerFrom(buffer []byte, filename string) *Tokenizer {
 	return t
 }
 
+func NewTokenizerFromString(s string, filename string) *Tokenizer {
+	return NewTokenizerFrom([]byte(s), filename)
+}
+
 func NewTokenizerFromFile(filename string) (*Tokenizer, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {

@@ -9,11 +9,11 @@ import (
 )
 
 func TestTokenizerSkipWhitespace(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"                lorem ipsum",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
@@ -43,14 +43,14 @@ func TestTokenizerSkipWhitespace(t *testing.T) {
 }
 
 func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"        lorem        ",
 		"    ",
 		"        \t\t\t        ",
 		"      ipsum dolor sit amet",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
@@ -122,11 +122,11 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 }
 
 func TestTokenizerScanFixedString(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"====================",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
@@ -189,11 +189,11 @@ func TestTokenizerScanFixedString(t *testing.T) {
 
 func TestTokenizerScanSymbol(t *testing.T) {
 	{
-		buffer := []byte(strings.Join([]string{
+		code := strings.Join([]string{
 			"====================",
-		}, "\n"))
+		}, "\n")
 
-		tokenizer := NewTokenizerFrom(buffer, "test.txt")
+		tokenizer := NewTokenizerFromString(code, "test.txt")
 		p1, err := tokenizer.ScanSymbol()
 		exp1 := strings.Join([]string{
 			"   1:   ====================",
@@ -212,11 +212,11 @@ func TestTokenizerScanSymbol(t *testing.T) {
 	}
 
 	{
-		buffer := []byte(strings.Join([]string{
+		code := strings.Join([]string{
 			"0123456789",
-		}, "\n"))
+		}, "\n")
 
-		tokenizer := NewTokenizerFrom(buffer, "test.txt")
+		tokenizer := NewTokenizerFromString(code, "test.txt")
 		exp := strings.Join([]string{
 			"   1:   0123456789",
 			"        ^",
@@ -236,11 +236,11 @@ func TestTokenizerScanSymbol(t *testing.T) {
 }
 
 func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  a + b",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	ctxList := []ast.Node{}
 	for i := range 3 {
@@ -289,12 +289,12 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 }
 
 func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  aaaa + bbb",
 		"ccc",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	ctxList := []ast.Node{}
 	for i := range 4 {
@@ -369,11 +369,11 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 }
 
 func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  0x1234 + 0xBEEF + 0xc0de",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	ctxList := []ast.Node{}
 	for i := range 5 {
@@ -476,11 +476,11 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 }
 
 func TestTokenizerScanTokenHexadecimalNumberErrorNoNumberEOL(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  0x",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
@@ -504,11 +504,11 @@ func TestTokenizerScanTokenHexadecimalNumberErrorNoNumberEOL(t *testing.T) {
 }
 
 func TestTokenizerScanTokenHexadecimalNumberErrorInvalidFormat(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  0xGHIJ+0xghij",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
 	if err == nil {
@@ -531,11 +531,11 @@ func TestTokenizerScanTokenHexadecimalNumberErrorInvalidFormat(t *testing.T) {
 }
 
 func TestTokenizerScanTokenHexadecimalNumberErrorTooLargeNumber(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  0x01234567890ABCDEF1234 + 0xbeef",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
 	if err == nil {
@@ -559,11 +559,11 @@ func TestTokenizerScanTokenHexadecimalNumberErrorTooLargeNumber(t *testing.T) {
 }
 
 func TestTokenizerScanTokenOctalNumber(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  01234 + 0777",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	ctxList := []ast.Node{}
 	for i := range 3 {
@@ -642,11 +642,11 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 }
 
 func TestTokenizerScanTokenOctalNumberErrorInvalidFormat(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  0123456789",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
@@ -670,11 +670,11 @@ func TestTokenizerScanTokenOctalNumberErrorInvalidFormat(t *testing.T) {
 }
 
 func TestTokenizerScanTokenOctalNumberErrorTooLargeNumber(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  01234567012345670123456701234567",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
@@ -698,11 +698,11 @@ func TestTokenizerScanTokenOctalNumberErrorTooLargeNumber(t *testing.T) {
 }
 
 func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  1234 + 5678",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	ctxList := []ast.Node{}
 	for i := range 3 {
@@ -781,11 +781,11 @@ func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 }
 
 func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  0",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 	tokenizer.SkipWhitespace()
 	tok, err := tokenizer.ScanToken()
 	if err != nil {
@@ -811,11 +811,11 @@ func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
 }
 
 func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	ctxList := []ast.Node{}
 	for i := range 9 {
@@ -949,11 +949,11 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 }
 
 func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInIntegerPart(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  123dfg + 3.14",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
@@ -977,11 +977,11 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInIntegerPart(t *
 }
 
 func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInFractionPart(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  3.14xyz + 123",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
@@ -1005,11 +1005,11 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInFractionPart(t 
 }
 
 func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t *testing.T) {
-	buffer := []byte(strings.Join([]string{
+	code := strings.Join([]string{
 		"  1.5e10xyz + 123",
-	}, "\n"))
+	}, "\n")
 
-	tokenizer := NewTokenizerFrom(buffer, "test.txt")
+	tokenizer := NewTokenizerFromString(code, "test.txt")
 
 	tokenizer.SkipWhitespace()
 	result, err := tokenizer.ScanToken()
@@ -1030,4 +1030,7 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t 
 	if got != exp {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
 	}
+}
+
+func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
 }
