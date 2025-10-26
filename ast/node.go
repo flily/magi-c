@@ -11,25 +11,32 @@ type Node interface {
 	HighlightText(message string, args ...any) string
 }
 
-type nodeContext struct {
+type ContextProvider interface {
+	Context() *context.Context
+}
+
+type ContextContainer struct {
 	context *context.Context
 }
 
-func (n *nodeContext) Context() *context.Context {
+func (n *ContextContainer) Context() *context.Context {
 	return n.context
 }
 
-func (n *nodeContext) HighlightText(message string, args ...any) string {
-	return n.context.HighlightText(message, args...)
+func (n *ContextContainer) HighlightText(message string, args ...any) string {
+	ctx := n.Context()
+	return ctx.HighlightText(message, args...)
 }
 
 type TerminalNode struct {
-	nodeContext
+	ContextContainer
 }
 
 func NewTerminalNode(ctx *context.Context) TerminalNode {
 	n := TerminalNode{
-		nodeContext: nodeContext{context: ctx},
+		ContextContainer: ContextContainer{
+			context: ctx,
+		},
 	}
 
 	return n
@@ -40,12 +47,12 @@ func (n *TerminalNode) Terminal() bool {
 }
 
 type NonTerminalNode struct {
-	nodeContext
+	ContextProvider
 }
 
-func NewNonTerminalNode(ctx *context.Context) NonTerminalNode {
+func NewNonTerminalNode(provider ContextProvider) NonTerminalNode {
 	n := NonTerminalNode{
-		nodeContext: nodeContext{context: ctx},
+		ContextProvider: provider,
 	}
 
 	return n
