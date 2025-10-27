@@ -27,9 +27,10 @@ func NewTokenizerFrom(buffer []byte, filename string) *Tokenizer {
 
 	cursor := context.NewCursor(file)
 	t := &Tokenizer{
-		Filename: filename,
-		state:    TokenizerStateInit,
-		cursor:   cursor,
+		Filename:      filename,
+		state:         TokenizerStateInit,
+		cursor:        cursor,
+		Preprocessors: make(map[string]preprocessor.PreprocessorInitializer),
 	}
 
 	return t

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/preprocessor"
 )
 
 func TestTokenizerSkipWhitespace(t *testing.T) {
@@ -1033,4 +1034,34 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t 
 }
 
 func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
+	code := strings.Join([]string{
+		"  #include <stdio.h>",
+	}, "\n")
+
+	tokenizer := NewTokenizerFromString(code, "test.txt")
+	tokenizer.Preprocessors["include"] = preprocessor.Include
+
+	tokenizer.SkipWhitespace()
+	tok, err := tokenizer.ScanToken()
+	if err != nil {
+		t.Fatalf("unexpected error:\n%v", err)
+	}
+
+	if tok == nil {
+		t.Fatalf("expected a token, got nil")
+	}
+
+	exp := strings.Join([]string{
+		"   1:     #include <stdio.h>",
+		"          ^^^^^^^^ ^^^^^^^^^",
+		"          here",
+	}, "\n")
+	got := tok.HighlightText("here")
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+
+	if tok.Type() != ast.NodePreprocessorInclude {
+		t.Errorf("expected token type %s, got %s", ast.NodePreprocessorInclude, tok.Type())
+	}
 }

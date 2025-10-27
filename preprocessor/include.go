@@ -55,6 +55,7 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 	directive.LBracket = lbCtx
 	directive.Content = contentCtx
 	directive.RBracket = rbCtx
+	directive.NonTerminalNode = ast.NewNonTerminalNode(directive)
 
 	return directive, nil
 }

@@ -61,3 +61,8 @@ func NewNonTerminalNode(provider ContextProvider) NonTerminalNode {
 func (n *NonTerminalNode) Terminal() bool {
 	return false
 }
+
+func (c *NonTerminalNode) HighlightText(message string, args ...any) string {
+	ctx := c.Context()
+	return ctx.HighlightText(message, args...)
+}

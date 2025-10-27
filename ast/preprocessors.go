@@ -31,7 +31,7 @@ func GetPreprocessorDirectiveInfo(command string) *PreprocessorDirectiveInfo {
 }
 
 type PreprocessorInclude struct {
-	TerminalNode
+	NonTerminalNode
 	Hash     *context.Context
 	Command  *context.Context
 	LBracket *context.Context
@@ -41,4 +41,8 @@ type PreprocessorInclude struct {
 
 func (p *PreprocessorInclude) Type() NodeType {
 	return NodePreprocessorInclude
+}
+
+func (p *PreprocessorInclude) Context() *context.Context {
+	return context.Join(p.Hash, p.Command, p.LBracket, p.Content, p.RBracket)
 }
