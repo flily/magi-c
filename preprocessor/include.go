@@ -6,23 +6,20 @@ import (
 )
 
 type preprocessorInclude struct {
-	cursor *context.Cursor
+	cursorContainer
 }
 
 func Include(cursor *context.Cursor) Preprocessor {
 	p := &preprocessorInclude{
-		cursor: cursor,
+		cursorContainer: cursorContainer{
+			cursor: cursor,
+		},
 	}
 
 	return p
 }
 
 func (p *preprocessorInclude) Process(hash *context.Context, name *context.Context) (ast.Node, error) {
-	directive := &ast.PreprocessorInclude{
-		Hash:    hash,
-		Command: name,
-	}
-
 	p.cursor.SkipWhitespaceInLine()
 	lb, lbCtx := p.cursor.CurrentChar()
 	pos := rune(0)
@@ -52,10 +49,7 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 		return nil, ast.NewError(lbCtx, "expected file name after '#include', got empty string")
 	}
 
-	directive.LBracket = lbCtx
-	directive.Content = contentCtx
-	directive.RBracket = rbCtx
-	directive.NonTerminalNode = ast.NewNonTerminalNode(directive)
+	directive := ast.NewPreprocessorInclude(hash, name, lbCtx, contentCtx, rbCtx)
 
 	return directive, nil
 }

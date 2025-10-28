@@ -13,6 +13,16 @@ type Preprocessor interface {
 
 type PreprocessorInitializer func(cursor *context.Cursor) Preprocessor
 
+type cursorContainer struct {
+	cursor *context.Cursor
+}
+
+func newCursorContainer(cursor *context.Cursor) cursorContainer {
+	return cursorContainer{
+		cursor: cursor,
+	}
+}
+
 func cursorScanUntilInLine(cursor *context.Cursor, flags ...rune) (string, *context.Context) {
 	begin := cursor.State()
 	for {

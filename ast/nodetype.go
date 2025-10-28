@@ -100,6 +100,7 @@ const (
 
 	preprocessorBegin
 	NodePreprocessorInclude
+	NodePreprocessorInline
 	preprocessorEnd
 
 	LastToken

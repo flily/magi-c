@@ -50,12 +50,8 @@ type NonTerminalNode struct {
 	ContextProvider
 }
 
-func NewNonTerminalNode(provider ContextProvider) NonTerminalNode {
-	n := NonTerminalNode{
-		ContextProvider: provider,
-	}
-
-	return n
+func (n *NonTerminalNode) Init(provider ContextProvider) {
+	n.ContextProvider = provider
 }
 
 func (n *NonTerminalNode) Terminal() bool {
