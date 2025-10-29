@@ -47,15 +47,19 @@ func (n *TerminalNode) Terminal() bool {
 }
 
 type NonTerminalNode struct {
-	ContextProvider
+	provider ContextProvider
 }
 
 func (n *NonTerminalNode) Init(provider ContextProvider) {
-	n.ContextProvider = provider
+	n.provider = provider
 }
 
 func (n *NonTerminalNode) Terminal() bool {
 	return false
+}
+
+func (c *NonTerminalNode) Context() *context.Context {
+	return c.provider.Context()
 }
 
 func (c *NonTerminalNode) HighlightText(message string, args ...any) string {
