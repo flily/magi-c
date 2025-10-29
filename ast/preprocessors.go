@@ -38,10 +38,6 @@ type PreprocessorCommon struct {
 	Command *context.Context
 }
 
-func (p *PreprocessorCommon) InitContextProvider() {
-	p.Init(p)
-}
-
 type PreprocessorInclude struct {
 	PreprocessorCommon
 	LBracket *context.Context
@@ -60,7 +56,7 @@ func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbr
 		RBracket: rbracket,
 	}
 
-	p.InitContextProvider()
+	p.Init(p)
 	return p
 }
 
