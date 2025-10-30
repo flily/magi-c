@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"bytes"
+	"strings"
 )
 
 func TestLineContentBasicInfo(t *testing.T) {
@@ -95,6 +96,28 @@ func TestReadFileData(t *testing.T) {
 
 	if c, eol := ctx.Rune(100, 0); c != 0 || !eol {
 		t.Errorf("expected rune at (100, 0) to be EOF, got '%c', eof=%v", c, eol)
+	}
+}
+
+func TestReadFileDataWithEmptyLine(t *testing.T) {
+	filename := "example.txt"
+	data1 := strings.Join([]string{
+		"lorem ipsum",
+		"",
+	}, "\n")
+
+	ctx1 := ReadFileString(filename, data1)
+	if ctx1.Lines() != 2 {
+		t.Errorf("expected 2 lines, got %d", ctx1.Lines())
+	}
+
+	data2 := strings.Join([]string{
+		"lorem ipsum",
+	}, "\n")
+
+	ctx2 := ReadFileString(filename, data2)
+	if ctx2.Lines() != 1 {
+		t.Errorf("expected 1 line, got %d", ctx2.Lines())
 	}
 }
 

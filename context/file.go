@@ -156,6 +156,7 @@ func ReadFileData(filename string, data []byte) *FileContext {
 	column := 0
 	i := 0
 	start := 0
+	lastEOL := 0
 	for i < len(data) {
 		n, eol := meetEOL(data, i)
 		if n < 0 {
@@ -167,11 +168,12 @@ func ReadFileData(filename string, data []byte) *FileContext {
 		lineContent := NewLineFromBytes(len(lines), data[start:i], eol)
 		lines = append(lines, &lineContent)
 		i += n
+		lastEOL = i
 		column = 0
 		start = i
 	}
 
-	if i > start {
+	if i >= start || lastEOL > 0 {
 		lineContent := NewLineFromBytes(len(lines), data[start:i], nil)
 		lines = append(lines, &lineContent)
 	}
@@ -191,6 +193,10 @@ func ReadFile(filename string) (*FileContext, error) {
 	}
 
 	return ReadFileData(filename, data), nil
+}
+
+func ReadFileString(filename string, data string) *FileContext {
+	return ReadFileData(filename, []byte(data))
 }
 
 func (f *FileContext) Rune(line int, column int) (rune, bool) {
