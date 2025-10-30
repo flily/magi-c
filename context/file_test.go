@@ -58,8 +58,8 @@ func TestReadFileData(t *testing.T) {
 		t.Errorf("expected filename %s, got %s", filename, ctx.Filename)
 	}
 
-	if ctx.Lines() != 7 {
-		t.Errorf("expected 7 lines, got %d", ctx.Lines())
+	if ctx.Lines() != 8 {
+		t.Errorf("expected 8 lines, got %d", ctx.Lines())
 	}
 
 	if ctx.Line(0).String() != "lorem ipsum" {
