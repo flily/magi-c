@@ -57,9 +57,39 @@ func (c *Cursor) CurrentChar() (rune, *Context) {
 	return r, ctx
 }
 
+func (c *Cursor) CurrentLine() (string, *Context) {
+	line := c.File.Line(c.Line)
+	if line == nil {
+		return "", nil
+	}
+
+	start := c.State()
+	start.Column = 0
+
+	finish := c.State()
+	finish.Column = line.Length()
+
+	_, ctx := c.FinishWith(start, finish)
+	return line.String(), ctx
+}
+
 // Rune returns the rune of current position, and EOL and EOF status
 func (c *Cursor) Rune() (rune, bool, bool) {
 	return c.Peek(0)
+}
+
+// End checks if the cursor is at the end of line and end of file
+func (c *Cursor) End() (bool, bool) {
+	line := c.File.Line(c.Line)
+	if line == nil {
+		return true, true
+	}
+
+	if c.Column >= len(line.Content) {
+		return true, false
+	}
+
+	return false, false
 }
 
 func (c *Cursor) CurrentEOL() []rune {
@@ -176,6 +206,18 @@ func (c *Cursor) Next() (rune, bool, bool) {
 	c.Line = line
 	c.Column = column
 	return c.Rune()
+}
+
+func (c *Cursor) NextLine() bool {
+	line := c.Line + 1
+	content := c.File.Line(line)
+	if content == nil {
+		return true
+	}
+
+	c.Line = line
+	c.Column = 0
+	return false
 }
 
 func (c *Cursor) SearchInLine(s string) *CursorState {

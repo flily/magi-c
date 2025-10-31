@@ -11,9 +11,7 @@ type preprocessorInclude struct {
 
 func Include(cursor *context.Cursor) Preprocessor {
 	p := &preprocessorInclude{
-		cursorContainer: cursorContainer{
-			cursor: cursor,
-		},
+		cursorContainer: newCursorContainer(cursor),
 	}
 
 	return p

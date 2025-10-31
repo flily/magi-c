@@ -24,6 +24,11 @@ func newCursorContainer(cursor *context.Cursor) cursorContainer {
 }
 
 func cursorScanUntilInLine(cursor *context.Cursor, flags ...rune) (string, *context.Context) {
+	if eol, eof := cursor.End(); eol || eof {
+		_, ctx := cursor.CurrentChar()
+		return "", ctx
+	}
+
 	begin := cursor.State()
 	for {
 		r, eol, eof := cursor.Rune()

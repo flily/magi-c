@@ -77,6 +77,31 @@ type PreprocessorInline struct {
 	CodeTypeEnd *context.Context
 }
 
+func NewPreprocessorInline(hash *context.Context, command *context.Context, codeType *context.Context, content *context.Context, hashEnd *context.Context, commandEnd *context.Context, codeTypeEnd *context.Context) *PreprocessorInline {
+	p := &PreprocessorInline{
+		PreprocessorCommon: PreprocessorCommon{
+			Hash:    hash,
+			Command: command,
+		},
+		CodeType:    codeType,
+		Content:     content,
+		HashEnd:     hashEnd,
+		CommandEnd:  commandEnd,
+		CodeTypeEnd: codeTypeEnd,
+	}
+
+	p.Init(p)
+	return p
+}
+
 func (p *PreprocessorInline) Type() NodeType {
 	return NodePreprocessorInline
+}
+
+func (p *PreprocessorInline) Context() *context.Context {
+	return context.Join(p.Hash, p.Command, p.CodeType, p.Content, p.HashEnd, p.CommandEnd, p.CodeTypeEnd)
+}
+
+func (p *PreprocessorInline) Empty() bool {
+	return p.Content == nil
 }
