@@ -22,9 +22,9 @@ fun add(a int32, b int32) (int32) {
 }
 
 fun main() (int) {
-    #inline c {
+    #inline c
         printf("hello, world\n");
-    }
+    #end-inline c
 
     const a int32 = 1
     const b int32 = 2
@@ -33,7 +33,7 @@ fun main() (int) {
         if (c > 0) {
             printf("1 + 2 (+ 3) = %d\n", c);
         }
-    #inline end
+    #end-inline c
 
     return 0
 }
