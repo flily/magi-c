@@ -47,10 +47,6 @@ func cursorScanUntilInLine(cursor *context.Cursor, flags ...rune) (string, *cont
 	return result, ctx
 }
 
-func (p *preprocessorInclude) Type() ast.NodeType {
-	return ast.NodePreprocessorInclude
-}
-
 func isValidDirectiveNameChar(r rune) bool {
 	if ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') || ('0' <= r && r <= '9') {
 		return true
@@ -85,7 +81,7 @@ func scanDirectiveName(cursor *context.Cursor) (string, *context.Context) {
 func ScanDirective(cursor *context.Cursor) (string, *context.Context, *context.Context, error) {
 	hash, hashCtx := cursor.CurrentChar()
 	if hash != '#' {
-		return "", nil, nil, ast.NewError(hashCtx, "expected '#' at the beginning of preprocessor directive, got '%c'", hash)
+		return "", nil, nil, ast.NewError(hashCtx, "expect '#' at the beginning of preprocessor directive, got '%c'", hash)
 	}
 
 	if !cursor.IsFirstNonWhiteChar() {
@@ -95,7 +91,8 @@ func ScanDirective(cursor *context.Cursor) (string, *context.Context, *context.C
 	cursor.NextInLine()
 	name, nameCtx := scanDirectiveName(cursor)
 	if len(name) <= 0 {
-		return "", nil, nil, ast.NewError(nameCtx, "expected preprocessor directive name after '#', got empty string")
+		_, ctx := cursor.CurrentChar()
+		return "", nil, nil, ast.NewError(ctx, "expect preprocessor directive name after '#', got empty string")
 	}
 
 	return name, hashCtx, nameCtx, nil

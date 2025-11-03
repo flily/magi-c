@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/flily/magi-c/ast"
-	"github.com/flily/magi-c/context"
 )
 
 func TestInlineDirectiveBasic(t *testing.T) {
@@ -16,12 +15,7 @@ func TestInlineDirectiveBasic(t *testing.T) {
 		"#end-inline c",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	node, err := scanDirectiveOn(cursor, Inline)
-	if err != nil {
-		t.Fatalf("unexpected error:\n%v", err)
-	}
-
+	node := testScanDirectiveCorrect(t, code, Inline)
 	result, ok := node.(*ast.PreprocessorInline)
 	if !ok {
 		t.Fatalf("expect PreprocessorInline node, got %T", node)
@@ -31,7 +25,27 @@ func TestInlineDirectiveBasic(t *testing.T) {
 		t.Fatalf("expect non-nil PreprocessorInline node")
 	}
 
-	gotContent := result.Content.HighlightText("here")
+	expHash := strings.Join([]string{
+		"   1:   #inline c",
+		"        ^",
+		"        here",
+	}, "\n")
+	checkElementContext(t, result.Hash, expHash)
+
+	expCmd := strings.Join([]string{
+		"   1:   #inline c",
+		"         ^^^^^^",
+		"         here",
+	}, "\n")
+	checkElementContext(t, result.Command, expCmd)
+
+	expType := strings.Join([]string{
+		"   1:   #inline c",
+		"                ^",
+		"                here",
+	}, "\n")
+	checkElementContext(t, result.CodeType, expType)
+
 	expContent := strings.Join([]string{
 		"   2:   #include <stdio.h>",
 		"        ^^^^^^^^^^^^^^^^^^",
@@ -39,8 +53,31 @@ func TestInlineDirectiveBasic(t *testing.T) {
 		"        ^^^^^^^^^^^",
 		"        here",
 	}, "\n")
-	if gotContent != expContent {
-		t.Errorf("expect content context highlight:\n%s\ngot:\n%s", expContent, gotContent)
+	checkElementContext(t, result.Content, expContent)
+
+	expEndHash := strings.Join([]string{
+		"   4:   #end-inline c",
+		"        ^",
+		"        here",
+	}, "\n")
+	checkElementContext(t, result.HashEnd, expEndHash)
+
+	expEndCmd := strings.Join([]string{
+		"   4:   #end-inline c",
+		"         ^^^^^^^^^^",
+		"         here",
+	}, "\n")
+	checkElementContext(t, result.CommandEnd, expEndCmd)
+
+	expEndType := strings.Join([]string{
+		"   4:   #end-inline c",
+		"                    ^",
+		"                    here",
+	}, "\n")
+	checkElementContext(t, result.CodeTypeEnd, expEndType)
+
+	if result.Empty() {
+		t.Errorf("expect non-empty node returned")
 	}
 }
 
@@ -50,20 +87,32 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 		"#end-inline c",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	node, err := scanDirectiveOn(cursor, Inline)
-	if err != nil {
-		t.Fatalf("unexpected error:\n%v", err)
-	}
-
+	node := testScanDirectiveCorrect(t, code, Inline)
 	result, ok := node.(*ast.PreprocessorInline)
 	if !ok {
 		t.Fatalf("expect PreprocessorInline node, got %T", node)
 	}
 
-	if result == nil {
-		t.Fatalf("expect non-nil PreprocessorInline node")
-	}
+	expHash := strings.Join([]string{
+		"   1:   #inline c",
+		"        ^",
+		"        here",
+	}, "\n")
+	checkElementContext(t, result.Hash, expHash)
+
+	expCmd := strings.Join([]string{
+		"   1:   #inline c",
+		"         ^^^^^^",
+		"         here",
+	}, "\n")
+	checkElementContext(t, result.Command, expCmd)
+
+	expType := strings.Join([]string{
+		"   1:   #inline c",
+		"                ^",
+		"                here",
+	}, "\n")
+	checkElementContext(t, result.CodeType, expType)
 
 	if result.Content != nil {
 		t.Errorf("expect nil content context for empty inline block, got non-nil")
@@ -72,6 +121,27 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 	if !result.Empty() {
 		t.Errorf("expect empty node returned")
 	}
+
+	expEndHash := strings.Join([]string{
+		"   2:   #end-inline c",
+		"        ^",
+		"        here",
+	}, "\n")
+	checkElementContext(t, result.HashEnd, expEndHash)
+
+	expEndCmd := strings.Join([]string{
+		"   2:   #end-inline c",
+		"         ^^^^^^^^^^",
+		"         here",
+	}, "\n")
+	checkElementContext(t, result.CommandEnd, expEndCmd)
+
+	expEndType := strings.Join([]string{
+		"   2:   #end-inline c",
+		"                    ^",
+		"                    here",
+	}, "\n")
+	checkElementContext(t, result.CodeTypeEnd, expEndType)
 }
 
 func TestInlineDirectiveWithoutBlockType(t *testing.T) {
@@ -81,19 +151,12 @@ func TestInlineDirectiveWithoutBlockType(t *testing.T) {
 		"#end-inline",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Inline)
-
-	got := err.Error()
 	exp := strings.Join([]string{
 		"   1:   #inline<EOL LF>",
 		"               ^^^^^^^^",
 		"               expect block type",
 	}, "\n")
-
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Inline, exp)
 }
 
 func TestInlineDirectiveWithWrongBlockType(t *testing.T) {
@@ -103,19 +166,12 @@ func TestInlineDirectiveWithWrongBlockType(t *testing.T) {
 		"#end-inline c",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Inline)
-
-	got := err.Error()
 	exp := strings.Join([]string{
 		"   1:   #inline c asm",
 		"                  ^^^",
 		"                  expected EOL after inline block type, got 'asm'",
 	}, "\n")
-
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Inline, exp)
 }
 
 func TestInlineDirectiveWithNoContentAndNoClosing(t *testing.T) {
@@ -123,19 +179,12 @@ func TestInlineDirectiveWithNoContentAndNoClosing(t *testing.T) {
 		"#inline c",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Inline)
-
-	got := err.Error()
 	exp := strings.Join([]string{
 		"   1:   #inline c<EOF>",
 		"                 ^^^^^",
 		"                 expect inline block content, got EOF",
 	}, "\n")
-
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Inline, exp)
 }
 
 func TestInlineDirectiveWithUnclosedBlock(t *testing.T) {
@@ -144,17 +193,10 @@ func TestInlineDirectiveWithUnclosedBlock(t *testing.T) {
 		"#include <stdio.h>",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Inline)
-
-	got := err.Error()
 	exp := strings.Join([]string{
 		"   2:   #include <stdio.h><EOF>",
 		"                          ^^^^^",
 		"                          expect '#end-inline c' to close inline block, got EOF",
 	}, "\n")
-
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Inline, exp)
 }

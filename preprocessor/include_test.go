@@ -14,66 +14,46 @@ func TestIncludeDirectiveAngleQuote(t *testing.T) {
 		"#include <stdio.h>",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	node, err := scanDirectiveOn(cursor, Include)
-	if err != nil {
-		t.Fatalf("unexpected error:\n%v", err)
-	}
-
+	node := testScanDirectiveCorrect(t, code, Include)
 	result, ok := node.(*ast.PreprocessorInclude)
 	if !ok {
 		t.Fatalf("expected PreprocessorInclude node, got %T", node)
 	}
 
-	gotHash := result.Hash.HighlightText("here")
 	expHash := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"        ^",
 		"        here",
 	}, "\n")
-	if gotHash != expHash {
-		t.Errorf("expected hash context highlight:\n%s\ngot:\n%s", expHash, gotHash)
-	}
+	checkElementContext(t, result.Hash, expHash)
 
-	gotCmd := result.Command.HighlightText("here")
 	expCmd := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"         ^^^^^^^",
 		"         here",
 	}, "\n")
-	if gotCmd != expCmd {
-		t.Errorf("expected command context highlight:\n%s\ngot:\n%s", expCmd, gotCmd)
-	}
+	checkElementContext(t, result.Command, expCmd)
 
-	gotLBracket := result.LBracket.HighlightText("here")
 	expLBracket := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"                 ^",
 		"                 here",
 	}, "\n")
-	if gotLBracket != expLBracket {
-		t.Errorf("expected LBracket context highlight:\n%s\ngot:\n%s", expLBracket, gotLBracket)
-	}
+	checkElementContext(t, result.LBracket, expLBracket)
 
-	gotContent := result.Content.HighlightText("here")
 	expContent := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"                  ^^^^^^^",
 		"                  here",
 	}, "\n")
-	if gotContent != expContent {
-		t.Errorf("expected content context highlight:\n%s\ngot:\n%s", expContent, gotContent)
-	}
+	checkElementContext(t, result.Content, expContent)
 
-	gotRBracket := result.RBracket.HighlightText("here")
 	expRBracket := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"                         ^",
 		"                         here",
 	}, "\n")
-	if gotRBracket != expRBracket {
-		t.Errorf("expected RBracket context highlight:\n%s\ngot:\n%s", expRBracket, gotRBracket)
-	}
+	checkElementContext(t, result.RBracket, expRBracket)
 }
 
 func TestIncludeDirectiveDoubleQuote(t *testing.T) {
@@ -81,66 +61,46 @@ func TestIncludeDirectiveDoubleQuote(t *testing.T) {
 		`#include "stdio.h"`,
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	node, err := scanDirectiveOn(cursor, Include)
-	if err != nil {
-		t.Fatalf("unexpected error:\n%v", err)
-	}
-
+	node := testScanDirectiveCorrect(t, code, Include)
 	result, ok := node.(*ast.PreprocessorInclude)
 	if !ok {
 		t.Fatalf("expected PreprocessorInclude node, got %T", node)
 	}
 
-	gotHash := result.Hash.HighlightText("here")
 	expHash := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"        ^",
 		"        here",
 	}, "\n")
-	if gotHash != expHash {
-		t.Errorf("expected hash context highlight:\n%s\ngot:\n%s", expHash, gotHash)
-	}
+	checkElementContext(t, result.Hash, expHash)
 
-	gotCmd := result.Command.HighlightText("here")
 	expCmd := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"         ^^^^^^^",
 		"         here",
 	}, "\n")
-	if gotCmd != expCmd {
-		t.Errorf("expected command context highlight:\n%s\ngot:\n%s", expCmd, gotCmd)
-	}
+	checkElementContext(t, result.Command, expCmd)
 
-	gotLBracket := result.LBracket.HighlightText("here")
 	expLBracket := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"                 ^",
 		"                 here",
 	}, "\n")
-	if gotLBracket != expLBracket {
-		t.Errorf("expected LBracket context highlight:\n%s\ngot:\n%s", expLBracket, gotLBracket)
-	}
+	checkElementContext(t, result.LBracket, expLBracket)
 
-	gotContent := result.Content.HighlightText("here")
 	expContent := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"                  ^^^^^^^",
 		"                  here",
 	}, "\n")
-	if gotContent != expContent {
-		t.Errorf("expected content context highlight:\n%s\ngot:\n%s", expContent, gotContent)
-	}
+	checkElementContext(t, result.Content, expContent)
 
-	gotRBracket := result.RBracket.HighlightText("here")
 	expRBracket := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"                         ^",
 		"                         here",
 	}, "\n")
-	if gotRBracket != expRBracket {
-		t.Errorf("expected RBracket context highlight:\n%s\ngot:\n%s", expRBracket, gotRBracket)
-	}
+	checkElementContext(t, result.RBracket, expRBracket)
 }
 
 func TestIncludeDirectiveWithoutSpace(t *testing.T) {
@@ -148,66 +108,46 @@ func TestIncludeDirectiveWithoutSpace(t *testing.T) {
 		`#include<stdio.h>`,
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	node, err := scanDirectiveOn(cursor, Include)
-	if err != nil {
-		t.Fatalf("unexpected error:\n%v", err)
-	}
-
+	node := testScanDirectiveCorrect(t, code, Include)
 	result, ok := node.(*ast.PreprocessorInclude)
 	if !ok {
 		t.Fatalf("expected PreprocessorInclude node, got %T", node)
 	}
 
-	gotHash := result.Hash.HighlightText("here")
 	expHash := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"        ^",
 		"        here",
 	}, "\n")
-	if gotHash != expHash {
-		t.Errorf("expected hash context highlight:\n%s\ngot:\n%s", expHash, gotHash)
-	}
+	checkElementContext(t, result.Hash, expHash)
 
-	gotCmd := result.Command.HighlightText("here")
 	expCmd := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"         ^^^^^^^",
 		"         here",
 	}, "\n")
-	if gotCmd != expCmd {
-		t.Errorf("expected command context highlight:\n%s\ngot:\n%s", expCmd, gotCmd)
-	}
+	checkElementContext(t, result.Command, expCmd)
 
-	gotLBracket := result.LBracket.HighlightText("here")
 	expLBracket := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"                ^",
 		"                here",
 	}, "\n")
-	if gotLBracket != expLBracket {
-		t.Errorf("expected LBracket context highlight:\n%s\ngot:\n%s", expLBracket, gotLBracket)
-	}
+	checkElementContext(t, result.LBracket, expLBracket)
 
-	gotContent := result.Content.HighlightText("here")
 	expContent := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"                 ^^^^^^^",
 		"                 here",
 	}, "\n")
-	if gotContent != expContent {
-		t.Errorf("expected content context highlight:\n%s\ngot:\n%s", expContent, gotContent)
-	}
+	checkElementContext(t, result.Content, expContent)
 
-	gotRBracket := result.RBracket.HighlightText("here")
 	expRBracket := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"                        ^",
 		"                        here",
 	}, "\n")
-	if gotRBracket != expRBracket {
-		t.Errorf("expected RBracket context highlight:\n%s\ngot:\n%s", expRBracket, gotRBracket)
-	}
+	checkElementContext(t, result.RBracket, expRBracket)
 }
 
 func TestIncludeDirectiveWithWrongQuote(t *testing.T) {
@@ -215,21 +155,12 @@ func TestIncludeDirectiveWithWrongQuote(t *testing.T) {
 		`#include stdio.h`,
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Include)
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-
 	exp := strings.Join([]string{
 		`   1:   #include stdio.h`,
 		"                 ^",
 		"                 expected '<' or '\"' after '#include', got 's'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Include, exp)
 }
 
 func TestIncludeDirectiveWithNoName(t *testing.T) {
@@ -237,21 +168,12 @@ func TestIncludeDirectiveWithNoName(t *testing.T) {
 		`#include <>`,
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Include)
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-
 	exp := strings.Join([]string{
 		`   1:   #include <>`,
 		"                 ^",
 		"                 expected file name after '#include', got empty string",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Include, exp)
 }
 
 func TestIncludeDirectiveWithUnclosedQuote(t *testing.T) {
