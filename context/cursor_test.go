@@ -178,7 +178,7 @@ func TestCursorPeek(t *testing.T) {
 	}
 }
 
-func TestCursorNextLineBasic(t *testing.T) {
+func TestCursorNextInLineBasic(t *testing.T) {
 	cursor := createTestCursor1()
 
 	firstLine := []rune{
@@ -207,7 +207,7 @@ func TestCursorNextLineBasic(t *testing.T) {
 	}
 }
 
-func TestCursorNextLineWithEmptyLine(t *testing.T) {
+func TestCursorNextInLineWithEmptyLine(t *testing.T) {
 	cursor := createTestCursor2()
 
 	content := []rune{
@@ -238,7 +238,7 @@ func TestCursorNextLineWithEmptyLine(t *testing.T) {
 	}
 }
 
-func TestCursorNextLineInTheLastLine(t *testing.T) {
+func TestCursorNextInLineInTheLastLine(t *testing.T) {
 	cursor := createTestCursor1()
 
 	cursor.NextNonEmptyLine() // move to second line
@@ -268,6 +268,49 @@ func TestCursorNextLineInTheLastLine(t *testing.T) {
 	r, eof = cursor.NextInLine()
 	if !eof {
 		t.Errorf("expect EOL at %s, got rune '%c'", cursor.Position(), r)
+	}
+}
+
+func TestCursorNextLine1(t *testing.T) {
+	text := []string{
+		"lorem\n",
+		"ipsum",
+	}
+
+	cursor := NewCursorFromString("example.txt", strings.Join(text, ""))
+
+	eof1 := cursor.NextLine()
+	if eof1 {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	eof2 := cursor.NextLine()
+	if !eof2 {
+		t.Errorf("expected EOF at %s", cursor.Position())
+	}
+}
+
+func TestCursorNextLine2(t *testing.T) {
+	text := []string{
+		"lorem\n",
+		"ipsum\n",
+	}
+
+	cursor := NewCursorFromString("example.txt", strings.Join(text, ""))
+
+	eof1 := cursor.NextLine()
+	if eof1 {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	eof2 := cursor.NextLine()
+	if eof2 {
+		t.Fatalf("unexpected EOF at %s", cursor.Position())
+	}
+
+	eof3 := cursor.NextLine()
+	if !eof3 {
+		t.Errorf("expected EOF at %s", cursor.Position())
 	}
 }
 
@@ -614,4 +657,62 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 	if got3 != exp3 {
 		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
 	}
+}
+
+func TestCursorEndWithLastEmptyLine(t *testing.T) {
+	cursor := createTestCursor1()
+
+	for range 5 {
+		eol, eof := cursor.End()
+		if eol || eof {
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+		}
+
+		cursor.NextInLine()
+	}
+
+	{
+		eol, eof := cursor.End()
+		if !eol {
+			t.Errorf("expect EOL at %s", cursor.Position())
+		}
+
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+	}
+
+	cursor.NextLine()
+	for range 5 {
+		eol, eof := cursor.End()
+		if eol || eof {
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+		}
+
+		cursor.NextInLine()
+	}
+
+	{
+		eol, eof := cursor.End()
+		if !eol {
+			t.Errorf("expect EOL at %s", cursor.Position())
+		}
+
+		if eof {
+			t.Fatalf("unexpected EOF at %s", cursor.Position())
+		}
+	}
+
+	cursor.NextLine()
+	{
+		eol, eof := cursor.End()
+		if !eol {
+			t.Errorf("expect EOL at %s", cursor.Position())
+		}
+
+		if !eof {
+			t.Fatalf("expect EOF at %s", cursor.Position())
+		}
+	}
+
 }

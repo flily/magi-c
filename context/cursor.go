@@ -80,13 +80,11 @@ func (c *Cursor) Rune() (rune, bool, bool) {
 
 // End checks if the cursor is at the end of line and end of file
 func (c *Cursor) End() (bool, bool) {
+	lastLine := c.Line+1 >= len(c.File.Contents)
 	line := c.File.Line(c.Line)
-	if line == nil {
-		return true, true
-	}
 
 	if c.Column >= len(line.Content) {
-		return true, false
+		return true, lastLine
 	}
 
 	return false, false
