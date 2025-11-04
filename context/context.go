@@ -129,10 +129,7 @@ func (c *Context) Last() (int, int) {
 	line, column := 0, 0
 	for _, lineCtx := range c.Lines {
 		lineNo := lineCtx.Content.Line
-		if lineNo < line {
-			continue
-
-		} else /* lineNo >= line */ {
+		if lineNo >= line {
 			line, column = lineNo, lineCtx.Last()
 		}
 	}
