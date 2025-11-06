@@ -378,5 +378,6 @@ func (t *Tokenizer) ScanToken() (ast.Node, error) {
 		return t.ScanSymbol()
 	}
 
-	return nil, nil
+	_, ctx := t.cursor.CurrentChar()
+	return nil, ast.NewError(ctx, "no token found")
 }

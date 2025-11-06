@@ -103,6 +103,12 @@ const (
 	NodePreprocessorInline
 	preprocessorEnd
 
+	nonTerminalNodeBegin
+	NodeDocument
+	NodeStatement
+	NodeExpression
+	nonTerminalNodeEnd
+
 	LastToken
 
 	SIllegal            = "Illegal"

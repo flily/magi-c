@@ -18,6 +18,10 @@ func NewToken(ttype NodeType, ctx *context.Context) *Token {
 	return t
 }
 
+func (t *Token) Terminal() bool {
+	return true
+}
+
 func (t *Token) Type() NodeType {
 	return t.t
 }
@@ -26,6 +30,6 @@ func (t *Token) Context() *context.Context {
 	return t.ctx
 }
 
-func (t *Token) HighlightText(s string) string {
-	return t.ctx.HighlightText(s)
+func (t *Token) HighlightText(s string, args ...any) string {
+	return t.ctx.HighlightText(s, args...)
 }
