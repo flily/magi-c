@@ -4,17 +4,29 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-type Document struct {
-	Nodes []Node
+type Statement interface {
+	Node
+	statementNode()
 }
 
-func NewDocument(nodes []Node) *Document {
+type Expression interface {
+	Node
+	expressionNode()
+}
+
+type Document struct {
+	Statements []Statement
+}
+
+func NewDocument(statements []Statement) *Document {
 	d := &Document{
-		Nodes: nodes,
+		Statements: statements,
 	}
 
 	return d
 }
+
+func (d *Document) statementNode() {}
 
 func (d *Document) Terminal() bool {
 	return false
@@ -25,14 +37,19 @@ func (d *Document) Type() NodeType {
 }
 
 func (d *Document) Context() *context.Context {
-	if len(d.Nodes) == 0 {
+	if len(d.Statements) == 0 {
 		return nil
 	}
 
-	ctxList := make([]*context.Context, 0, len(d.Nodes))
-	for _, n := range d.Nodes {
+	ctxList := make([]*context.Context, 0, len(d.Statements))
+	for _, n := range d.Statements {
 		ctxList = append(ctxList, n.Context())
 	}
 
 	return context.Join(ctxList...)
+}
+
+func (d *Document) HighlightText(message string, args ...any) string {
+	ctx := d.Context()
+	return ctx.HighlightText(message, args...)
 }
