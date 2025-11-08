@@ -716,3 +716,77 @@ func TestCursorEndWithLastEmptyLine(t *testing.T) {
 	}
 
 }
+
+func TestCursorCurrentLineAndEOL(t *testing.T) {
+	cursor := createTestCursor2()
+
+	line1, ctx1 := cursor.CurrentLine()
+	content1 := "lorem ipsum dolor sit amet"
+	if line1 != content1 {
+		t.Errorf("expected line content:\n%s\ngot:\n%s", content1, line1)
+	}
+
+	exp1 := strings.Join([]string{
+		"   1:   lorem ipsum dolor sit amet",
+		"        ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"        here",
+	}, "\n")
+	got1 := ctx1.HighlightText("here")
+	if got1 != exp1 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
+	}
+
+	eol1 := cursor.CurrentEOL()
+	if string(eol1) != "\n" {
+		t.Errorf("expected EOL '\\n', got '%s'", string(eol1))
+	}
+
+	cursor.NextLine()
+
+	line2, ctx2 := cursor.CurrentLine()
+	content2 := "consectetur adipiscing elit"
+	if line2 != content2 {
+		t.Errorf("expected line content:\n%s\ngot:\n%s", content2, line2)
+	}
+
+	exp2 := strings.Join([]string{
+		"   2:   consectetur adipiscing elit",
+		"        ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"        here",
+	}, "\n")
+	got2 := ctx2.HighlightText("here")
+	if got2 != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
+	}
+
+	eol2 := cursor.CurrentEOL()
+	if string(eol2) != "\n" {
+		t.Errorf("expected EOL '\\n', got '%s'", string(eol2))
+	}
+
+	cursor.NextLine()
+	cursor.NextLine()
+	cursor.NextLine()
+	cursor.NextLine()
+
+	line6, ctx6 := cursor.CurrentLine()
+	content6 := "ut enim ad minim veniam"
+	if line6 != content6 {
+		t.Errorf("expected line content:\n%s\ngot:\n%s", content6, line6)
+	}
+
+	exp6 := strings.Join([]string{
+		"   6:   ut enim ad minim veniam",
+		"        ^^^^^^^^^^^^^^^^^^^^^^^",
+		"        here",
+	}, "\n")
+	got6 := ctx6.HighlightText("here")
+	if got6 != exp6 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp6, got6)
+	}
+
+	eol6 := cursor.CurrentEOL()
+	if string(eol6) != "\r\n" {
+		t.Errorf("expected EOL '\\r\\n', got '%s'", string(eol6))
+	}
+}
