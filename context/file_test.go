@@ -130,3 +130,24 @@ func TestReadFileWithoutEndOfLine(t *testing.T) {
 		t.Errorf("expected 1 line, got %d", ctx.Lines())
 	}
 }
+
+func TestLineContentEOLString(t *testing.T) {
+	cases := []struct {
+		line     string
+		eol      string
+		expected string
+	}{
+		{line: "lorem ipsum", eol: "", expected: "<EOF>"},
+		{line: "lorem ipsum", eol: "\n", expected: "<EOL LF>"},
+		{line: "lorem ipsum", eol: "\r", expected: "<EOL CR>"},
+		{line: "lorem ipsum", eol: "\r\n", expected: "<EOL CRLF>"},
+		{line: "lorem ipsum", eol: "\x00", expected: "<EOL 0x00>"},
+	}
+
+	for _, c := range cases {
+		line := NewLineFromString(0, c.line, c.eol)
+		if line.EOLString() != c.expected {
+			t.Errorf("expected EOL string '%s', got '%s'", c.expected, line.EOLString())
+		}
+	}
+}

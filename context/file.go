@@ -3,6 +3,7 @@ package context
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 var (
@@ -43,6 +44,16 @@ func NewLineFromBytes(line int, data []byte, eol []byte) LineContent {
 	return l
 }
 
+func NewLineFromString(line int, s string, eol string) LineContent {
+	l := LineContent{
+		Line:    line,
+		EOL:     BytesToRunes([]byte(eol)),
+		Content: []rune(s),
+	}
+
+	return l
+}
+
 func (l *LineContent) Rune(n int) rune {
 	if n < 0 || n >= len(l.Content) {
 		return 0
@@ -72,10 +83,10 @@ func (l *LineContent) EOLString() string {
 
 	parts := make([]string, 0, len(l.EOL))
 	for _, r := range l.EOL {
-		parts = append(parts, fmt.Sprintf("0x%X", r))
+		parts = append(parts, fmt.Sprintf("0x%02x", r))
 	}
 
-	return "<EOL " + fmt.Sprintf("%s", parts) + ">"
+	return "<EOL " + strings.Join(parts, " ") + ">"
 }
 
 func (l *LineContent) String() string {
