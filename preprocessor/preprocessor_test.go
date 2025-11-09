@@ -9,7 +9,7 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitializer) ast.Node {
+func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitializer) (ast.Node, *context.Context) {
 	cursor := context.NewCursorFromString("example.c", code)
 	node, err := scanDirectiveOn(cursor, prep)
 	if err != nil {
@@ -20,7 +20,8 @@ func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitia
 		t.Fatalf("expect non-nil node when scan directive")
 	}
 
-	return node
+	_, final := cursor.CurrentChar()
+	return node, final
 }
 
 func checkScanDirectiveError(t *testing.T, code string, prep PreprocessorInitializer, expected string) {

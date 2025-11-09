@@ -44,8 +44,13 @@ func NewCursorFromString(filename string, s string) *Cursor {
 	return NewCursorFromBytes(filename, []byte(s))
 }
 
-func (c *Cursor) Position() string {
-	return fmt.Sprintf("%s:%d:%d", c.File.Filename, c.Line+1, c.Column+1)
+func (c *Cursor) Position() (string, int, int) {
+	return c.File.Filename, c.Line, c.Column
+}
+
+func (c *Cursor) PositionString() string {
+	filename, line, column := c.Position()
+	return fmt.Sprintf("%s:%d:%d", filename, line+1, column+1)
 }
 
 func (c *Cursor) CurrentChar() (rune, *Context) {
@@ -291,6 +296,15 @@ func (c *Cursor) Skip(n int) {
 	for i := 0; i < n; i++ {
 		_, eof, _ := c.Next()
 		if eof {
+			return
+		}
+	}
+}
+
+func (c *Cursor) SkipInLine(n int) {
+	for i := 0; i < n; i++ {
+		_, eol := c.NextInLine()
+		if eol {
 			return
 		}
 	}

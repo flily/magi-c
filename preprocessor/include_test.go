@@ -14,7 +14,7 @@ func TestIncludeDirectiveAngleQuote(t *testing.T) {
 		"#include <stdio.h>",
 	}, "\n")
 
-	node := testScanDirectiveCorrect(t, code, Include)
+	node, final := testScanDirectiveCorrect(t, code, Include)
 	result, ok := node.(*ast.PreprocessorInclude)
 	if !ok {
 		t.Fatalf("expected PreprocessorInclude node, got %T", node)
@@ -54,6 +54,13 @@ func TestIncludeDirectiveAngleQuote(t *testing.T) {
 		"                         here",
 	}, "\n")
 	checkElementContext(t, result.RBracket, expRBracket)
+
+	finalExp := strings.Join([]string{
+		"   1:   #include <stdio.h><EOF>",
+		"                          ^^^^^",
+		"                          here",
+	}, "\n")
+	checkElementContext(t, final, finalExp)
 }
 
 func TestIncludeDirectiveDoubleQuote(t *testing.T) {
@@ -61,7 +68,7 @@ func TestIncludeDirectiveDoubleQuote(t *testing.T) {
 		`#include "stdio.h"`,
 	}, "\n")
 
-	node := testScanDirectiveCorrect(t, code, Include)
+	node, final := testScanDirectiveCorrect(t, code, Include)
 	result, ok := node.(*ast.PreprocessorInclude)
 	if !ok {
 		t.Fatalf("expected PreprocessorInclude node, got %T", node)
@@ -101,6 +108,13 @@ func TestIncludeDirectiveDoubleQuote(t *testing.T) {
 		"                         here",
 	}, "\n")
 	checkElementContext(t, result.RBracket, expRBracket)
+
+	finalExp := strings.Join([]string{
+		`   1:   #include "stdio.h"<EOF>`,
+		"                          ^^^^^",
+		"                          here",
+	}, "\n")
+	checkElementContext(t, final, finalExp)
 }
 
 func TestIncludeDirectiveWithoutSpace(t *testing.T) {
@@ -108,7 +122,7 @@ func TestIncludeDirectiveWithoutSpace(t *testing.T) {
 		`#include<stdio.h>`,
 	}, "\n")
 
-	node := testScanDirectiveCorrect(t, code, Include)
+	node, final := testScanDirectiveCorrect(t, code, Include)
 	result, ok := node.(*ast.PreprocessorInclude)
 	if !ok {
 		t.Fatalf("expected PreprocessorInclude node, got %T", node)
@@ -148,6 +162,13 @@ func TestIncludeDirectiveWithoutSpace(t *testing.T) {
 		"                        here",
 	}, "\n")
 	checkElementContext(t, result.RBracket, expRBracket)
+
+	finalExp := strings.Join([]string{
+		`   1:   #include<stdio.h><EOF>`,
+		"                         ^^^^^",
+		"                         here",
+	}, "\n")
+	checkElementContext(t, final, finalExp)
 }
 
 func TestIncludeDirectiveWithWrongQuote(t *testing.T) {

@@ -37,6 +37,7 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 		ctx := context.Join(lbCtx, rbCtx)
 		return nil, ast.NewError(ctx, "quote not closed")
 	}
+	p.cursor.SkipInLine(1)
 
 	if rb != pos {
 		ctx := context.Join(lbCtx, rbCtx)

@@ -15,7 +15,7 @@ func TestInlineDirectiveBasic(t *testing.T) {
 		"#end-inline c",
 	}, "\n")
 
-	node := testScanDirectiveCorrect(t, code, Inline)
+	node, final := testScanDirectiveCorrect(t, code, Inline)
 	result, ok := node.(*ast.PreprocessorInline)
 	if !ok {
 		t.Fatalf("expect PreprocessorInline node, got %T", node)
@@ -79,6 +79,13 @@ func TestInlineDirectiveBasic(t *testing.T) {
 	if result.Empty() {
 		t.Errorf("expect non-empty node returned")
 	}
+
+	finalExp := strings.Join([]string{
+		"   4:   #end-inline c<EOF>",
+		"                     ^^^^^",
+		"                     here",
+	}, "\n")
+	checkElementContext(t, final, finalExp)
 }
 
 func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
@@ -87,7 +94,7 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 		"#end-inline c",
 	}, "\n")
 
-	node := testScanDirectiveCorrect(t, code, Inline)
+	node, final := testScanDirectiveCorrect(t, code, Inline)
 	result, ok := node.(*ast.PreprocessorInline)
 	if !ok {
 		t.Fatalf("expect PreprocessorInline node, got %T", node)
@@ -142,6 +149,13 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 		"                    here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeEnd, expEndType)
+
+	finalExp := strings.Join([]string{
+		"   2:   #end-inline c<EOF>",
+		"                     ^^^^^",
+		"                     here",
+	}, "\n")
+	checkElementContext(t, final, finalExp)
 }
 
 func TestInlineDirectiveWithoutBlockType(t *testing.T) {

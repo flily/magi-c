@@ -43,28 +43,28 @@ func TestCursorRuneBasic(t *testing.T) {
 	for i, expChar := range firstLine {
 		r, eol, eof := cursor.Rune()
 		if eol || eof {
-			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 		}
 
 		if r != expChar {
-			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
+			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.PositionString(), r)
 		}
 
 		expPosition := fmt.Sprintf("example.txt:1:%d", i+1)
-		if cursor.Position() != expPosition {
-			t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+		if cursor.PositionString() != expPosition {
+			t.Errorf("expected position '%s', got '%s'", expPosition, cursor.PositionString())
 		}
 
 		_, eol = cursor.NextInLine()
 		if i != len(firstLine)-1 && eol {
-			t.Errorf("unexpected EOL at %s", cursor.Position())
+			t.Errorf("unexpected EOL at %s", cursor.PositionString())
 		}
 	}
 
 	for range 5 {
 		_, eol := cursor.NextInLine()
 		if !eol {
-			t.Errorf("expected EOL at %s", cursor.Position())
+			t.Errorf("expected EOL at %s", cursor.PositionString())
 		}
 	}
 }
@@ -84,7 +84,7 @@ func TestCursorCurrentChar(t *testing.T) {
 	}
 
 	if r != 'l' {
-		t.Errorf("expected rune 'l' at %s, got '%c'", cursor.Position(), r)
+		t.Errorf("expected rune 'l' at %s, got '%c'", cursor.PositionString(), r)
 	}
 
 	_, _, _ = cursor.Next()
@@ -100,7 +100,7 @@ func TestCursorCurrentChar(t *testing.T) {
 	}
 
 	if r != 'o' {
-		t.Errorf("expected rune 'o' at %s, got '%c'", cursor.Position(), r)
+		t.Errorf("expected rune 'o' at %s, got '%c'", cursor.PositionString(), r)
 	}
 
 	_ = cursor.NextNonEmptyLine()
@@ -116,7 +116,7 @@ func TestCursorCurrentChar(t *testing.T) {
 	}
 
 	if r != 'i' {
-		t.Errorf("expected rune 'i' at %s, got '%c'", cursor.Position(), r)
+		t.Errorf("expected rune 'i' at %s, got '%c'", cursor.PositionString(), r)
 	}
 }
 
@@ -129,29 +129,29 @@ func TestCursorPeek(t *testing.T) {
 
 	r0, eol, eof := cursor.Rune()
 	if eol || eof {
-		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 	}
 
 	if r0 != firstLine[0] {
-		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[0], cursor.Position(), r0)
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[0], cursor.PositionString(), r0)
 	}
 
 	r1, eol, eof := cursor.Peek(1)
 	if eol || eof {
-		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 	}
 
 	if r1 != firstLine[1] {
-		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[1], cursor.Position(), r1)
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[1], cursor.PositionString(), r1)
 	}
 
 	r2, eol, eof := cursor.Peek(2)
 	if eol || eof {
-		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 	}
 
 	if r2 != firstLine[2] {
-		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[2], cursor.Position(), r2)
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[2], cursor.PositionString(), r2)
 	}
 
 	// move to end of line
@@ -161,16 +161,16 @@ func TestCursorPeek(t *testing.T) {
 
 	re, eol, eof := cursor.Rune()
 	if eol || eof {
-		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+		t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 	}
 
 	if re != firstLine[4] {
-		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[4], cursor.Position(), re)
+		t.Errorf("expected rune '%c' at %s, got '%c'", firstLine[4], cursor.PositionString(), re)
 	}
 
 	rp, eol, eof := cursor.Peek(1)
 	if !eol || eof {
-		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.Position(), rp)
+		t.Errorf("expected to be at end of line at %s, got rune '%c'", cursor.PositionString(), rp)
 	}
 
 	if rp != 0 {
@@ -187,22 +187,22 @@ func TestCursorNextInLineBasic(t *testing.T) {
 
 	eof := cursor.NextNonEmptyLine()
 	if eof {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+		t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 	}
 
 	for i, expChar := range firstLine {
 		r, eol, eof := cursor.Rune()
 		if eol || eof {
-			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 		}
 
 		if r != expChar {
-			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
+			t.Errorf("expected rune '%c' at %s, got '%c'", expChar, cursor.PositionString(), r)
 		}
 
 		_, eol = cursor.NextInLine()
 		if i != len(firstLine)-1 && eol {
-			t.Errorf("unexpected EOL at %s", cursor.Position())
+			t.Errorf("unexpected EOL at %s", cursor.PositionString())
 		}
 	}
 }
@@ -217,23 +217,23 @@ func TestCursorNextInLineWithEmptyLine(t *testing.T) {
 	for range 2 {
 		eof := cursor.NextNonEmptyLine()
 		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+			t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 		}
 	}
 
 	for _, expChar := range content {
 		r, eol, eof := cursor.Rune()
 		if eol || eof {
-			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 		}
 
 		if r != expChar {
-			t.Errorf("expect rune '%c' at %s, got '%c'", expChar, cursor.Position(), r)
+			t.Errorf("expect rune '%c' at %s, got '%c'", expChar, cursor.PositionString(), r)
 		}
 
 		_, eol = cursor.NextInLine()
 		if eol {
-			t.Errorf("unexpected EOL at %s", cursor.Position())
+			t.Errorf("unexpected EOL at %s", cursor.PositionString())
 		}
 	}
 }
@@ -245,29 +245,29 @@ func TestCursorNextInLineInTheLastLine(t *testing.T) {
 	for range 4 {
 		_, eof := cursor.NextInLine()
 		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+			t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 		}
 	}
 
 	// 5th char
 	_, eof := cursor.NextInLine()
 	if !eof {
-		t.Errorf("expect EOL at %s", cursor.Position())
+		t.Errorf("expect EOL at %s", cursor.PositionString())
 	}
 
 	r, eof := cursor.NextInLine()
 	if !eof {
-		t.Errorf("expect EOL at %s, got rune '%c'", cursor.Position(), r)
+		t.Errorf("expect EOL at %s, got rune '%c'", cursor.PositionString(), r)
 	}
 
 	eof = cursor.NextNonEmptyLine()
 	if !eof {
-		t.Errorf("expect EOL at %s, got rune '%c'", cursor.Position(), r)
+		t.Errorf("expect EOL at %s, got rune '%c'", cursor.PositionString(), r)
 	}
 
 	r, eof = cursor.NextInLine()
 	if !eof {
-		t.Errorf("expect EOL at %s, got rune '%c'", cursor.Position(), r)
+		t.Errorf("expect EOL at %s, got rune '%c'", cursor.PositionString(), r)
 	}
 }
 
@@ -281,12 +281,12 @@ func TestCursorNextLine1(t *testing.T) {
 
 	eof1 := cursor.NextLine()
 	if eof1 {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+		t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 	}
 
 	eof2 := cursor.NextLine()
 	if !eof2 {
-		t.Errorf("expected EOF at %s", cursor.Position())
+		t.Errorf("expected EOF at %s", cursor.PositionString())
 	}
 }
 
@@ -300,17 +300,17 @@ func TestCursorNextLine2(t *testing.T) {
 
 	eof1 := cursor.NextLine()
 	if eof1 {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+		t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 	}
 
 	eof2 := cursor.NextLine()
 	if eof2 {
-		t.Fatalf("unexpected EOF at %s", cursor.Position())
+		t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 	}
 
 	eof3 := cursor.NextLine()
 	if !eof3 {
-		t.Errorf("expected EOF at %s", cursor.Position())
+		t.Errorf("expected EOF at %s", cursor.PositionString())
 	}
 }
 
@@ -346,13 +346,13 @@ func TestCursorPeekString(t *testing.T) {
 	cursor := createTestCursor2()
 
 	expPosition := "example.txt:1:1"
-	if cursor.Position() != expPosition {
-		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	if cursor.PositionString() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.PositionString())
 	}
 
 	ctx1 := cursor.PeekString("lorem")
 	if ctx1 == nil {
-		t.Fatalf("expected to find 'lorem' at %s", cursor.Position())
+		t.Fatalf("expected to find 'lorem' at %s", cursor.PositionString())
 	}
 
 	expected1 := strings.Join([]string{
@@ -365,7 +365,7 @@ func TestCursorPeekString(t *testing.T) {
 	}
 
 	if ctx := cursor.PeekString("ipsum"); ctx != nil {
-		t.Errorf("expected to not find 'ipsum' at %s, got %s", cursor.Position(), ctx.HighlightText("here"))
+		t.Errorf("expected to not find 'ipsum' at %s, got %s", cursor.PositionString(), ctx.HighlightText("here"))
 	}
 }
 
@@ -373,13 +373,13 @@ func TestCursorNextLiteral(t *testing.T) {
 	cursor := createTestCursor1()
 
 	expPosition := "example.txt:1:1"
-	if cursor.Position() != expPosition {
-		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	if cursor.PositionString() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.PositionString())
 	}
 
 	ctx1 := cursor.PeekString("lorem")
 	if ctx1 == nil {
-		t.Fatalf("expected to find 'lorem' at %s", cursor.Position())
+		t.Fatalf("expected to find 'lorem' at %s", cursor.PositionString())
 	}
 
 	expected1 := strings.Join([]string{
@@ -392,13 +392,13 @@ func TestCursorNextLiteral(t *testing.T) {
 	}
 
 	expPosition = "example.txt:1:1"
-	if cursor.Position() != expPosition {
-		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	if cursor.PositionString() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.PositionString())
 	}
 
 	ctx2 := cursor.NextString("ipsum")
 	if ctx2 != nil {
-		t.Fatalf("expected to not find 'ipsum' at %s, got %s", cursor.Position(), ctx2.HighlightText("here"))
+		t.Fatalf("expected to not find 'ipsum' at %s, got %s", cursor.PositionString(), ctx2.HighlightText("here"))
 	}
 
 	ctx3 := cursor.NextString("lorem")
@@ -407,8 +407,8 @@ func TestCursorNextLiteral(t *testing.T) {
 	}
 
 	expPosition = "example.txt:1:6"
-	if cursor.Position() != expPosition {
-		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.Position())
+	if cursor.PositionString() != expPosition {
+		t.Errorf("expected position '%s', got '%s'", expPosition, cursor.PositionString())
 	}
 }
 
@@ -417,7 +417,7 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 
 	ctx1 := cursor.NextString("lorem")
 	if ctx1 == nil {
-		t.Fatalf("expected to find 'lorem' at %s", cursor.Position())
+		t.Fatalf("expected to find 'lorem' at %s", cursor.PositionString())
 	}
 
 	expected1 := strings.Join([]string{
@@ -433,7 +433,7 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 
 	ctx2 := cursor.NextString("ipsum")
 	if ctx2 == nil {
-		t.Fatalf("expected to find 'ipsum' at %s", cursor.Position())
+		t.Fatalf("expected to find 'ipsum' at %s", cursor.PositionString())
 	}
 	expected2 := strings.Join([]string{
 		"   2:   ipsum",
@@ -475,7 +475,7 @@ func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
 	cursor := NewCursorFromString("example.txt", strings.Join(text, ""))
 
 	if !cursor.IsFirstNonWhiteChar() {
-		t.Errorf("expected to be first non-white char at %s", cursor.Position())
+		t.Errorf("expected to be first non-white char at %s", cursor.PositionString())
 	}
 
 	for {
@@ -485,14 +485,14 @@ func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
 		}
 
 		if cursor.IsFirstNonWhiteChar() {
-			t.Errorf("expected to not be first non-white char at %s", cursor.Position())
+			t.Errorf("expected to not be first non-white char at %s", cursor.PositionString())
 		}
 	}
 
 	cursor.NextNonEmptyLine()
 
 	if !cursor.IsFirstNonWhiteChar() {
-		t.Errorf("expected to be first non-white char at %s", cursor.Position())
+		t.Errorf("expected to be first non-white char at %s", cursor.PositionString())
 	}
 
 	for {
@@ -502,7 +502,7 @@ func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
 		}
 
 		if !cursor.IsFirstNonWhiteChar() {
-			t.Errorf("expected to be first non-white char at %s", cursor.Position())
+			t.Errorf("expected to be first non-white char at %s", cursor.PositionString())
 		}
 
 		if r != ' ' {
@@ -517,7 +517,7 @@ func TestCursorIsFirstNonWhiteChar2(t *testing.T) {
 		}
 
 		if cursor.IsFirstNonWhiteChar() {
-			t.Errorf("expected to not be first non-white char at %s", cursor.Position())
+			t.Errorf("expected to not be first non-white char at %s", cursor.PositionString())
 		}
 	}
 }
@@ -665,7 +665,7 @@ func TestCursorEndWithLastEmptyLine(t *testing.T) {
 	for range 5 {
 		eol, eof := cursor.End()
 		if eol || eof {
-			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 		}
 
 		cursor.NextInLine()
@@ -674,11 +674,11 @@ func TestCursorEndWithLastEmptyLine(t *testing.T) {
 	{
 		eol, eof := cursor.End()
 		if !eol {
-			t.Errorf("expect EOL at %s", cursor.Position())
+			t.Errorf("expect EOL at %s", cursor.PositionString())
 		}
 
 		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+			t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 		}
 	}
 
@@ -686,7 +686,7 @@ func TestCursorEndWithLastEmptyLine(t *testing.T) {
 	for range 5 {
 		eol, eof := cursor.End()
 		if eol || eof {
-			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.Position(), eol, eof)
+			t.Fatalf("unexpected EOL/EOF at %s  (EOL=%v, EOF=%v)", cursor.PositionString(), eol, eof)
 		}
 
 		cursor.NextInLine()
@@ -695,11 +695,11 @@ func TestCursorEndWithLastEmptyLine(t *testing.T) {
 	{
 		eol, eof := cursor.End()
 		if !eol {
-			t.Errorf("expect EOL at %s", cursor.Position())
+			t.Errorf("expect EOL at %s", cursor.PositionString())
 		}
 
 		if eof {
-			t.Fatalf("unexpected EOF at %s", cursor.Position())
+			t.Fatalf("unexpected EOF at %s", cursor.PositionString())
 		}
 	}
 
@@ -707,11 +707,11 @@ func TestCursorEndWithLastEmptyLine(t *testing.T) {
 	{
 		eol, eof := cursor.End()
 		if !eol {
-			t.Errorf("expect EOL at %s", cursor.Position())
+			t.Errorf("expect EOL at %s", cursor.PositionString())
 		}
 
 		if !eof {
-			t.Fatalf("expect EOF at %s", cursor.Position())
+			t.Fatalf("expect EOF at %s", cursor.PositionString())
 		}
 	}
 
