@@ -9,6 +9,42 @@ import (
 	"github.com/flily/magi-c/preprocessor"
 )
 
+func TestTokenizerScanAll(t *testing.T) {
+	code := strings.Join([]string{
+		"#include <stdio.h>",
+		"",
+		"fun main() {",
+		"}",
+	}, "\n")
+
+	tokenizer := NewTokenizerFromString(code, "test.txt")
+	tokenizer.RegisterPreprocessor("include", preprocessor.Include)
+	tokens, err := tokenizer.ScanAll()
+	if err != nil {
+		t.Fatalf("unexpected error:\n%v", err)
+	}
+
+	if len(tokens) != 7 {
+		t.Fatalf("expected 7 tokens, got %d", len(tokens))
+	}
+
+	directiveTypes := []ast.NodeType{
+		ast.NodePreprocessorInclude,
+		ast.Function,
+		ast.IdentifierName,
+		ast.LeftParen,
+		ast.RightParen,
+		ast.LeftBrace,
+		ast.RightBrace,
+	}
+
+	for i, expectedType := range directiveTypes {
+		if tokens[i].Type() != expectedType {
+			t.Errorf("token %d: expected type %s, got %s", i, expectedType, tokens[i].Type())
+		}
+	}
+}
+
 func TestTokenizerSkipWhitespace(t *testing.T) {
 	code := strings.Join([]string{
 		"                lorem ipsum",
@@ -1039,7 +1075,7 @@ func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
 	}, "\n")
 
 	tokenizer := NewTokenizerFromString(code, "test.txt")
-	tokenizer.Preprocessors["include"] = preprocessor.Include
+	tokenizer.RegisterPreprocessor("include", preprocessor.Include)
 
 	tokenizer.SkipWhitespace()
 	tok, err := tokenizer.ScanToken()

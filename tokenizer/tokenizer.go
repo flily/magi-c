@@ -49,6 +49,10 @@ func NewTokenizerFromFile(filename string) (*Tokenizer, error) {
 	return NewTokenizerFrom(file, filename), nil
 }
 
+func (t *Tokenizer) RegisterPreprocessor(name string, initializer preprocessor.PreprocessorInitializer) {
+	t.Preprocessors[name] = initializer
+}
+
 func (t *Tokenizer) CurrentChar() (rune, *context.Context) {
 	return t.cursor.CurrentChar()
 }
@@ -380,4 +384,24 @@ func (t *Tokenizer) ScanToken() (ast.Node, error) {
 
 	_, ctx := t.cursor.CurrentChar()
 	return nil, ast.NewError(ctx, "no token found")
+}
+
+func (t *Tokenizer) ScanAll() ([]ast.Node, error) {
+	tokens := make([]ast.Node, 0, 1000)
+
+	for {
+		t.SkipWhitespace()
+		token, err := t.ScanToken()
+		if err != nil {
+			return nil, err
+		}
+
+		if token == nil {
+			break
+		}
+
+		tokens = append(tokens, token)
+	}
+
+	return tokens, nil
 }

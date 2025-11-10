@@ -116,11 +116,15 @@ const (
 	SNull               = "null"
 	SFalse              = "false"
 	STrue               = "true"
+	SInteger            = "integer"
+	SFloat              = "float"
+	SString             = "string"
+	SIdentifierName     = "identifier"
 	SAuto               = "auto"
 	SVar                = "var"
 	SConst              = "const"
 	SGlobal             = "global"
-	SFunction           = "func"
+	SFunction           = "fun"
 	SStructure          = "struct"
 	SType               = "type"
 	SIf                 = "if"
@@ -192,6 +196,10 @@ var tokenStringMap = map[NodeType]string{
 	Null:               SNull,
 	False:              SFalse,
 	True:               STrue,
+	Integer:            SInteger,
+	Float:              SFloat,
+	String:             SString,
+	IdentifierName:     SIdentifierName,
 	Auto:               SAuto,
 	Var:                SVar,
 	Const:              SConst,

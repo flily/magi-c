@@ -71,6 +71,9 @@ var validSymbolInitialRunes = []bool{
 	'[':  true,
 	'\\': true,
 	']':  true,
+	'{':  true,
+	'|':  true,
+	'}':  true,
 	'^':  true,
 	'~':  true,
 }
