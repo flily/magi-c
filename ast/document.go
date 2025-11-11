@@ -15,6 +15,7 @@ type Expression interface {
 }
 
 type Document struct {
+	Filename   string
 	Statements []Statement
 }
 
