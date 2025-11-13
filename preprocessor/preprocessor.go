@@ -13,6 +13,21 @@ type Preprocessor interface {
 
 type PreprocessorInitializer func(cursor *context.Cursor) Preprocessor
 
+var preprocessors = map[string]PreprocessorInitializer{
+	"include": Include,
+	"inline":  Inline,
+}
+
+type PreprocessorRegistry interface {
+	RegisterPreprocessor(name string, handler PreprocessorInitializer)
+}
+
+func RegisterPreprocessors(registry PreprocessorRegistry) {
+	for name, handler := range preprocessors {
+		registry.RegisterPreprocessor(name, handler)
+	}
+}
+
 type cursorContainer struct {
 	cursor *context.Cursor
 }

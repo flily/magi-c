@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/preprocessor"
 	"github.com/flily/magi-c/tokenizer"
 )
 
@@ -55,6 +56,10 @@ func (p *LLParser) Parse() (*ast.Document, error) {
 	return program, nil
 }
 
+func (p *LLParser) RegisterPreprocessor(name string, handler preprocessor.PreprocessorInitializer) {
+	p.tokenizer.RegisterPreprocessor(name, handler)
+}
+
 func (p *LLParser) currentToken() ast.Node {
 	if p.tokenIndex < 0 || p.tokenIndex >= len(p.tokens) {
 		return nil
@@ -63,8 +68,17 @@ func (p *LLParser) currentToken() ast.Node {
 	return p.tokens[p.tokenIndex]
 }
 
+func (p *LLParser) takeToken() ast.Node {
+	token := p.currentToken()
+	if token != nil {
+		p.tokenIndex++
+	}
+
+	return token
+}
+
 func (p *LLParser) parseProgram() (*ast.Document, error) {
-	statements := make([]ast.Statement, 0, 1000)
+	declarations := make([]ast.Declaration, 0, 1000)
 
 	for {
 		current := p.currentToken()
@@ -72,18 +86,32 @@ func (p *LLParser) parseProgram() (*ast.Document, error) {
 			break
 		}
 
-		stmt, err := p.parseStatement()
+		dec, err := p.parseDeclaration(current)
 		if err != nil {
 			return nil, err
 		}
 
-		statements = append(statements, stmt)
+		declarations = append(declarations, dec)
 	}
 
-	document := ast.NewDocument(statements)
+	document := ast.NewDocument(declarations)
 	return document, nil
 }
 
-func (p *LLParser) parseStatement() (ast.Statement, error) {
-	return nil, nil
+func (p *LLParser) parseDeclaration(current ast.Node) (ast.Declaration, error) {
+	var result ast.Declaration
+	switch current.Type() {
+	case ast.NodePreprocessorInclude:
+		p.takeToken()
+		result = current.(*ast.PreprocessorInclude)
+
+	case ast.NodePreprocessorInline:
+		p.takeToken()
+		result = current.(*ast.PreprocessorInline)
+
+	default:
+		return nil, ast.NewError(current.Context(), "unexpected token: %s", current.Type().String())
+	}
+
+	return result, nil
 }

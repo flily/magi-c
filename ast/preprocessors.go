@@ -38,6 +38,10 @@ type PreprocessorCommon struct {
 	Command *context.Context
 }
 
+func (p *PreprocessorCommon) declarationNode() {}
+
+func (p *PreprocessorCommon) statementNode() {}
+
 type PreprocessorInclude struct {
 	PreprocessorCommon
 	LBracket *context.Context
@@ -93,6 +97,8 @@ func NewPreprocessorInline(hash *context.Context, command *context.Context, code
 	p.Init(p)
 	return p
 }
+
+func (p *PreprocessorInline) statementNode() {}
 
 func (p *PreprocessorInline) Type() NodeType {
 	return NodePreprocessorInline

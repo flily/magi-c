@@ -4,6 +4,11 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
+type Declaration interface {
+	Node
+	declarationNode()
+}
+
 type Statement interface {
 	Node
 	statementNode()
@@ -15,13 +20,13 @@ type Expression interface {
 }
 
 type Document struct {
-	Filename   string
-	Statements []Statement
+	Filename     string
+	Declarations []Declaration
 }
 
-func NewDocument(statements []Statement) *Document {
+func NewDocument(declarations []Declaration) *Document {
 	d := &Document{
-		Statements: statements,
+		Declarations: declarations,
 	}
 
 	return d
@@ -38,12 +43,12 @@ func (d *Document) Type() NodeType {
 }
 
 func (d *Document) Context() *context.Context {
-	if len(d.Statements) == 0 {
+	if len(d.Declarations) == 0 {
 		return nil
 	}
 
-	ctxList := make([]*context.Context, 0, len(d.Statements))
-	for _, n := range d.Statements {
+	ctxList := make([]*context.Context, 0, len(d.Declarations))
+	for _, n := range d.Declarations {
 		ctxList = append(ctxList, n.Context())
 	}
 
