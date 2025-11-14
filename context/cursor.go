@@ -53,6 +53,14 @@ func (c *Cursor) PositionString() string {
 	return fmt.Sprintf("%s:%d:%d", filename, line+1, column+1)
 }
 
+func (c *Cursor) EOFContext() *Context {
+	lastLine := c.File.Line(c.File.Lines() - 1)
+	beginState := NewCursorState(lastLine.Line, lastLine.Length())
+	finishState := NewCursorState(lastLine.Line, lastLine.Length()+1)
+	_, ctx := c.MakeContext(beginState, finishState)
+	return ctx
+}
+
 func (c *Cursor) CurrentChar() (rune, *Context) {
 	current := c.State()
 	r, _, _ := c.Rune()
@@ -255,13 +263,17 @@ func (c *Cursor) SetState(state *CursorState) {
 	c.CursorState = *state
 }
 
+func (c *Cursor) MakeContext(begin *CursorState, finish *CursorState) (string, *Context) {
+	line := c.File.Line(begin.Line)
+	return line.Mark(begin.Column, finish.Column)
+}
+
 func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *Context) {
 	if begin.Line != c.Line || finish.Line != c.Line {
 		panic(fmt.Sprintf("cursor context line %d does not match cursor line %d", begin.Line, c.Line))
 	}
 
-	line := c.File.Line(begin.Line)
-	return line.Mark(begin.Column, finish.Column)
+	return c.MakeContext(begin, finish)
 }
 
 func (c *Cursor) FinishTo(offset int) (string, *Context) {
