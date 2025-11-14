@@ -329,7 +329,9 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 
 	r1, eol, eof := t.cursor.Peek(1)
 	if eol || eof {
-		_, ctx := t.cursor.Finish(begin)
+		finish := t.cursor.PeekState(1)
+		_, ctx := t.cursor.FinishWith(begin, finish)
+		t.cursor.SetState(finish)
 		return ast.NewIntegerLiteral(ctx, 0), nil
 	}
 

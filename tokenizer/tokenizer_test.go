@@ -845,6 +845,17 @@ func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
 	if num.Value != 0 {
 		t.Errorf("expected integer value 0, got %d", num.Value)
 	}
+
+	_, afterPos := tokenizer.CurrentChar()
+	exp := strings.Join([]string{
+		"   1:     0<EOF>",
+		"           ^^^^^",
+		"           here",
+	}, "\n")
+	got := afterPos.HighlightText("here")
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
 }
 
 func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
@@ -1099,5 +1110,23 @@ func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
 
 	if tok.Type() != ast.NodePreprocessorInclude {
 		t.Errorf("expected token type %s, got %s", ast.NodePreprocessorInclude, tok.Type())
+	}
+}
+
+func TestTokenizerScanSimplestProgram(t *testing.T) {
+	code := strings.Join([]string{
+		"fun main() {",
+		"  return 0",
+		"}",
+	}, "\n")
+
+	tokenizer := NewTokenizerFromString(code, "test.txt")
+	nodes, err := tokenizer.ScanAll()
+	if err != nil {
+		t.Fatalf("unexpected error:\n%v", err)
+	}
+
+	if len(nodes) != 8 {
+		t.Fatalf("expected 8 nodes, got %d", len(nodes))
 	}
 }
