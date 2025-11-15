@@ -105,6 +105,7 @@ const (
 
 	nonTerminalNodeBegin
 	NodeDocument
+	NodeFunctionDeclaration
 	NodeStatement
 	NodeExpression
 	nonTerminalNodeEnd

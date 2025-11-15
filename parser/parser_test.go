@@ -13,7 +13,7 @@ func runBasicTestOnCode(t *testing.T, code string) *ast.Document {
 	document, err := parser.Parse()
 
 	if err != nil {
-		t.Fatalf("parse code failed:\n%s", err)
+		t.Fatalf("parse code failed:\n%s", err.Error())
 	}
 
 	if document == nil {

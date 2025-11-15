@@ -15,15 +15,38 @@ func TestLLParserSimpleStatement(t *testing.T) {
 	document := runBasicTestOnCode(t, code)
 
 	if len(document.Declarations) != 1 {
-		t.Fatalf("Expected 1 declaration, got %d", len(document.Declarations))
+		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
 	}
 
 	include, ok := document.Declarations[0].(*ast.PreprocessorInclude)
 	if !ok {
-		t.Fatalf("Expected PreprocessorInclude, got %T", document.Declarations[0])
+		t.Fatalf("expect PreprocessorInclude, got %T", document.Declarations[0])
 	}
 
 	if value := include.Content.Content(); value != "stdio.h" {
-		t.Fatalf("Expected include content 'stdio.h', got '%s'", value)
+		t.Fatalf("expect include content 'stdio.h', got '%s'", value)
+	}
+}
+
+func TestLLParserSimplestProgram(t *testing.T) {
+	code := strings.Join([]string{
+		"fun main() () {",
+		"    return 0",
+		"}",
+	}, "\n")
+
+	document := runBasicTestOnCode(t, code)
+
+	if len(document.Declarations) != 1 {
+		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
+	}
+
+	main, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if main.Name.Name != "main" {
+		t.Fatalf("expect function name 'main', got '%s'", main.Name.Name)
 	}
 }

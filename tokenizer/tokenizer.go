@@ -53,6 +53,10 @@ func (t *Tokenizer) RegisterPreprocessor(name string, initializer preprocessor.P
 	t.Preprocessors[name] = initializer
 }
 
+func (t *Tokenizer) EOFContext() *context.Context {
+	return t.cursor.EOFContext()
+}
+
 func (t *Tokenizer) CurrentChar() (rune, *context.Context) {
 	return t.cursor.CurrentChar()
 }
