@@ -6,8 +6,49 @@ import (
 	"strings"
 
 	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/context"
 	"github.com/flily/magi-c/preprocessor"
 )
+
+func checkContext(t *testing.T, ctx *context.Context, expected string) {
+	t.Helper()
+
+	got := ctx.HighlightText("here")
+	if got != expected {
+		t.Errorf("context got wrong output, expect:\n%s\ngot:\n%s", expected, got)
+	}
+}
+
+func checkTerminalNode(t *testing.T, node ast.Node, expectedType ast.TokenType, expectedText string) {
+	t.Helper()
+
+	if node == nil {
+		t.Fatalf("expect a non-nil token")
+	}
+
+	term, ok := node.(ast.TerminalNode)
+	if !ok {
+		t.Fatalf("expected TerminalNode, got %T", node)
+	}
+
+	if term.Type() != expectedType {
+		t.Errorf("expect token type %s, got %s", expectedType, term.Type())
+	}
+
+	got := term.HighlightText("here")
+	if got != expectedText {
+		t.Errorf("expect:\n%s\ngot:\n%s", expectedText, got)
+	}
+}
+
+func checkError(t *testing.T, err error, expected string) {
+	t.Helper()
+
+	got := err.Error()
+	if got != expected {
+		t.Errorf("expect error:\n%s\ngot:\n%s", expected, got)
+	}
+}
 
 func TestTokenizerScanAll(t *testing.T) {
 	code := strings.Join([]string{
@@ -28,7 +69,7 @@ func TestTokenizerScanAll(t *testing.T) {
 		t.Fatalf("expected 7 tokens, got %d", len(tokens))
 	}
 
-	directiveTypes := []ast.NodeType{
+	directiveTypes := []ast.TokenType{
 		ast.NodePreprocessorInclude,
 		ast.Function,
 		ast.IdentifierName,
@@ -39,8 +80,13 @@ func TestTokenizerScanAll(t *testing.T) {
 	}
 
 	for i, expectedType := range directiveTypes {
-		if tokens[i].Type() != expectedType {
-			t.Errorf("token %d: expected type %s, got %s", i, expectedType, tokens[i].Type())
+		term, ok := tokens[i].(ast.TerminalNode)
+		if !ok {
+			t.Fatalf("token %d: expected TerminalNode, got %T", i, tokens[i])
+		}
+
+		if term.Type() != expectedType {
+			t.Errorf("token %d: expected type %s, got %s", i, expectedType, term.Type())
 		}
 	}
 }
@@ -58,25 +104,16 @@ func TestTokenizerSkipWhitespace(t *testing.T) {
 		"        ^",
 		"        here",
 	}, "\n")
-
-	got1 := p1.HighlightText("here")
-	if got1 != exp1 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
-	}
+	checkContext(t, p1, exp1)
 
 	tokenizer.SkipWhitespace()
-
 	_, p2 := tokenizer.CurrentChar()
 	exp2 := strings.Join([]string{
 		"   1:                   lorem ipsum",
 		"                        ^",
 		"                        here",
 	}, "\n")
-
-	got2 := p2.HighlightText("here")
-	if got2 != exp2 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
-	}
+	checkContext(t, p2, exp2)
 }
 
 func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
@@ -353,56 +390,28 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 		"          ^^^^",
 		"          here",
 	}, "\n")
-	got1 := ctxList[0].HighlightText("here")
-	if got1 != exp1 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
-	}
-
-	if ctxList[0].Type() != ast.IdentifierName {
-		t.Errorf("expected token type %s, got %s", ast.IdentifierName, ctxList[0].Type())
-	}
+	checkTerminalNode(t, ctxList[0], ast.IdentifierName, exp1)
 
 	exp2 := strings.Join([]string{
 		"   1:     aaaa + bbb",
 		"               ^",
 		"               here",
 	}, "\n")
-	got2 := ctxList[1].HighlightText("here")
-	if got2 != exp2 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
-	}
-
-	if ctxList[1].Type() != ast.Plus {
-		t.Errorf("expected token type %s, got %s", ast.Plus, ctxList[1].Type())
-	}
+	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
 		"   1:     aaaa + bbb",
 		"                 ^^^",
 		"                 here",
 	}, "\n")
-	got3 := ctxList[2].HighlightText("here")
-	if got3 != exp3 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
-	}
-
-	if ctxList[2].Type() != ast.IdentifierName {
-		t.Errorf("expected token type %s, got %s", ast.IdentifierName, ctxList[2].Type())
-	}
+	checkTerminalNode(t, ctxList[2], ast.IdentifierName, exp3)
 
 	exp4 := strings.Join([]string{
 		"   2:   ccc",
 		"        ^^^",
 		"        here",
 	}, "\n")
-	got4 := ctxList[3].HighlightText("here")
-	if got4 != exp4 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp4, got4)
-	}
-
-	if ctxList[3].Type() != ast.IdentifierName {
-		t.Errorf("expected token type %s, got %s", ast.IdentifierName, ctxList[3].Type())
-	}
+	checkTerminalNode(t, ctxList[3], ast.IdentifierName, exp4)
 }
 
 func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
@@ -432,14 +441,7 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 		"          ^^^^^^",
 		"          here",
 	}, "\n")
-	got1 := ctxList[0].HighlightText("here")
-	if got1 != exp1 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
-	}
-
-	if ctxList[0].Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
-	}
+	checkTerminalNode(t, ctxList[0], ast.Integer, exp1)
 
 	num1, ok := ctxList[0].(*ast.IntegerLiteral)
 	if !ok {
@@ -455,28 +457,14 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 		"                 ^",
 		"                 here",
 	}, "\n")
-	got2 := ctxList[1].HighlightText("here")
-	if got2 != exp2 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
-	}
-
-	if ctxList[1].Type() != ast.Plus {
-		t.Errorf("expected token type %s, got %s", ast.Plus, ctxList[1].Type())
-	}
+	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
 		"   1:     0x1234 + 0xBEEF + 0xc0de",
 		"                   ^^^^^^",
 		"                   here",
 	}, "\n")
-	got3 := ctxList[2].HighlightText("here")
-	if got3 != exp3 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
-	}
-
-	if ctxList[2].Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[2].Type())
-	}
+	checkTerminalNode(t, ctxList[2], ast.Integer, exp3)
 
 	num3, ok := ctxList[2].(*ast.IntegerLiteral)
 	if !ok {
@@ -487,20 +475,19 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 		t.Errorf("expected integer value 0xBEEF, got %d", num3.Value)
 	}
 
+	exp4 := strings.Join([]string{
+		"   1:     0x1234 + 0xBEEF + 0xc0de",
+		"                          ^",
+		"                          here",
+	}, "\n")
+	checkTerminalNode(t, ctxList[3], ast.Plus, exp4)
+
 	exp5 := strings.Join([]string{
 		"   1:     0x1234 + 0xBEEF + 0xc0de",
 		"                            ^^^^^^",
 		"                            here",
 	}, "\n")
-	got5 := ctxList[4].HighlightText("here")
-
-	if got5 != exp5 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp5, got5)
-	}
-
-	if ctxList[4].Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[4].Type())
-	}
+	checkTerminalNode(t, ctxList[4], ast.Integer, exp5)
 
 	num5, ok := ctxList[4].(*ast.IntegerLiteral)
 	if !ok {
@@ -534,10 +521,7 @@ func TestTokenizerScanTokenHexadecimalNumberErrorNoNumberEOL(t *testing.T) {
 		"          ^^",
 		"          invalid hexadecimal number '0x'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenHexadecimalNumberErrorInvalidFormat(t *testing.T) {
@@ -561,10 +545,7 @@ func TestTokenizerScanTokenHexadecimalNumberErrorInvalidFormat(t *testing.T) {
 		"          ^^^^^^",
 		"          invalid hexadecimal number '0xGHIJ'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenHexadecimalNumberErrorTooLargeNumber(t *testing.T) {
@@ -588,11 +569,7 @@ func TestTokenizerScanTokenHexadecimalNumberErrorTooLargeNumber(t *testing.T) {
 		"          ^^^^^^^^^^^^^^^^^^^^^^^",
 		"          hexadecimal number '0x01234567890ABCDEF1234' is too large",
 	}, "\n")
-
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenOctalNumber(t *testing.T) {
@@ -622,14 +599,7 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 		"          ^^^^^",
 		"          here",
 	}, "\n")
-	got1 := ctxList[0].HighlightText("here")
-	if got1 != exp1 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
-	}
-
-	if ctxList[0].Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
-	}
+	checkTerminalNode(t, ctxList[0], ast.Integer, exp1)
 
 	num1, ok := ctxList[0].(*ast.IntegerLiteral)
 	if !ok {
@@ -645,28 +615,14 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 		"                ^",
 		"                here",
 	}, "\n")
-	got2 := ctxList[1].HighlightText("here")
-	if got2 != exp2 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
-	}
-
-	if ctxList[1].Type() != ast.Plus {
-		t.Errorf("expected token type %s, got %s", ast.Plus, ctxList[1].Type())
-	}
+	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
 		"   1:     01234 + 0777",
 		"                  ^^^^",
 		"                  here",
 	}, "\n")
-	got3 := ctxList[2].HighlightText("here")
-	if got3 != exp3 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
-	}
-
-	if ctxList[2].Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[2].Type())
-	}
+	checkTerminalNode(t, ctxList[2], ast.Integer, exp3)
 
 	num3, ok := ctxList[2].(*ast.IntegerLiteral)
 	if !ok {
@@ -700,10 +656,7 @@ func TestTokenizerScanTokenOctalNumberErrorInvalidFormat(t *testing.T) {
 		"          ^^^^^^^^^^",
 		"          invalid octal number '0123456789'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenOctalNumberErrorTooLargeNumber(t *testing.T) {
@@ -728,10 +681,7 @@ func TestTokenizerScanTokenOctalNumberErrorTooLargeNumber(t *testing.T) {
 		"          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
 		"          octal number '01234567012345670123456701234567' is too large",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
@@ -761,14 +711,7 @@ func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 		"          ^^^^",
 		"          here",
 	}, "\n")
-	got1 := ctxList[0].HighlightText("here")
-	if got1 != exp1 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
-	}
-
-	if ctxList[0].Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, ctxList[0].Type())
-	}
+	checkTerminalNode(t, ctxList[0], ast.Integer, exp1)
 
 	num1, ok := ctxList[0].(*ast.IntegerLiteral)
 	if !ok {
@@ -784,28 +727,14 @@ func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 		"               ^",
 		"               here",
 	}, "\n")
-	got2 := ctxList[1].HighlightText("here")
-	if got2 != exp2 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got2)
-	}
-
-	if ctxList[1].Type() != ast.Plus {
-		t.Errorf("expected token type %s, got %s", ast.Plus, ctxList[1].Type())
-	}
+	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
 		"   1:     1234 + 5678",
 		"                 ^^^^",
 		"                 here",
 	}, "\n")
-	got3 := ctxList[2].HighlightText("here")
-	if got3 != exp3 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
-	}
-
-	if ctxList[2].Type() != ast.Integer {
-		t.Errorf("expected token Type %s, got %s", ast.Integer, ctxList[2].Type())
-	}
+	checkTerminalNode(t, ctxList[2], ast.Integer, exp3)
 
 	num3, ok := ctxList[2].(*ast.IntegerLiteral)
 	if !ok {
@@ -829,13 +758,12 @@ func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
 		t.Fatalf("unexpected error:\n%v", err)
 	}
 
-	if tok == nil {
-		t.Fatalf("expected a token, got nil")
-	}
-
-	if tok.Type() != ast.Integer {
-		t.Errorf("expected token type %s, got %s", ast.Integer, tok.Type())
-	}
+	exp1 := strings.Join([]string{
+		"   1:     0",
+		"          ^",
+		"          here",
+	}, "\n")
+	checkTerminalNode(t, tok, ast.Integer, exp1)
 
 	num, ok := tok.(*ast.IntegerLiteral)
 	if !ok {
@@ -847,14 +775,14 @@ func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
 	}
 
 	_, afterPos := tokenizer.CurrentChar()
-	exp := strings.Join([]string{
+	exp2 := strings.Join([]string{
 		"   1:     0<EOF>",
 		"           ^^^^^",
 		"           here",
 	}, "\n")
 	got := afterPos.HighlightText("here")
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	if got != exp2 {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp2, got)
 	}
 }
 
@@ -885,14 +813,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 		"          ^^^^^^^^^",
 		"          here",
 	}, "\n")
-	got1 := ctxList[0].HighlightText("here")
-	if got1 != exp1 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp1, got1)
-	}
-
-	if ctxList[0].Type() != ast.Float {
-		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[0].Type())
-	}
+	checkTerminalNode(t, ctxList[0], ast.Float, exp1)
 
 	num1, ok := ctxList[0].(*ast.FloatLiteral)
 	if !ok {
@@ -908,14 +829,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 		"                      ^^^^^",
 		"                      here",
 	}, "\n")
-	got3 := ctxList[2].HighlightText("here")
-	if got3 != exp3 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp3, got3)
-	}
-
-	if ctxList[2].Type() != ast.Float {
-		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[2].Type())
-	}
+	checkTerminalNode(t, ctxList[2], ast.Float, exp3)
 
 	num3, ok := ctxList[2].(*ast.FloatLiteral)
 	if !ok {
@@ -931,14 +845,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 		"                              ^^^^^^",
 		"                              here",
 	}, "\n")
-	got5 := ctxList[4].HighlightText("here")
-	if got5 != exp5 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp5, got5)
-	}
-
-	if ctxList[4].Type() != ast.Float {
-		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[4].Type())
-	}
+	checkTerminalNode(t, ctxList[4], ast.Float, exp5)
 
 	num5, ok := ctxList[4].(*ast.FloatLiteral)
 	if !ok {
@@ -954,14 +861,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 		"                                       ^^^^^^",
 		"                                       here",
 	}, "\n")
-	got7 := ctxList[6].HighlightText("here")
-	if got7 != exp7 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp7, got7)
-	}
-
-	if ctxList[6].Type() != ast.Float {
-		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[6].Type())
-	}
+	checkTerminalNode(t, ctxList[6], ast.Float, exp7)
 
 	num7, ok := ctxList[6].(*ast.FloatLiteral)
 	if !ok {
@@ -977,14 +877,7 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 		"                                                ^^^^",
 		"                                                here",
 	}, "\n")
-	got9 := ctxList[8].HighlightText("here")
-	if got9 != exp9 {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp9, got9)
-	}
-
-	if ctxList[8].Type() != ast.Float {
-		t.Errorf("expected token type %s, got %s", ast.Float, ctxList[8].Type())
-	}
+	checkTerminalNode(t, ctxList[8], ast.Float, exp9)
 
 	num9, ok := ctxList[8].(*ast.FloatLiteral)
 	if !ok {
@@ -1018,10 +911,7 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInIntegerPart(t *
 		"          ^^^^^^",
 		"          invalid decimal number '123dfg'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInFractionPart(t *testing.T) {
@@ -1046,10 +936,7 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInFractionPart(t 
 		"          ^^^^^^^",
 		"          invalid decimal number '3.14xyz'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t *testing.T) {
@@ -1074,10 +961,7 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t 
 		"          ^^^^^^^^^",
 		"          invalid decimal number '1.5e10xyz'",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
+	checkError(t, err, exp)
 }
 
 func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
@@ -1103,14 +987,7 @@ func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
 		"          ^^^^^^^^ ^^^^^^^^^",
 		"          here",
 	}, "\n")
-	got := tok.HighlightText("here")
-	if got != exp {
-		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
-	}
-
-	if tok.Type() != ast.NodePreprocessorInclude {
-		t.Errorf("expected token type %s, got %s", ast.NodePreprocessorInclude, tok.Type())
-	}
+	checkTerminalNode(t, tok, ast.NodePreprocessorInclude, exp)
 }
 
 func TestTokenizerScanSimplestProgram(t *testing.T) {

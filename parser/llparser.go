@@ -68,13 +68,13 @@ func (p *LLParser) getToken(index int) ast.Node {
 	return p.tokens[index]
 }
 
-func (p *LLParser) currentToken() ast.Node {
-	return p.getToken(p.tokenIndex)
-}
-
 func (p *LLParser) peekToken(offset int) ast.Node {
 	index := p.tokenIndex + offset
 	return p.getToken(index)
+}
+
+func (p *LLParser) currentToken() ast.Node {
+	return p.peekToken(0)
 }
 
 func (p *LLParser) takeToken() ast.Node {
