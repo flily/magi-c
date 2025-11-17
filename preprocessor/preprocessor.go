@@ -8,7 +8,7 @@ import (
 )
 
 type Preprocessor interface {
-	Process(hash *context.Context, name *context.Context) (ast.Node, error)
+	Process(hash *context.Context, name *context.Context) (ast.TerminalNode, error)
 }
 
 type PreprocessorInitializer func(cursor *context.Cursor) Preprocessor

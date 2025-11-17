@@ -26,6 +26,19 @@ func createTestFile1() *FileContext {
 	return file
 }
 
+func checkContextWith(t *testing.T, ctx *Context, expected string, message string) {
+	t.Helper()
+
+	got := ctx.HighlightText(message)
+	if got != expected {
+		t.Errorf("context got wrong output, expect:\n%s\ngot:\n%s", expected, got)
+	}
+}
+
+func checkContext(t *testing.T, ctx *Context, expected string) {
+	checkContextWith(t, ctx, expected, "here")
+}
+
 func TestContextContentWithEmptyHighlight(t *testing.T) {
 	fd := createTestFile1()
 
@@ -77,6 +90,41 @@ func TestContextHighlightText(t *testing.T) {
 	}
 }
 
+func TestContextHighlightTextWithTestUtil(t *testing.T) {
+	fd := createTestFile1()
+
+	line := fd.LineContext(3)
+	// 0         1         2         3         4
+	// 0    5    0    5    0    5    0    5    0
+	// sed do eiusmod tempor incididunt
+	ctx := line.Mark(7, 14)
+	ctx.Load(2, 2)
+
+	expected1 := strings.Join([]string{
+		"   2:   consectetur adipiscing elit",
+		"   3:   ",
+		"   4:   sed do eiusmod tempor incididunt",
+		"               ^^^^^^^",
+		"               the quick brown fox",
+		"   5:   ut labore et dolore magna aliqua",
+		"   6:   ut enim ad minim veniam",
+	}, "\n")
+
+	checkContextWith(t, ctx, expected1, "the quick brown fox")
+
+	expected2 := strings.Join([]string{
+		"   2:   consectetur adipiscing elit",
+		"   3:   ",
+		"   4:   sed do eiusmod tempor incididunt",
+		"               ^^^^^^^",
+		"               here",
+		"   5:   ut labore et dolore magna aliqua",
+		"   6:   ut enim ad minim veniam",
+	}, "\n")
+
+	checkContext(t, ctx, expected2)
+}
+
 func TestContextContent(t *testing.T) {
 	fd := createTestFile1()
 
@@ -115,7 +163,6 @@ func TestContextHighlightTextMultipleParts1(t *testing.T) {
 	ctx := ctx1.Join(ctx2)
 	ctx.Load(2, 2)
 
-	got := ctx.HighlightText("the quick brown fox")
 	expected := strings.Join([]string{
 		"   2:   consectetur adipiscing elit",
 		"   3:   ",
@@ -125,10 +172,7 @@ func TestContextHighlightTextMultipleParts1(t *testing.T) {
 		"   5:   ut labore et dolore magna aliqua",
 		"   6:   ut enim ad minim veniam",
 	}, "\n")
-
-	if got != expected {
-		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
-	}
+	checkContextWith(t, ctx, expected, "the quick brown fox")
 
 	expRow, expCol := 3, 21
 	lastRow, lastCol := ctx.Last()
@@ -187,7 +231,6 @@ func TestContextHighlightTextMultipleParts2(t *testing.T) {
 	ctx := Join(ctx1, ctx2, ctx3)
 	ctx.Load(2, 2)
 
-	got := ctx.HighlightText("the quick brown fox")
 	expected := strings.Join([]string{
 		"   2:   consectetur adipiscing elit",
 		"   3:   ",
@@ -199,10 +242,7 @@ func TestContextHighlightTextMultipleParts2(t *testing.T) {
 		"   6:   ut enim ad minim veniam",
 		"   7:   ",
 	}, "\n")
-
-	if got != expected {
-		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
-	}
+	checkContextWith(t, ctx, expected, "the quick brown fox")
 
 	expRow, expCol := 4, 19
 	lastRow, lastCol := ctx.Last()
@@ -232,7 +272,6 @@ func TestContextHighlightTextMultipleParts3(t *testing.T) {
 	ctx := Join(ctx3, ctx2, ctx1)
 	ctx.Load(2, 2)
 
-	got := ctx.HighlightText("the quick brown fox")
 	expected := strings.Join([]string{
 		"   2:   consectetur adipiscing elit",
 		"   3:   ",
@@ -244,10 +283,7 @@ func TestContextHighlightTextMultipleParts3(t *testing.T) {
 		"   6:   ut enim ad minim veniam",
 		"   7:   ",
 	}, "\n")
-
-	if got != expected {
-		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
-	}
+	checkContextWith(t, ctx, expected, "the quick brown fox")
 
 	expRow, expCol := 4, 19
 	lastRow, lastCol := ctx.Last()
@@ -274,7 +310,6 @@ func TestContextHighlightTextMultipleLines1(t *testing.T) {
 	ctx := Join(ctx1, ctx2)
 	ctx.Load(2, 2)
 
-	got := ctx.HighlightText("the quick brown fox")
 	expected := strings.Join([]string{
 		"   2:   consectetur adipiscing elit",
 		"   3:   ",
@@ -286,10 +321,7 @@ func TestContextHighlightTextMultipleLines1(t *testing.T) {
 		"   6:   ut enim ad minim veniam",
 		"   7:   ",
 	}, "\n")
-
-	if got != expected {
-		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
-	}
+	checkContextWith(t, ctx, expected, "the quick brown fox")
 
 	expRow, expCol := 4, 19
 	lastRow, lastCol := ctx.Last()
@@ -314,7 +346,6 @@ func TestJoinContext(t *testing.T) {
 
 	ctx := Join(ctx1)
 
-	got := ctx.HighlightText("the quick brown fox")
 	expected := strings.Join([]string{
 		"   2:   consectetur adipiscing elit",
 		"   3:   ",
@@ -324,10 +355,7 @@ func TestJoinContext(t *testing.T) {
 		"   5:   ut labore et dolore magna aliqua",
 		"   6:   ut enim ad minim veniam",
 	}, "\n")
-
-	if got != expected {
-		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
-	}
+	checkContextWith(t, ctx, expected, "the quick brown fox")
 
 	expRow, expCol := 3, 14
 	lastRow, lastCol := ctx.Last()

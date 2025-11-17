@@ -96,10 +96,10 @@ func (t *Tokenizer) scanWord(i int) (string, *context.Context) {
 	return content, ctx
 }
 
-func (t *Tokenizer) ScanWordToken(i int) ast.Node {
+func (t *Tokenizer) ScanWordToken(i int) ast.TerminalNode {
 	content, ctx := t.scanWord(i)
 
-	tokenType := ast.GetKeywordNodeType(content)
+	tokenType := ast.GetKeywordTokenType(content)
 	if tokenType == ast.Invalid {
 		return ast.NewIdentifier(ctx, content)
 	}
@@ -111,11 +111,11 @@ func (t *Tokenizer) ScanFixedString(s string) *context.Context {
 	return t.cursor.NextString(s)
 }
 
-func (t *Tokenizer) ScanSymbol() (ast.Node, error) {
+func (t *Tokenizer) ScanSymbol() (ast.TerminalNode, error) {
 	for _, op := range ast.OperatorList {
 		ctx := t.cursor.NextString(op)
 		if ctx != nil {
-			tokenType := ast.GetOperatorNodeType(op)
+			tokenType := ast.GetOperatorTokenType(op)
 			return ast.NewTerminalToken(ctx, tokenType), nil
 		}
 	}
@@ -124,7 +124,7 @@ func (t *Tokenizer) ScanSymbol() (ast.Node, error) {
 	return nil, ast.NewError(ctx, "invalid symbol '%s'", ctx.Content())
 }
 
-func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
+func (t *Tokenizer) scanHexadecimalNumber() (ast.TerminalNode, error) {
 	i := 2 // skip "0x"
 	begin := t.cursor.State()
 	v := uint64(0)
@@ -178,7 +178,7 @@ func (t *Tokenizer) scanHexadecimalNumber() (ast.Node, error) {
 	return ast.NewIntegerLiteral(ctx, v), nil
 }
 
-func (t *Tokenizer) scanOctalNumber() (ast.Node, error) {
+func (t *Tokenizer) scanOctalNumber() (ast.TerminalNode, error) {
 	i := 1 // skip "0"
 	begin := t.cursor.State()
 	v := uint64(0)
@@ -221,7 +221,7 @@ func (t *Tokenizer) scanOctalNumber() (ast.Node, error) {
 	return ast.NewIntegerLiteral(ctx, v), nil
 }
 
-func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
+func (t *Tokenizer) scanDecimalNumber() (ast.TerminalNode, error) {
 	i := 0
 	begin := t.cursor.State()
 	dotIndex, expIndex := -1, -1
@@ -323,7 +323,7 @@ func (t *Tokenizer) scanDecimalNumber() (ast.Node, error) {
 	}
 }
 
-func (t *Tokenizer) ScanNumber() (ast.Node, error) {
+func (t *Tokenizer) ScanNumber() (ast.TerminalNode, error) {
 	r0, _, _ := t.cursor.Rune()
 	begin := t.cursor.State()
 
@@ -350,7 +350,7 @@ func (t *Tokenizer) ScanNumber() (ast.Node, error) {
 	}
 }
 
-func (t *Tokenizer) scanPreprocessorDirective() (ast.Node, error) {
+func (t *Tokenizer) scanPreprocessorDirective() (ast.TerminalNode, error) {
 	cmd, ctxHash, ctxCmd, err := preprocessor.ScanDirective(t.cursor)
 	if err != nil {
 		return nil, err
@@ -366,7 +366,7 @@ func (t *Tokenizer) scanPreprocessorDirective() (ast.Node, error) {
 	return pp.Process(ctxHash, ctxCmd)
 }
 
-func (t *Tokenizer) ScanToken() (ast.Node, error) {
+func (t *Tokenizer) ScanToken() (ast.TerminalNode, error) {
 	r, _, eof := t.cursor.Rune()
 	if eof {
 		return nil, nil
@@ -392,8 +392,8 @@ func (t *Tokenizer) ScanToken() (ast.Node, error) {
 	return nil, ast.NewError(ctx, "no token found")
 }
 
-func (t *Tokenizer) ScanAll() ([]ast.Node, error) {
-	tokens := make([]ast.Node, 0, 1000)
+func (t *Tokenizer) ScanAll() ([]ast.TerminalNode, error) {
+	tokens := make([]ast.TerminalNode, 0, 1000)
 
 	for {
 		t.SkipWhitespace()

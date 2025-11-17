@@ -17,7 +17,7 @@ func Include(cursor *context.Cursor) Preprocessor {
 	return p
 }
 
-func (p *preprocessorInclude) Process(hash *context.Context, name *context.Context) (ast.Node, error) {
+func (p *preprocessorInclude) Process(hash *context.Context, name *context.Context) (ast.TerminalNode, error) {
 	p.cursor.SkipWhitespaceInLine()
 	lb, lbCtx := p.cursor.CurrentChar()
 	pos := rune(0)

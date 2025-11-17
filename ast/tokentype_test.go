@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func TestNodeTypeMethods(t *testing.T) {
+func TestTokenTypeMethods(t *testing.T) {
 	cases := []struct {
-		t          NodeType
+		t          TokenType
 		isOperator bool
 		s          string
 	}{
@@ -32,7 +32,7 @@ func TestNodeTypeMethods(t *testing.T) {
 func TestGetKeywordNodeType(t *testing.T) {
 	cases := []struct {
 		s        string
-		expected NodeType
+		expected TokenType
 	}{
 		{"if", If},
 		{"else", Else},
@@ -40,7 +40,7 @@ func TestGetKeywordNodeType(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		got := GetKeywordNodeType(c.s)
+		got := GetKeywordTokenType(c.s)
 		if got != c.expected {
 			t.Errorf("GetKeywordTokenType(%q) == %d, expected %d", c.s, got, c.expected)
 		}

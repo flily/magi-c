@@ -7,7 +7,6 @@ import (
 type Node interface {
 	Terminal() bool
 	Context() *context.Context
-	Type() NodeType
 	HighlightText(message string, args ...any) string
 }
 
@@ -28,12 +27,17 @@ func (n *ContextContainer) HighlightText(message string, args ...any) string {
 	return ctx.HighlightText(message, args...)
 }
 
-type TerminalNode struct {
+type TerminalNode interface {
+	Node
+	Type() TokenType
+}
+
+type TerminalNodeBase struct {
 	ContextContainer
 }
 
-func NewTerminalNode(ctx *context.Context) TerminalNode {
-	n := TerminalNode{
+func NewTerminalNodeBase(ctx *context.Context) TerminalNodeBase {
+	n := TerminalNodeBase{
 		ContextContainer: ContextContainer{
 			context: ctx,
 		},
@@ -42,7 +46,7 @@ func NewTerminalNode(ctx *context.Context) TerminalNode {
 	return n
 }
 
-func (n *TerminalNode) Terminal() bool {
+func (n *TerminalNodeBase) Terminal() bool {
 	return true
 }
 

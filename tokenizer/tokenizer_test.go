@@ -80,11 +80,7 @@ func TestTokenizerScanAll(t *testing.T) {
 	}
 
 	for i, expectedType := range directiveTypes {
-		term, ok := tokens[i].(ast.TerminalNode)
-		if !ok {
-			t.Fatalf("token %d: expected TerminalNode, got %T", i, tokens[i])
-		}
-
+		term := tokens[i]
 		if term.Type() != expectedType {
 			t.Errorf("token %d: expected type %s, got %s", i, expectedType, term.Type())
 		}

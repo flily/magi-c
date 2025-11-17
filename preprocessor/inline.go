@@ -17,7 +17,7 @@ func Inline(cursor *context.Cursor) Preprocessor {
 	return p
 }
 
-func (p *preprocessorInline) Process(hash *context.Context, name *context.Context) (ast.Node, error) {
+func (p *preprocessorInline) Process(hash *context.Context, name *context.Context) (ast.TerminalNode, error) {
 	p.cursor.SkipWhitespaceInLine()
 	blockType, btCtx := cursorScanUntilInLine(p.cursor, ' ', '\t')
 	if len(blockType) <= 0 {

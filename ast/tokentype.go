@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-type NodeType int
+type TokenType int
 
 const (
-	Invalid NodeType = iota
+	Invalid TokenType = iota
 	notUsedToken
 	literalBegin
 	Null
@@ -26,7 +26,7 @@ const (
 	Global
 	Function
 	Structure
-	Type
+	TypeDefine
 	If
 	Elif
 	Else
@@ -103,13 +103,6 @@ const (
 	NodePreprocessorInline
 	preprocessorEnd
 
-	nonTerminalNodeBegin
-	NodeDocument
-	NodeFunctionDeclaration
-	NodeStatement
-	NodeExpression
-	nonTerminalNodeEnd
-
 	LastToken
 
 	SIllegal            = "Illegal"
@@ -127,7 +120,7 @@ const (
 	SGlobal             = "global"
 	SFunction           = "fun"
 	SStructure          = "struct"
-	SType               = "type"
+	STypeDefine         = "type"
 	SIf                 = "if"
 	SElif               = "elif"
 	SElse               = "else"
@@ -192,7 +185,7 @@ const (
 	SCommentStart       = "//"
 )
 
-var tokenStringMap = map[NodeType]string{
+var tokenStringMap = map[TokenType]string{
 	Invalid:            SIllegal,
 	Null:               SNull,
 	False:              SFalse,
@@ -207,7 +200,7 @@ var tokenStringMap = map[NodeType]string{
 	Global:             SGlobal,
 	Function:           SFunction,
 	Structure:          SStructure,
-	Type:               SType,
+	TypeDefine:         STypeDefine,
 	If:                 SIf,
 	Elif:               SElif,
 	Else:               SElse,
@@ -271,11 +264,11 @@ var tokenStringMap = map[NodeType]string{
 	CommentStart:       SCommentStart,
 }
 
-func (t NodeType) IsOperator() bool {
+func (t TokenType) IsOperator() bool {
 	return t > operatorBegin && t < operatorEnd
 }
 
-func (t NodeType) String() string {
+func (t TokenType) String() string {
 	s, ok := tokenStringMap[t]
 	if ok {
 		return s
@@ -284,42 +277,42 @@ func (t NodeType) String() string {
 	return fmt.Sprintf("<Token %d>", t)
 }
 
-var keywordMap = map[string]NodeType{
-	SNull:      Null,
-	SFalse:     False,
-	STrue:      True,
-	SAuto:      Auto,
-	SVar:       Var,
-	SConst:     Const,
-	SGlobal:    Global,
-	SFunction:  Function,
-	SStructure: Structure,
-	SType:      Type,
-	SIf:        If,
-	SElif:      Elif,
-	SElse:      Else,
-	SFor:       For,
-	SWhile:     While,
-	SDo:        Do,
-	SForeach:   Foreach,
-	SBreak:     Break,
-	SContinue:  Continue,
-	SAnd:       And,
-	SOr:        Or,
-	SNot:       Not,
-	SNew:       New,
-	SDelete:    Delete,
-	SRef:       Ref,
-	SReturn:    Return,
-	SCall:      Call,
-	SExport:    Export,
-	SImport:    Import,
-	SModule:    Module,
-	SSizeof:    Sizeof,
-	SInclude:   Import,
+var keywordMap = map[string]TokenType{
+	SNull:       Null,
+	SFalse:      False,
+	STrue:       True,
+	SAuto:       Auto,
+	SVar:        Var,
+	SConst:      Const,
+	SGlobal:     Global,
+	SFunction:   Function,
+	SStructure:  Structure,
+	STypeDefine: TypeDefine,
+	SIf:         If,
+	SElif:       Elif,
+	SElse:       Else,
+	SFor:        For,
+	SWhile:      While,
+	SDo:         Do,
+	SForeach:    Foreach,
+	SBreak:      Break,
+	SContinue:   Continue,
+	SAnd:        And,
+	SOr:         Or,
+	SNot:        Not,
+	SNew:        New,
+	SDelete:     Delete,
+	SRef:        Ref,
+	SReturn:     Return,
+	SCall:       Call,
+	SExport:     Export,
+	SImport:     Import,
+	SModule:     Module,
+	SSizeof:     Sizeof,
+	SInclude:    Import,
 }
 
-func GetKeywordNodeType(s string) NodeType {
+func GetKeywordTokenType(s string) TokenType {
 	if t, ok := keywordMap[s]; ok {
 		return t
 	}
@@ -327,7 +320,7 @@ func GetKeywordNodeType(s string) NodeType {
 	return Invalid
 }
 
-var operatorMap = map[string]NodeType{
+var operatorMap = map[string]TokenType{
 	SPlus:               Plus,
 	SSub:                Sub,
 	SAsterisk:           Asterisk,
@@ -370,7 +363,7 @@ var operatorMap = map[string]NodeType{
 	SCommentStart:       CommentStart,
 }
 
-func GetOperatorNodeType(s string) NodeType {
+func GetOperatorTokenType(s string) TokenType {
 	if t, ok := operatorMap[s]; ok {
 		return t
 	}

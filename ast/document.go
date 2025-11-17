@@ -38,10 +38,6 @@ func (d *Document) Terminal() bool {
 	return false
 }
 
-func (d *Document) Type() NodeType {
-	return NodeDocument
-}
-
 func (d *Document) Context() *context.Context {
 	if len(d.Declarations) == 0 {
 		return nil

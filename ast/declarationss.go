@@ -15,7 +15,3 @@ type FunctionDeclaration struct {
 }
 
 func (f *FunctionDeclaration) declarationNode() {}
-
-func (f *FunctionDeclaration) Type() NodeType {
-	return NodeFunctionDeclaration
-}

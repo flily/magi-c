@@ -64,7 +64,7 @@ func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbr
 	return p
 }
 
-func (p *PreprocessorInclude) Type() NodeType {
+func (p *PreprocessorInclude) Type() TokenType {
 	return NodePreprocessorInclude
 }
 
@@ -100,7 +100,7 @@ func NewPreprocessorInline(hash *context.Context, command *context.Context, code
 
 func (p *PreprocessorInline) statementNode() {}
 
-func (p *PreprocessorInline) Type() NodeType {
+func (p *PreprocessorInline) Type() TokenType {
 	return NodePreprocessorInline
 }
 

@@ -7,8 +7,4 @@ type ReturnStatement struct {
 	Value  *IntegerLiteral
 }
 
-func (r *ReturnStatement) Type() NodeType {
-	return NodeStatement
-}
-
 func (r *ReturnStatement) statementNode() {}

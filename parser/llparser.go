@@ -10,7 +10,7 @@ import (
 
 type LLParser struct {
 	tokenizer  *tokenizer.Tokenizer
-	tokens     []ast.Node
+	tokens     []ast.TerminalNode
 	tokenIndex int
 }
 
@@ -60,7 +60,7 @@ func (p *LLParser) RegisterPreprocessor(name string, handler preprocessor.Prepro
 	p.tokenizer.RegisterPreprocessor(name, handler)
 }
 
-func (p *LLParser) getToken(index int) ast.Node {
+func (p *LLParser) getToken(index int) ast.TerminalNode {
 	if index < 0 || index >= len(p.tokens) {
 		return nil
 	}
@@ -68,16 +68,16 @@ func (p *LLParser) getToken(index int) ast.Node {
 	return p.tokens[index]
 }
 
-func (p *LLParser) peekToken(offset int) ast.Node {
+func (p *LLParser) peekToken(offset int) ast.TerminalNode {
 	index := p.tokenIndex + offset
 	return p.getToken(index)
 }
 
-func (p *LLParser) currentToken() ast.Node {
+func (p *LLParser) currentToken() ast.TerminalNode {
 	return p.peekToken(0)
 }
 
-func (p *LLParser) takeToken() ast.Node {
+func (p *LLParser) takeToken() ast.TerminalNode {
 	token := p.currentToken()
 	if token != nil {
 		p.tokenIndex++
@@ -86,7 +86,7 @@ func (p *LLParser) takeToken() ast.Node {
 	return token
 }
 
-func (p *LLParser) expectToken(expectedType ast.NodeType) (ast.Node, error) {
+func (p *LLParser) expectToken(expectedType ast.TokenType) (ast.Node, error) {
 	node := p.takeToken()
 	if node == nil {
 		ctx := p.tokenizer.EOFContext()
@@ -121,7 +121,7 @@ func (p *LLParser) parseProgram() (*ast.Document, error) {
 	return document, nil
 }
 
-func (p *LLParser) parseDeclaration(current ast.Node) (ast.Declaration, error) {
+func (p *LLParser) parseDeclaration(current ast.TerminalNode) (ast.Declaration, error) {
 	var result ast.Declaration
 	var err error
 	switch current.Type() {
@@ -205,7 +205,7 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 	return result, nil
 }
 
-func (p *LLParser) parseStatement(start ast.Node) (ast.Statement, error) {
+func (p *LLParser) parseStatement(start ast.TerminalNode) (ast.Statement, error) {
 	p.takeToken()
 
 	switch start.Type() {
