@@ -77,6 +77,15 @@ func (p *LLParser) currentToken() ast.TerminalNode {
 	return p.peekToken(0)
 }
 
+func takeToken[T ast.TerminalNode](p *LLParser) T {
+	token := p.currentToken()
+	if token != nil {
+		p.tokenIndex++
+	}
+
+	return token.(T)
+}
+
 func (p *LLParser) takeToken() ast.TerminalNode {
 	token := p.currentToken()
 	if token != nil {
@@ -86,18 +95,30 @@ func (p *LLParser) takeToken() ast.TerminalNode {
 	return token
 }
 
-func (p *LLParser) expectToken(expectedType ast.TokenType) (ast.Node, error) {
+func (p *LLParser) restoreToken() ast.TerminalNode {
+	if p.tokenIndex > 0 {
+		p.tokenIndex--
+	}
+
+	return p.currentToken()
+}
+
+func (p *LLParser) expectToken(expectedTypes ...ast.TokenType) (ast.TerminalNode, error) {
 	node := p.takeToken()
 	if node == nil {
 		ctx := p.tokenizer.EOFContext()
-		return nil, ast.NewError(ctx, "unexpected EOF, expect token: %s", expectedType.String())
+		return nil, ast.NewError(ctx, "unexpected EOF, expect token: %s",
+			ast.TokenTypeListString(expectedTypes))
 	}
 
-	if node.Type() != expectedType {
-		return nil, ast.NewError(node.Context(), "unexpected token: %s, expect: %s", node.Type().String(), expectedType.String())
+	for _, expectedType := range expectedTypes {
+		if node.Type() == expectedType {
+			return node, nil
+		}
 	}
 
-	return node, nil
+	return nil, ast.NewError(node.Context(), "unexpected token %s, expect '%s'",
+		node.Type(), ast.TokenTypeListString(expectedTypes))
 }
 
 func (p *LLParser) parseProgram() (*ast.Document, error) {
@@ -158,11 +179,29 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 	}
 	result.LParenArgs = lParenArgs.(*ast.TerminalToken)
 
-	rParenArgs, err := p.expectToken(ast.RightParen)
+	argsLead, err := p.expectToken(ast.RightParen, ast.IdentifierName)
 	if err != nil {
 		return nil, err
 	}
-	result.RParenArgs = rParenArgs.(*ast.TerminalToken)
+
+	switch argsLead.Type() {
+	case ast.RightParen:
+		result.RParenArgs = argsLead.(*ast.TerminalToken)
+
+	case ast.IdentifierName:
+		p.restoreToken()
+		args, err := p.parseArgumentList()
+		if err != nil {
+			return nil, err
+		}
+		result.Arguments = args
+
+		rParenArgs, err := p.expectToken(ast.RightParen)
+		if err != nil {
+			return nil, err
+		}
+		result.RParenArgs = rParenArgs.(*ast.TerminalToken)
+	}
 
 	lParenReturnTypes, err := p.expectToken(ast.LeftParen)
 	if err != nil {
@@ -217,9 +256,7 @@ func (p *LLParser) parseStatement(start ast.TerminalNode) (ast.Statement, error)
 }
 
 func (p *LLParser) parseReturn(keyword *ast.TerminalToken) (ast.Statement, error) {
-	result := &ast.ReturnStatement{
-		Return: keyword,
-	}
+	result := ast.NewReturnStatement(keyword)
 
 	valueNode, err := p.expectToken(ast.Integer)
 	if err != nil {
@@ -228,4 +265,96 @@ func (p *LLParser) parseReturn(keyword *ast.TerminalToken) (ast.Statement, error
 	result.Value = valueNode.(*ast.IntegerLiteral)
 
 	return result, nil
+}
+
+func (p *LLParser) parseArgument() (*ast.ArgumentDeclaration, error) {
+	arg := ast.NewArgumentDeclaration()
+	arg.Name = takeToken[*ast.Identifier](p)
+
+	typeLead := p.currentToken()
+	if typeLead == nil {
+		ctx := p.tokenizer.EOFContext()
+		return nil, ast.NewError(ctx, "unexpected EOF, expect argument type")
+	}
+
+	var err error
+	var typeNode ast.Type
+
+	switch typeLead.Type() {
+	case ast.Asterisk:
+		typeNode, err = p.parseSimpleType()
+
+	case ast.IdentifierName:
+		typeNode, err = p.parseSimpleType()
+
+	default:
+		err = ast.NewError(typeLead.Context(), "unexpected token '%s', expect argument type", typeLead.Type().String())
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	arg.Type = typeNode
+
+	last := p.currentToken()
+	if last != nil && last.Type() == ast.Comma {
+		comma := takeToken[*ast.TerminalToken](p)
+		arg.Comma = comma
+	}
+
+	return arg, nil
+}
+
+func (p *LLParser) parseSimpleType() (*ast.SimpleType, error) {
+	t := ast.NewSimpleType()
+
+	for {
+		current := p.currentToken()
+		if current == nil {
+			ctx := p.tokenizer.EOFContext()
+			return nil, ast.NewError(ctx, "unexpected EOF, expect type identifier")
+		}
+
+		switch current.Type() {
+		case ast.Asterisk:
+			asterisk := takeToken[*ast.TerminalToken](p)
+			t.AddPointerAsterisk(asterisk)
+
+		case ast.IdentifierName:
+			identifier := takeToken[*ast.Identifier](p)
+			t.Identifier = identifier
+			return t, nil
+
+		default:
+			return nil, ast.NewError(current.Context(), "unexpected token %s, expect type identifier", current.Type().String())
+		}
+	}
+}
+
+func (p *LLParser) parseArgumentList() (*ast.ArgumentList, error) {
+	args := ast.NewArgumentList()
+
+	for {
+		current := p.currentToken()
+		if current == nil {
+			break
+		}
+
+		switch current.Type() {
+		case ast.RightParen:
+			return args, nil
+
+		case ast.IdentifierName:
+			arg, err := p.parseArgument()
+			if err != nil {
+				return nil, err
+			}
+			args.Arguments = append(args.Arguments, arg)
+
+		default:
+			return nil, ast.NewError(current.Context(), "unexpected token '%s' in argument list", current.Type().String())
+		}
+	}
+
+	return args, nil
 }

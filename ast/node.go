@@ -5,7 +5,6 @@ import (
 )
 
 type Node interface {
-	Terminal() bool
 	Context() *context.Context
 	HighlightText(message string, args ...any) string
 }
@@ -46,10 +45,6 @@ func NewTerminalNodeBase(ctx *context.Context) TerminalNodeBase {
 	return n
 }
 
-func (n *TerminalNodeBase) Terminal() bool {
-	return true
-}
-
 type NonTerminalNode struct {
 	provider ContextProvider
 }
@@ -58,15 +53,7 @@ func (n *NonTerminalNode) Init(provider ContextProvider) {
 	n.provider = provider
 }
 
-func (n *NonTerminalNode) Terminal() bool {
-	return false
-}
-
-func (c *NonTerminalNode) Context() *context.Context {
-	return c.provider.Context()
-}
-
 func (c *NonTerminalNode) HighlightText(message string, args ...any) string {
-	ctx := c.Context()
+	ctx := c.provider.Context()
 	return ctx.HighlightText(message, args...)
 }

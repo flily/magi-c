@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 )
 
 type TokenType int
@@ -275,6 +276,15 @@ func (t TokenType) String() string {
 	}
 
 	return fmt.Sprintf("<Token %d>", t)
+}
+
+func TokenTypeListString(types []TokenType) string {
+	sList := make([]string, 0, len(types))
+	for _, t := range types {
+		sList = append(sList, t.String())
+	}
+
+	return strings.Join(sList, ", ")
 }
 
 var keywordMap = map[string]TokenType{
