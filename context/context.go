@@ -27,6 +27,10 @@ type Context struct {
 	Lines     []*LineContext
 }
 
+type ContextProvider interface {
+	Context() *Context
+}
+
 func (c *Context) Join(ctxs ...*Context) *Context {
 	lines := make([]*LineContext, 0, len(c.Lines)+len(ctxs)*10)
 	for _, line := range c.Lines {
@@ -34,6 +38,10 @@ func (c *Context) Join(ctxs ...*Context) *Context {
 	}
 
 	for i, ctx := range ctxs {
+		if ctx == nil {
+			continue
+		}
+
 		if ctx.File != c.File {
 			err := fmt.Errorf("context %d does not match file", i)
 			panic(err)
@@ -150,10 +158,25 @@ func Join(ctxs ...*Context) *Context {
 		return nil
 	}
 
-	first := ctxs[0]
-	if len(ctxs) == 1 {
-		return first
+	firstNonNil := 0
+	for i := 0; i < len(ctxs); i++ {
+		if ctxs[i] != nil {
+			firstNonNil = i
+			break
+		}
 	}
 
-	return first.Join(ctxs[1:]...)
+	first := ctxs[firstNonNil]
+	return first.Join(ctxs[firstNonNil+1:]...)
+}
+
+func JoinObjects(objs ...ContextProvider) *Context {
+	ctxs := make([]*Context, 0, len(objs))
+	for _, obj := range objs {
+		if obj != nil {
+			ctxs = append(ctxs, obj.Context())
+		}
+	}
+
+	return Join(ctxs...)
 }

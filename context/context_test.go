@@ -337,14 +337,51 @@ func TestJoinContext(t *testing.T) {
 
 	fd := createTestFile1()
 
+	line1 := fd.LineContext(3)
+	// 0         1         2         3         4
+	// 0    5    0    5    0    5    0    5    0
+	// sed do eiusmod tempor incididunt
+	ctx1 := line1.Mark(7, 14)
+
+	line2 := fd.LineContext(3)
+	ctx2 := line2.Mark(22, 32)
+
+	ctx := Join(ctx1, ctx2)
+	ctx.Load(2, 2)
+
+	expected := strings.Join([]string{
+		"   2:   consectetur adipiscing elit",
+		"   3:   ",
+		"   4:   sed do eiusmod tempor incididunt",
+		"               ^^^^^^^        ^^^^^^^^^^",
+		"               the quick brown fox",
+		"   5:   ut labore et dolore magna aliqua",
+		"   6:   ut enim ad minim veniam",
+	}, "\n")
+	checkContextWith(t, ctx, expected, "the quick brown fox")
+
+	expRow, expCol := 3, 32
+	lastRow, lastCol := ctx.Last()
+	if lastRow != expRow || lastCol != expCol {
+		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
+	}
+}
+
+func TestJoinNilContext(t *testing.T) {
+	if c := Join(); c != nil {
+		t.Fatalf("expected nil context, got non-nil")
+	}
+
+	fd := createTestFile1()
+
 	line := fd.LineContext(3)
 	// 0         1         2         3         4
 	// 0    5    0    5    0    5    0    5    0
 	// sed do eiusmod tempor incididunt
 	ctx1 := line.Mark(7, 14)
-	ctx1.Load(2, 2)
 
-	ctx := Join(ctx1)
+	ctx := Join(ctx1, nil)
+	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
 		"   2:   consectetur adipiscing elit",
@@ -362,4 +399,53 @@ func TestJoinContext(t *testing.T) {
 	if lastRow != expRow || lastCol != expCol {
 		t.Errorf("expected last position to be (%d, %d), got (%d, %d)", expRow, expCol, lastRow, lastCol)
 	}
+}
+
+type contextProviderObject struct {
+	ctx *Context
+}
+
+func (c *contextProviderObject) Context() *Context {
+	return c.ctx
+}
+
+func TestJoinConextObject(t *testing.T) {
+	if c := JoinObjects(); c != nil {
+		t.Fatalf("expected nil context, got non-nil")
+	}
+
+	fd := createTestFile1()
+
+	// 0         1         2         3         4
+	// 0    5    0    5    0    5    0    5    0
+	// ut labore et dolore magna aliqua
+
+	line1 := fd.LineContext(4)
+	obj1 := &contextProviderObject{
+		ctx: line1.Mark(3, 9),
+	}
+
+	line2 := fd.LineContext(4)
+	obj2 := &contextProviderObject{
+		ctx: line2.Mark(13, 19),
+	}
+
+	line3 := fd.LineContext(4)
+	obj3 := &contextProviderObject{
+		ctx: line3.Mark(26, 32),
+	}
+
+	ctx := JoinObjects(obj1, obj2, nil, obj3)
+	ctx.Load(2, 2)
+
+	expected := strings.Join([]string{
+		"   3:   ",
+		"   4:   sed do eiusmod tempor incididunt",
+		"   5:   ut labore et dolore magna aliqua",
+		"           ^^^^^^    ^^^^^^       ^^^^^^",
+		"           the quick brown fox",
+		"   6:   ut enim ad minim veniam",
+		"   7:   ",
+	}, "\n")
+	checkContextWith(t, ctx, expected, "the quick brown fox")
 }

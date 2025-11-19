@@ -9,10 +9,6 @@ type Node interface {
 	HighlightText(message string, args ...any) string
 }
 
-type ContextProvider interface {
-	Context() *context.Context
-}
-
 type ContextContainer struct {
 	context *context.Context
 }
@@ -46,10 +42,10 @@ func NewTerminalNodeBase(ctx *context.Context) TerminalNodeBase {
 }
 
 type NonTerminalNode struct {
-	provider ContextProvider
+	provider context.ContextProvider
 }
 
-func (n *NonTerminalNode) Init(provider ContextProvider) {
+func (n *NonTerminalNode) Init(provider context.ContextProvider) {
 	n.provider = provider
 }
 

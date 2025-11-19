@@ -22,8 +22,7 @@ func NewArgumentDeclaration() *ArgumentDeclaration {
 }
 
 func (p *ArgumentDeclaration) Context() *context.Context {
-	// comma not included
-	return context.Join(p.Name.Context(), p.Type.Context())
+	return context.JoinObjects(p.Name, p.Type, p.Comma)
 }
 
 type ArgumentList struct {
@@ -114,4 +113,24 @@ func (t *FunctionType) Context() *context.Context {
 	)
 
 	return ctx
+}
+
+type TypeListItems struct {
+	NonTerminalNode
+	Type  Type
+	Comma *TerminalToken
+}
+
+func NewTypeListItems() *TypeListItems {
+	l := &TypeListItems{}
+	l.Init(l)
+
+	return l
+}
+
+func (l *TypeListItems) Context() *context.Context {
+	return context.Join(l.Type.Context(), l.Comma.Context())
+}
+
+type TypeList struct {
 }
