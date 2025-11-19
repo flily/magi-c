@@ -1,9 +1,5 @@
 package tokenizer
 
-func IsWhitespace(r rune) bool {
-	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
-}
-
 func IsValidIdentifierRune(r rune) bool {
 	if 'a' <= r && r <= 'z' {
 		return true
@@ -38,6 +34,25 @@ func IsValidIdentifierInitialRune(r rune) bool {
 	}
 
 	return false
+}
+
+func IsValidIdentifier(s string) bool {
+	rs := []rune(s)
+	if len(rs) == 0 {
+		return false
+	}
+
+	if !IsValidIdentifierInitialRune(rs[0]) {
+		return false
+	}
+
+	for _, r := range rs[1:] {
+		if !IsValidIdentifierRune(r) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func IsValidNumberInitialRune(r rune) bool {

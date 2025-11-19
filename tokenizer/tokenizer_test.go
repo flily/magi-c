@@ -87,6 +87,42 @@ func TestTokenizerScanAll(t *testing.T) {
 	}
 }
 
+func TestTokenizerScanEOF(t *testing.T) {
+	code := strings.Join([]string{
+		"#include <stdio.h>",
+		"",
+		"fun main() {",
+		"}",
+	}, "\n")
+
+	tokenizer := NewTokenizerFromString(code, "test.txt")
+	tokenizer.RegisterPreprocessor("include", preprocessor.Include)
+	tokens, err := tokenizer.ScanAll()
+	if err != nil {
+		t.Fatalf("unexpected error:\n%v", err)
+	}
+
+	if len(tokens) != 7 {
+		t.Fatalf("expected 7 tokens, got %d", len(tokens))
+	}
+
+	last, err := tokenizer.ScanToken()
+	if err != nil {
+		t.Fatalf("unexpected error when scanning after EOF:\n%v", err)
+	}
+
+	if last != nil {
+		t.Fatalf("expected last token to be nil, got %v", last)
+	}
+
+	exp := strings.Join([]string{
+		"   4:   }<EOF>",
+		"         ^^^^^",
+		"         here",
+	}, "\n")
+	checkContext(t, tokenizer.EOFContext(), exp)
+}
+
 func TestTokenizerSkipWhitespace(t *testing.T) {
 	code := strings.Join([]string{
 		"                lorem ipsum",
