@@ -4,6 +4,7 @@ import "github.com/flily/magi-c/context"
 
 type Type interface {
 	Node
+	typeNode()
 }
 
 type ArgumentDeclaration struct {
@@ -65,6 +66,8 @@ func NewSimpleType() *SimpleType {
 	return t
 }
 
+func (t *SimpleType) typeNode() {}
+
 func (t *SimpleType) Context() *context.Context {
 	ctxList := make([]*context.Context, 0, len(t.PointerAsterisk)+1)
 	for _, asterisk := range t.PointerAsterisk {
@@ -96,6 +99,8 @@ func NewFunctionType() *FunctionType {
 
 	return t
 }
+
+func (t *FunctionType) typeNode() {}
 
 func (t *FunctionType) Context() *context.Context {
 	ctx := context.Join(
