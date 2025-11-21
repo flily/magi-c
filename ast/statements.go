@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/flily/magi-c/context"
+import (
+	"github.com/flily/magi-c/context"
+)
 
 type ReturnStatement struct {
 	NonTerminalNode
@@ -21,5 +23,5 @@ func NewReturnStatement(keyword *TerminalToken) *ReturnStatement {
 }
 
 func (r *ReturnStatement) Context() *context.Context {
-	return context.Join(r.Return.Context(), r.Value.Context())
+	return context.JoinObjects(r.Return, r.Value)
 }

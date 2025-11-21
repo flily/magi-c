@@ -53,7 +53,7 @@ func TestLLParserSimplestProgram(t *testing.T) {
 
 func TestLLParserFunctionWithArguments(t *testing.T) {
 	code := strings.Join([]string{
-		"fun add(a int, b int) () {",
+		"fun add(a int, b int) (int, int) {",
 		"    return 0",
 		"}",
 	}, "\n")

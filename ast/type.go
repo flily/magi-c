@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/flily/magi-c/context"
+import (
+	"github.com/flily/magi-c/context"
+)
 
 type Type interface {
 	Node
@@ -42,12 +44,12 @@ func (l *ArgumentList) Context() *context.Context {
 		return nil
 	}
 
-	ctxList := make([]*context.Context, 0, len(l.Arguments))
+	ctxList := make([]context.ContextProvider, 0, len(l.Arguments))
 	for _, n := range l.Arguments {
-		ctxList = append(ctxList, n.Context())
+		ctxList = append(ctxList, n)
 	}
 
-	return context.Join(ctxList...)
+	return context.JoinObjects(ctxList...)
 }
 
 type SimpleType struct {
@@ -68,13 +70,13 @@ func NewSimpleType() *SimpleType {
 func (t *SimpleType) typeNode() {}
 
 func (t *SimpleType) Context() *context.Context {
-	ctxList := make([]*context.Context, 0, len(t.PointerAsterisk)+1)
+	ctxList := make([]context.ContextProvider, 0, len(t.PointerAsterisk)+1)
 	for _, asterisk := range t.PointerAsterisk {
-		ctxList = append(ctxList, asterisk.Context())
+		ctxList = append(ctxList, asterisk)
 	}
-	ctxList = append(ctxList, t.Identifier.Context())
+	ctxList = append(ctxList, t.Identifier)
 
-	return context.Join(ctxList...)
+	return context.JoinObjects(ctxList...)
 }
 
 func (t *SimpleType) AddPointerAsterisk(asterisk *TerminalToken) {
@@ -102,14 +104,14 @@ func NewFunctionType() *FunctionType {
 func (t *FunctionType) typeNode() {}
 
 func (t *FunctionType) Context() *context.Context {
-	ctx := context.Join(
-		t.Keyword.Context(),
-		t.ArgumentLParen.Context(),
-		t.ArgumentList.Context(),
-		t.ArgumentRParen.Context(),
-		t.ReturnLParen.Context(),
-		t.ReturnTypes.Context(),
-		t.ReturnRParen.Context(),
+	ctx := context.JoinObjects(
+		t.Keyword,
+		t.ArgumentLParen,
+		t.ArgumentList,
+		t.ArgumentRParen,
+		t.ReturnLParen,
+		t.ReturnTypes,
+		t.ReturnRParen,
 	)
 
 	return ctx
@@ -121,16 +123,40 @@ type TypeListItems struct {
 	Comma *TerminalToken
 }
 
-func NewTypeListItems() *TypeListItems {
-	l := &TypeListItems{}
+func NewTypeListItems(t Type) *TypeListItems {
+	l := &TypeListItems{
+		Type: t,
+	}
 	l.Init(l)
 
 	return l
 }
 
 func (l *TypeListItems) Context() *context.Context {
-	return context.Join(l.Type.Context(), l.Comma.Context())
+	return context.JoinObjects(l.Type, l.Comma)
 }
 
 type TypeList struct {
+	Types []*TypeListItems
+}
+
+func NewTypeList() *TypeList {
+	l := &TypeList{
+		Types: make([]*TypeListItems, 0, 2),
+	}
+
+	return l
+}
+
+func (l *TypeList) Context() *context.Context {
+	if len(l.Types) == 0 {
+		return nil
+	}
+
+	ctxList := make([]context.ContextProvider, 0, len(l.Types))
+	for _, item := range l.Types {
+		ctxList = append(ctxList, item)
+	}
+
+	return context.JoinObjects(ctxList...)
 }

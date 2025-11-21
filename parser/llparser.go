@@ -209,11 +209,29 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 	}
 	result.LParenReturnTypes = lParenReturnTypes.(*ast.TerminalToken)
 
-	rParenReturnTypes, err := p.expectToken(ast.RightParen)
+	typeLead, err := p.expectToken(ast.RightParen, ast.IdentifierName)
 	if err != nil {
 		return nil, err
 	}
-	result.RParenReturnTypes = rParenReturnTypes.(*ast.TerminalToken)
+
+	switch typeLead.Type() {
+	case ast.RightParen:
+		result.RParenReturnTypes = typeLead.(*ast.TerminalToken)
+
+	case ast.IdentifierName:
+		p.restoreToken()
+		types, err := p.parseTypeList()
+		if err != nil {
+			return nil, err
+		}
+		result.ReturnTypes = types
+
+		rParenReturnTypes, err := p.expectToken(ast.RightParen)
+		if err != nil {
+			return nil, err
+		}
+		result.RParenReturnTypes = rParenReturnTypes.(*ast.TerminalToken)
+	}
 
 	lBracket, err := p.expectToken(ast.LeftBrace)
 	if err != nil {
@@ -250,9 +268,10 @@ func (p *LLParser) parseStatement(start ast.TerminalNode) (ast.Statement, error)
 	switch start.Type() {
 	case ast.Return:
 		return p.parseReturn(start.(*ast.TerminalToken))
-	}
 
-	return nil, nil
+	default:
+		return nil, ast.NewError(start.Context(), "unexpected token '%s' in statement", start.Type().String())
+	}
 }
 
 func (p *LLParser) parseReturn(keyword *ast.TerminalToken) (ast.Statement, error) {
@@ -357,4 +376,44 @@ func (p *LLParser) parseArgumentList() (*ast.ArgumentList, error) {
 	}
 
 	return args, nil
+}
+
+func (p *LLParser) parseTypeList() (*ast.TypeList, error) {
+	types := ast.NewTypeList()
+
+	for {
+		current := p.currentToken()
+		if current == nil {
+			break
+		}
+
+		switch current.Type() {
+		case ast.RightParen:
+			return types, nil
+
+		case ast.IdentifierName, ast.Asterisk:
+			typeNode, err := p.parseSimpleType()
+			if err != nil {
+				return nil, err
+			}
+			item := ast.NewTypeListItems(typeNode)
+
+			comma := p.currentToken()
+			if comma == nil {
+				return nil, ast.NewError(p.tokenizer.EOFContext(), "unexpected EOF, expect ',' or ')'")
+			}
+
+			if comma.Type() == ast.Comma {
+				item.Comma = comma.(*ast.TerminalToken)
+				p.takeToken()
+			}
+
+			types.Types = append(types.Types, item)
+
+		default:
+			return nil, ast.NewError(current.Context(), "unexpected token '%s' in type list", current.Type().String())
+		}
+	}
+
+	return types, nil
 }
