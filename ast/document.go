@@ -14,11 +14,6 @@ type Statement interface {
 	statementNode()
 }
 
-type Expression interface {
-	Node
-	expressionNode()
-}
-
 type Document struct {
 	Filename     string
 	Declarations []Declaration

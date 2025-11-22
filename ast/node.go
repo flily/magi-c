@@ -5,7 +5,7 @@ import (
 )
 
 type Node interface {
-	Context() *context.Context
+	context.ContextProvider
 	HighlightText(message string, args ...any) string
 }
 
