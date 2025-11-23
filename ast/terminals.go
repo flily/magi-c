@@ -36,6 +36,8 @@ func NewIntegerLiteral(ctx *context.Context, value uint64) *IntegerLiteral {
 	return l
 }
 
+func (l *IntegerLiteral) expressionNode() {}
+
 func (l *IntegerLiteral) Type() TokenType {
 	return Integer
 }

@@ -73,3 +73,17 @@ func TestLLParserFunctionWithArguments(t *testing.T) {
 		t.Fatalf("expect function name 'add', got '%s'", add.Name.Name)
 	}
 }
+
+func TestLLParserReturnWithExpressionList(t *testing.T) {
+	code := strings.Join([]string{
+		"fun foo() (int) {",
+		"    return 1, 2, 3",
+		"}",
+	}, "\n")
+
+	document := runBasicTestOnCode(t, code)
+
+	if len(document.Declarations) != 1 {
+		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
+	}
+}

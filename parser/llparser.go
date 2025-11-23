@@ -2,11 +2,23 @@ package parser
 
 import (
 	"os"
+	"slices"
 
 	"github.com/flily/magi-c/ast"
 	"github.com/flily/magi-c/preprocessor"
 	"github.com/flily/magi-c/tokenizer"
 )
+
+var expressionFirstSet = []ast.TokenType{
+	ast.Integer,
+	ast.Float,
+	ast.String,
+	ast.IdentifierName,
+}
+
+func inExpressionFirstSet(t ast.TokenType) bool {
+	return slices.Contains(expressionFirstSet, t)
+}
 
 type LLParser struct {
 	tokenizer  *tokenizer.Tokenizer
@@ -103,8 +115,8 @@ func (p *LLParser) restoreToken() ast.TerminalNode {
 	return p.currentToken()
 }
 
-func (p *LLParser) expectToken(expectedTypes ...ast.TokenType) (ast.TerminalNode, error) {
-	node := p.takeToken()
+func (p *LLParser) expectTerminalToken(expectedTypes ...ast.TokenType) (*ast.TerminalToken, error) {
+	node := p.currentToken()
 	if node == nil {
 		ctx := p.tokenizer.EOFContext()
 		return nil, ast.NewError(ctx, "unexpected EOF, expect token: %s",
@@ -113,6 +125,31 @@ func (p *LLParser) expectToken(expectedTypes ...ast.TokenType) (ast.TerminalNode
 
 	for _, expectedType := range expectedTypes {
 		if node.Type() == expectedType {
+			if terminal, ok := node.(*ast.TerminalToken); ok {
+				p.takeToken()
+				return terminal, nil
+			}
+
+			return nil, ast.NewError(node.Context(),
+				"unexpected token type %s, expect a terminal token", node.Type())
+		}
+	}
+
+	return nil, ast.NewError(node.Context(), "unexpected token %s, expect '%s'",
+		node.Type(), ast.TokenTypeListString(expectedTypes))
+}
+
+func (p *LLParser) expectToken(expectedTypes ...ast.TokenType) (ast.TerminalNode, error) {
+	node := p.currentToken()
+	if node == nil {
+		ctx := p.tokenizer.EOFContext()
+		return nil, ast.NewError(ctx, "unexpected EOF, expect token: %s",
+			ast.TokenTypeListString(expectedTypes))
+	}
+
+	for _, expectedType := range expectedTypes {
+		if node.Type() == expectedType {
+			p.takeToken()
 			return node, nil
 		}
 	}
@@ -277,11 +314,11 @@ func (p *LLParser) parseStatement(start ast.TerminalNode) (ast.Statement, error)
 func (p *LLParser) parseReturn(keyword *ast.TerminalToken) (ast.Statement, error) {
 	result := ast.NewReturnStatement(keyword)
 
-	valueNode, err := p.expectToken(ast.Integer)
+	returnList, err := p.parseExpressionList()
 	if err != nil {
 		return nil, err
 	}
-	result.Value = valueNode.(*ast.IntegerLiteral)
+	result.Value = returnList
 
 	return result, nil
 }
@@ -416,4 +453,53 @@ func (p *LLParser) parseTypeList() (*ast.TypeList, error) {
 	}
 
 	return types, nil
+}
+
+func (p *LLParser) parseExpressionList() (*ast.ExpressionList, error) {
+	list := ast.NewExpressionList()
+
+	finished := false
+	for !finished {
+		current := p.currentToken()
+		if current == nil {
+			break
+		}
+
+		if !inExpressionFirstSet(current.Type()) {
+			break
+		}
+
+		expr, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+
+		comma, _ := p.expectTerminalToken(ast.Comma)
+		item := ast.NewExpressionListItem(expr, comma)
+		list.Expressions = append(list.Expressions, item)
+	}
+
+	return nil, nil
+}
+
+func (p *LLParser) parseExpression() (ast.Expression, error) {
+	currrent := p.currentToken()
+	if currrent == nil {
+		ctx := p.tokenizer.EOFContext()
+		return nil, ast.NewError(ctx, "unexpected EOF, expect expression")
+	}
+
+	var err error
+	var result ast.Expression
+
+	switch currrent.Type() {
+	case ast.Integer:
+		literal := takeToken[*ast.IntegerLiteral](p)
+		result = literal
+
+	default:
+		err = ast.NewError(currrent.Context(), "unexpected token '%s' in expression", currrent.Type().String())
+	}
+
+	return result, err
 }

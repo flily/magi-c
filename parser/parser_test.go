@@ -8,6 +8,8 @@ import (
 )
 
 func runBasicTestOnCode(t *testing.T, code string) *ast.Document {
+	t.Helper()
+
 	parser := NewLLParserFromCode(code, "test.mc")
 	preprocessor.RegisterPreprocessors(parser)
 	document, err := parser.Parse()
