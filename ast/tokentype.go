@@ -18,6 +18,7 @@ const (
 	Float
 	String
 	IdentifierName
+	EOL
 	literalEnd
 
 	keywordBegin

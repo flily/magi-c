@@ -4,6 +4,26 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
+type EOLLiteral struct {
+	TerminalNodeBase
+	EOL string
+}
+
+func NewEOLLiteral(ctx *context.Context, eol string) *EOLLiteral {
+	l := &EOLLiteral{
+		TerminalNodeBase: NewTerminalNodeBase(ctx),
+		EOL:              eol,
+	}
+
+	return l
+}
+
+func (l *EOLLiteral) expressionNode() {}
+
+func (l *EOLLiteral) Type() TokenType {
+	return EOL
+}
+
 type StringLiteral struct {
 	TerminalNodeBase
 	Value string
@@ -17,6 +37,8 @@ func NewStringLiteral(ctx *context.Context, value string) *StringLiteral {
 
 	return l
 }
+
+func (l *StringLiteral) expressionNode() {}
 
 func (l *StringLiteral) Type() TokenType {
 	return String
@@ -56,6 +78,8 @@ func NewFloatLiteral(ctx *context.Context, value float64) *FloatLiteral {
 	return l
 }
 
+func (l *FloatLiteral) expressionNode() {}
+
 func (l *FloatLiteral) Type() TokenType {
 	return Float
 }
@@ -73,6 +97,8 @@ func NewIdentifier(ctx *context.Context, name string) *Identifier {
 
 	return id
 }
+
+func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) Type() TokenType {
 	return IdentifierName
