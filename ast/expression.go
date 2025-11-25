@@ -10,6 +10,7 @@ type Expression interface {
 }
 
 type ExpressionListItem struct {
+	NonTerminalNode
 	Expression Expression
 	Comma      *TerminalToken
 }
@@ -19,6 +20,7 @@ func NewExpressionListItem(e Expression, comma *TerminalToken) *ExpressionListIt
 		Expression: e,
 		Comma:      comma,
 	}
+	item.Init(item)
 
 	return item
 }
@@ -50,4 +52,28 @@ func (l *ExpressionList) Context() *context.Context {
 	}
 
 	return context.JoinObjects(ctxList...)
+}
+
+type InfixExpression struct {
+	NonTerminalNode
+	LeftOperand  Expression
+	Operator     *TerminalToken
+	RightOperand Expression
+}
+
+func NewInfixExpression(left Expression, operator *TerminalToken, right Expression) *InfixExpression {
+	expr := &InfixExpression{
+		LeftOperand:  left,
+		Operator:     operator,
+		RightOperand: right,
+	}
+	expr.Init(expr)
+
+	return expr
+}
+
+func (e *InfixExpression) expressionNode() {}
+
+func (e *InfixExpression) Context() *context.Context {
+	return context.JoinObjects(e.LeftOperand, e.Operator, e.RightOperand)
 }

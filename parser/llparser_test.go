@@ -87,3 +87,17 @@ func TestLLParserReturnWithExpressionList(t *testing.T) {
 		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
 	}
 }
+
+func TestLLParserReturnWithExpressionArithmetic(t *testing.T) {
+	code := strings.Join([]string{
+		"fun add() (int) {",
+		"    return 1 + 2",
+		"}",
+	}, "\n")
+
+	document := runBasicTestOnCode(t, code)
+
+	if len(document.Declarations) != 1 {
+		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
+	}
+}

@@ -469,7 +469,7 @@ func (p *LLParser) parseExpressionList() (*ast.ExpressionList, error) {
 			break
 		}
 
-		expr, err := p.parseExpression()
+		expr, err := p.parseExpression(PrecedenceLowest)
 		if err != nil {
 			return nil, err
 		}
@@ -482,7 +482,7 @@ func (p *LLParser) parseExpressionList() (*ast.ExpressionList, error) {
 	return nil, nil
 }
 
-func (p *LLParser) parseExpression() (ast.Expression, error) {
+func (p *LLParser) parseExpression(precedence Precedence) (ast.Expression, error) {
 	currrent := p.currentToken()
 	if currrent == nil {
 		ctx := p.tokenizer.EOFContext()
@@ -501,5 +501,42 @@ func (p *LLParser) parseExpression() (ast.Expression, error) {
 		err = ast.NewError(currrent.Context(), "unexpected token '%s' in expression", currrent.Type().String())
 	}
 
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+
+	return p.parseComplexExpression(result, precedence)
+}
+
+func (p *LLParser) parseComplexExpression(first ast.Expression, precedence Precedence) (ast.Expression, error) {
+	current := p.currentToken()
+	currentPrecedence := GetPrecedence(current)
+	if current == nil || currentPrecedence <= precedence {
+		return first, nil
+	}
+
+	var expr ast.Expression
+	var err error
+	switch current.Type() {
+	case ast.Plus, ast.Sub:
+		expr, err = p.parseInfixExpression(first, precedence)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return p.parseComplexExpression(expr, precedence)
+}
+
+func (p *LLParser) parseInfixExpression(left ast.Expression, precedence Precedence) (*ast.InfixExpression, error) {
+	operator := takeToken[*ast.TerminalToken](p)
+
+	right, err := p.parseExpression(precedence)
+	if err != nil {
+		return nil, err
+	}
+
+	expr := ast.NewInfixExpression(left, operator, right)
+	return expr, nil
 }
