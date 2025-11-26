@@ -30,7 +30,7 @@ func TestLLParserSimpleStatement(t *testing.T) {
 
 func TestLLParserSimplestProgram(t *testing.T) {
 	code := strings.Join([]string{
-		"fun main() () {",
+		"fun main() (int) {",
 		"    return 0",
 		"}",
 	}, "\n")
@@ -63,7 +63,7 @@ func TestLLParserSimplestProgram(t *testing.T) {
 func TestLLParserFunctionWithArguments(t *testing.T) {
 	code := strings.Join([]string{
 		"fun add(a int, b int) (int, int) {",
-		"    return 0",
+		"    return 0, 0",
 		"}",
 	}, "\n")
 
@@ -94,7 +94,7 @@ func TestLLParserFunctionWithArguments(t *testing.T) {
 
 func TestLLParserReturnWithExpressionList(t *testing.T) {
 	code := strings.Join([]string{
-		"fun foo() (int) {",
+		"fun foo() (int, int, int) {",
 		"    return 1, 2, 3",
 		"}",
 	}, "\n")
