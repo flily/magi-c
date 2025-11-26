@@ -493,6 +493,10 @@ func (p *LLParser) parseExpression(precedence Precedence) (ast.Expression, error
 	var result ast.Expression
 
 	switch currrent.Type() {
+	case ast.IdentifierName:
+		identifier := takeToken[*ast.Identifier](p)
+		result = identifier
+
 	case ast.Integer:
 		literal := takeToken[*ast.IntegerLiteral](p)
 		result = literal

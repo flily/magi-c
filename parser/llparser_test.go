@@ -49,6 +49,15 @@ func TestLLParserSimplestProgram(t *testing.T) {
 	if main.Name.Name != "main" {
 		t.Fatalf("expect function name 'main', got '%s'", main.Name.Name)
 	}
+
+	decl, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if len(decl.Statements) != 1 {
+		t.Fatalf("expect 1 statement in function body, got %d", len(decl.Statements))
+	}
 }
 
 func TestLLParserFunctionWithArguments(t *testing.T) {
@@ -72,6 +81,15 @@ func TestLLParserFunctionWithArguments(t *testing.T) {
 	if add.Name.Name != "add" {
 		t.Fatalf("expect function name 'add', got '%s'", add.Name.Name)
 	}
+
+	decl, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if len(decl.Statements) != 1 {
+		t.Fatalf("expect 1 statement in function body, got %d", len(decl.Statements))
+	}
 }
 
 func TestLLParserReturnWithExpressionList(t *testing.T) {
@@ -86,9 +104,18 @@ func TestLLParserReturnWithExpressionList(t *testing.T) {
 	if len(document.Declarations) != 1 {
 		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
 	}
+
+	decl, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if len(decl.Statements) != 1 {
+		t.Fatalf("expect 1 statement in function body, got %d", len(decl.Statements))
+	}
 }
 
-func TestLLParserReturnWithExpressionArithmetic(t *testing.T) {
+func TestLLParserReturnWithExpressionArithmetic1(t *testing.T) {
 	code := strings.Join([]string{
 		"fun add() (int) {",
 		"    return 1 + 2",
@@ -99,5 +126,60 @@ func TestLLParserReturnWithExpressionArithmetic(t *testing.T) {
 
 	if len(document.Declarations) != 1 {
 		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
+	}
+
+	decl, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if len(decl.Statements) != 1 {
+		t.Fatalf("expect 1 statement in function body, got %d", len(decl.Statements))
+	}
+}
+
+func TestLLParserReturnWithExpressionArithmetic2(t *testing.T) {
+	code := strings.Join([]string{
+		"fun add(a int, b int) (int) {",
+		"    return a + b",
+		"}",
+	}, "\n")
+
+	document := runBasicTestOnCode(t, code)
+
+	if len(document.Declarations) != 1 {
+		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
+	}
+
+	decl, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if len(decl.Statements) != 1 {
+		t.Fatalf("expect 1 statement in function body, got %d", len(decl.Statements))
+	}
+}
+
+func TestLLParserReturnWithExpressionArithmetic3(t *testing.T) {
+	code := strings.Join([]string{
+		"fun add(a int, b int) (int) {",
+		"    return a + b + 3",
+		"}",
+	}, "\n")
+
+	document := runBasicTestOnCode(t, code)
+
+	if len(document.Declarations) != 1 {
+		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
+	}
+
+	decl, ok := document.Declarations[0].(*ast.FunctionDeclaration)
+	if !ok {
+		t.Fatalf("expect FunctionDeclaration, got %T", document.Declarations[0])
+	}
+
+	if len(decl.Statements) != 1 {
+		t.Fatalf("expect 1 statement in function body, got %d", len(decl.Statements))
 	}
 }
