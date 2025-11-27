@@ -44,9 +44,11 @@ func (p *PreprocessorCommon) statementNode() {}
 
 type PreprocessorInclude struct {
 	PreprocessorCommon
-	LBracket *context.Context
-	Content  *context.Context
-	RBracket *context.Context
+	LBracketCtx *context.Context
+	ContentCtx  *context.Context
+	RBracketCtx *context.Context
+	Content     string
+	Bracket     string
 }
 
 func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbracket *context.Context, content *context.Context, rbracket *context.Context) *PreprocessorInclude {
@@ -55,12 +57,30 @@ func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbr
 			Hash:    hash,
 			Command: command,
 		},
-		LBracket: lbracket,
-		Content:  content,
-		RBracket: rbracket,
+		LBracketCtx: lbracket,
+		ContentCtx:  content,
+		RBracketCtx: rbracket,
+		Content:     content.Content(),
+		Bracket:     lbracket.Content(),
 	}
 
 	p.Init(p)
+	return p
+}
+
+func ASTBuildIncludeAngle(name string) *PreprocessorInclude {
+	p := &PreprocessorInclude{}
+	p.Content = name
+	p.Bracket = "<"
+
+	return p
+}
+
+func ASTBuildIncludeQuote(name string) *PreprocessorInclude {
+	p := &PreprocessorInclude{}
+	p.Content = name
+	p.Bracket = `"`
+
 	return p
 }
 
@@ -74,11 +94,11 @@ func (p *PreprocessorInclude) EqualTo(other Comparable) bool {
 		return false
 	}
 
-	return p.Content.Content() == o.Content.Content()
+	return p.Content == o.Content && p.Bracket == o.Bracket
 }
 
 func (p *PreprocessorInclude) Context() *context.Context {
-	return context.Join(p.Hash, p.Command, p.LBracket, p.Content, p.RBracket)
+	return context.Join(p.Hash, p.Command, p.LBracketCtx, p.ContentCtx, p.RBracketCtx)
 }
 
 type PreprocessorInline struct {

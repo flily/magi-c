@@ -27,10 +27,23 @@ func NewDocument(declarations []Declaration) *Document {
 	return d
 }
 
+func ASTBuildDocument(declarations ...Declaration) *Document {
+	return NewDocument(declarations)
+}
+
 func (d *Document) statementNode() {}
 
 func (d *Document) Terminal() bool {
 	return false
+}
+
+func (d *Document) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(d, other)
+	if !ok {
+		return false
+	}
+
+	return CheckArrayEqual(d.Declarations, o.Declarations)
 }
 
 func (d *Document) Context() *context.Context {

@@ -13,6 +13,13 @@ func TestLLParserSimpleStatement(t *testing.T) {
 	}, "\n")
 
 	document := runBasicTestOnCode(t, code)
+	expected := ast.ASTBuildDocument(
+		ast.ASTBuildIncludeAngle("stdio.h"),
+	)
+
+	if !document.EqualTo(expected) {
+		t.Fatalf("expected document not equal to actual")
+	}
 
 	if len(document.Declarations) != 1 {
 		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))
@@ -23,7 +30,7 @@ func TestLLParserSimpleStatement(t *testing.T) {
 		t.Fatalf("expect PreprocessorInclude, got %T", document.Declarations[0])
 	}
 
-	if value := include.Content.Content(); value != "stdio.h" {
+	if value := include.ContentCtx.Content(); value != "stdio.h" {
 		t.Fatalf("expect include content 'stdio.h', got '%s'", value)
 	}
 }

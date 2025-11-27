@@ -274,7 +274,7 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 	if err != nil {
 		return nil, err
 	}
-	result.LBracket = lBracket.(*ast.TerminalToken)
+	result.LBrace = lBracket.(*ast.TerminalToken)
 
 	for {
 		current := p.currentToken()
@@ -284,7 +284,7 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 		}
 
 		if current.Type() == ast.RightBrace {
-			result.RBracket = p.takeToken().(*ast.TerminalToken)
+			result.RBrace = p.takeToken().(*ast.TerminalToken)
 			break
 		}
 

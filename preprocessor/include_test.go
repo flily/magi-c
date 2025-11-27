@@ -39,21 +39,21 @@ func TestIncludeDirectiveAngleQuote(t *testing.T) {
 		"                 ^",
 		"                 here",
 	}, "\n")
-	checkElementContext(t, result.LBracket, expLBracket)
+	checkElementContext(t, result.LBracketCtx, expLBracket)
 
 	expContent := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"                  ^^^^^^^",
 		"                  here",
 	}, "\n")
-	checkElementContext(t, result.Content, expContent)
+	checkElementContext(t, result.ContentCtx, expContent)
 
 	expRBracket := strings.Join([]string{
 		"   1:   #include <stdio.h>",
 		"                         ^",
 		"                         here",
 	}, "\n")
-	checkElementContext(t, result.RBracket, expRBracket)
+	checkElementContext(t, result.RBracketCtx, expRBracket)
 
 	finalExp := strings.Join([]string{
 		"   1:   #include <stdio.h><EOF>",
@@ -93,21 +93,21 @@ func TestIncludeDirectiveDoubleQuote(t *testing.T) {
 		"                 ^",
 		"                 here",
 	}, "\n")
-	checkElementContext(t, result.LBracket, expLBracket)
+	checkElementContext(t, result.LBracketCtx, expLBracket)
 
 	expContent := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"                  ^^^^^^^",
 		"                  here",
 	}, "\n")
-	checkElementContext(t, result.Content, expContent)
+	checkElementContext(t, result.ContentCtx, expContent)
 
 	expRBracket := strings.Join([]string{
 		`   1:   #include "stdio.h"`,
 		"                         ^",
 		"                         here",
 	}, "\n")
-	checkElementContext(t, result.RBracket, expRBracket)
+	checkElementContext(t, result.RBracketCtx, expRBracket)
 
 	finalExp := strings.Join([]string{
 		`   1:   #include "stdio.h"<EOF>`,
@@ -147,21 +147,21 @@ func TestIncludeDirectiveWithoutSpace(t *testing.T) {
 		"                ^",
 		"                here",
 	}, "\n")
-	checkElementContext(t, result.LBracket, expLBracket)
+	checkElementContext(t, result.LBracketCtx, expLBracket)
 
 	expContent := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"                 ^^^^^^^",
 		"                 here",
 	}, "\n")
-	checkElementContext(t, result.Content, expContent)
+	checkElementContext(t, result.ContentCtx, expContent)
 
 	expRBracket := strings.Join([]string{
 		`   1:   #include<stdio.h>`,
 		"                        ^",
 		"                        here",
 	}, "\n")
-	checkElementContext(t, result.RBracket, expRBracket)
+	checkElementContext(t, result.RBracketCtx, expRBracket)
 
 	finalExp := strings.Join([]string{
 		`   1:   #include<stdio.h><EOF>`,
