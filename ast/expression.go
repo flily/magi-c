@@ -25,6 +25,19 @@ func NewExpressionListItem(e Expression, comma *TerminalToken) *ExpressionListIt
 	return item
 }
 
+func (i *ExpressionListItem) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(i, other)
+	if !ok {
+		return false
+	}
+
+	if !i.Expression.EqualTo(o.Expression) {
+		return false
+	}
+
+	return CheckNilPointerEqual(i.Comma, o.Comma)
+}
+
 func (i *ExpressionListItem) Context() *context.Context {
 	return context.JoinObjects(i.Expression, i.Comma)
 }
@@ -39,6 +52,15 @@ func NewExpressionList() *ExpressionList {
 	}
 
 	return l
+}
+
+func (l *ExpressionList) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(l, other)
+	if !ok {
+		return false
+	}
+
+	return CheckArrayEqual(l.Expressions, o.Expressions)
 }
 
 func (l *ExpressionList) Context() *context.Context {
@@ -73,6 +95,27 @@ func NewInfixExpression(left Expression, operator *TerminalToken, right Expressi
 }
 
 func (e *InfixExpression) expressionNode() {}
+
+func (e *InfixExpression) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(e, other)
+	if !ok {
+		return false
+	}
+
+	if !e.LeftOperand.EqualTo(o.LeftOperand) {
+		return false
+	}
+
+	if e.Operator.Token != o.Operator.Token {
+		return false
+	}
+
+	if !e.RightOperand.EqualTo(o.RightOperand) {
+		return false
+	}
+
+	return true
+}
 
 func (e *InfixExpression) Context() *context.Context {
 	return context.JoinObjects(e.LeftOperand, e.Operator, e.RightOperand)

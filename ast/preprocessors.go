@@ -68,6 +68,15 @@ func (p *PreprocessorInclude) Type() TokenType {
 	return NodePreprocessorInclude
 }
 
+func (p *PreprocessorInclude) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(p, other)
+	if !ok {
+		return false
+	}
+
+	return p.Content.Content() == o.Content.Content()
+}
+
 func (p *PreprocessorInclude) Context() *context.Context {
 	return context.Join(p.Hash, p.Command, p.LBracket, p.Content, p.RBracket)
 }
@@ -102,6 +111,23 @@ func (p *PreprocessorInline) statementNode() {}
 
 func (p *PreprocessorInline) Type() TokenType {
 	return NodePreprocessorInline
+}
+
+func (p *PreprocessorInline) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(p, other)
+	if !ok {
+		return false
+	}
+
+	if p.CodeType.Content() != o.CodeType.Content() {
+		return false
+	}
+
+	if p.Content.Content() != o.Content.Content() {
+		return false
+	}
+
+	return true
 }
 
 func (p *PreprocessorInline) Context() *context.Context {

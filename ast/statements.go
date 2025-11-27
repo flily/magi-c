@@ -22,6 +22,15 @@ func NewReturnStatement(keyword *TerminalToken) *ReturnStatement {
 	return s
 }
 
+func (r *ReturnStatement) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(r, other)
+	if !ok {
+		return false
+	}
+
+	return CheckNilPointerEqual(r.Value, o.Value)
+}
+
 func (r *ReturnStatement) Context() *context.Context {
 	return context.JoinObjects(r.Return, r.Value)
 }

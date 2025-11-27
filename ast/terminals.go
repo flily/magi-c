@@ -24,6 +24,15 @@ func (l *EOLLiteral) Type() TokenType {
 	return EOL
 }
 
+func (l *EOLLiteral) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(l, other)
+	if !ok {
+		return false
+	}
+
+	return o.EOL == l.EOL
+}
+
 type StringLiteral struct {
 	TerminalNodeBase
 	Value string
@@ -42,6 +51,15 @@ func (l *StringLiteral) expressionNode() {}
 
 func (l *StringLiteral) Type() TokenType {
 	return String
+}
+
+func (l *StringLiteral) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(l, other)
+	if !ok {
+		return false
+	}
+
+	return o.Value == l.Value
 }
 
 type IntegerLiteral struct {
@@ -64,6 +82,15 @@ func (l *IntegerLiteral) Type() TokenType {
 	return Integer
 }
 
+func (l *IntegerLiteral) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(l, other)
+	if !ok {
+		return false
+	}
+
+	return o.Value == l.Value
+}
+
 type FloatLiteral struct {
 	TerminalNodeBase
 	Value float64
@@ -82,6 +109,15 @@ func (l *FloatLiteral) expressionNode() {}
 
 func (l *FloatLiteral) Type() TokenType {
 	return Float
+}
+
+func (l *FloatLiteral) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(l, other)
+	if !ok {
+		return false
+	}
+
+	return o.Value == l.Value
 }
 
 type Identifier struct {
@@ -104,6 +140,15 @@ func (i *Identifier) Type() TokenType {
 	return IdentifierName
 }
 
+func (i *Identifier) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(i, other)
+	if !ok {
+		return false
+	}
+
+	return o.Name == i.Name
+}
+
 type TerminalToken struct {
 	TerminalNodeBase
 	Token TokenType
@@ -120,4 +165,13 @@ func NewTerminalToken(ctx *context.Context, token TokenType) *TerminalToken {
 
 func (t *TerminalToken) Type() TokenType {
 	return t.Token
+}
+
+func (t *TerminalToken) EqualTo(other Comparable) bool {
+	o, ok := CheckNodeEqual(t, other)
+	if !ok {
+		return false
+	}
+
+	return o.Token == t.Token
 }
