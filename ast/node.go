@@ -8,7 +8,7 @@ import (
 
 type Comparable interface {
 	context.ContextProvider
-	EqualTo(other Comparable) error
+	EqualTo(archor context.ContextProvider, other Comparable) error
 }
 
 type Node interface {
@@ -94,7 +94,7 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 	}
 }
 
-func CheckNilPointerEqual[T Comparable](provider context.ContextProvider, a T, b T) error {
+func CheckNilPointerEqual[T Comparable](archor context.ContextProvider, a T, b T) error {
 	va := reflect.ValueOf(a)
 	vb := reflect.ValueOf(b)
 
@@ -107,28 +107,34 @@ func CheckNilPointerEqual[T Comparable](provider context.ContextProvider, a T, b
 	}
 
 	if va.IsNil() {
-		return NewError(provider.Context(), "expected %T not found", b)
+		return NewError(archor.Context(), "expected %T not found", b)
 	}
 
 	if vb.IsNil() {
 		return NewError(a.Context(), "unexpected %T found", a)
 	}
 
-	return a.EqualTo(b)
+	return a.EqualTo(archor, b)
 }
 
-func CheckArrayEqual[T Comparable](a []T, b []T) error {
+func CheckArrayEqual[T Comparable](message string, archor context.ContextProvider, a []T, b []T) error {
 	if len(a) != len(b) {
-		ctxList := make([]context.ContextProvider, 0, len(a))
-		for _, item := range a {
-			ctxList = append(ctxList, item)
+		var ctx *context.Context
+		if len(a) == 0 {
+			ctx = archor.Context()
+
+		} else {
+			ctxList := make([]context.ContextProvider, 0, len(a))
+			for _, item := range a {
+				ctxList = append(ctxList, item)
+			}
+			ctx = context.JoinObjects(ctxList...)
 		}
-		ctx := context.JoinObjects(ctxList...)
-		return NewError(ctx, "wrong number of items: expected %d, got %d", len(b), len(a))
+		return NewError(ctx, "wrong number of %s: expected %d, got %d", message, len(b), len(a))
 	}
 
 	for i, itemA := range a {
-		if err := itemA.EqualTo(b[i]); err != nil {
+		if err := itemA.EqualTo(archor, b[i]); err != nil {
 			return err
 		}
 	}

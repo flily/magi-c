@@ -29,7 +29,7 @@ func ASTBuildReturnStatement(value *ExpressionList) *ReturnStatement {
 	return s
 }
 
-func (r *ReturnStatement) EqualTo(other Comparable) error {
+func (r *ReturnStatement) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(r, other)
 	if err != nil {
 		return err

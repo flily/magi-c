@@ -17,7 +17,7 @@ func TestLLParserSimpleStatement(t *testing.T) {
 		ast.ASTBuildIncludeAngle("stdio.h"),
 	)
 
-	if err := document.EqualTo(expected); err != nil {
+	if err := document.EqualTo(nil, expected); err != nil {
 		t.Fatalf("expected document not equal to actual:\n%s", err)
 	}
 
@@ -48,21 +48,20 @@ func TestLLParserSimplestProgram(t *testing.T) {
 			"main",
 			nil,
 			ast.ASTBuildTypeList(
-				ast.ASTBuildTypeListItem(ast.ASTBuildSimpleType("int"), nil),
+				ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
 			),
 			[]ast.Statement{
 				ast.ASTBuildReturnStatement(
 					ast.ASTBuildExpressionList(
-						ast.ASTBuildExpressionListItem(
+						ast.ASTBuildExpressionListItemWithoutComma(
 							ast.ASTBuildValue(0),
-							nil,
 						),
 					),
 				),
 			},
 		),
 	)
-	if err := document.EqualTo(expected); err != nil {
+	if err := document.EqualTo(nil, expected); err != nil {
 		t.Fatalf("expected document not equal to actual:\n%s", err)
 	}
 
@@ -97,6 +96,35 @@ func TestLLParserFunctionWithArguments(t *testing.T) {
 	}, "\n")
 
 	document := runBasicTestOnCode(t, code)
+	expected := ast.ASTBuildDocument(
+		ast.ASTBuildFunction(
+			"add",
+			ast.ASTBuildArgumentList(
+				ast.ASTBuildArgumentWithComma("a", ast.ASTBuildSimpleType("int")),
+				ast.ASTBuildArgumentWithoutComma("b", ast.ASTBuildSimpleType("int")),
+			),
+			ast.ASTBuildTypeList(
+				ast.ASTBuildTypeListItemWithComma(ast.ASTBuildSimpleType("int")),
+				ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+			),
+			[]ast.Statement{
+				ast.ASTBuildReturnStatement(
+					ast.ASTBuildExpressionList(
+						ast.ASTBuildExpressionListItemWithComma(
+							ast.ASTBuildValue(0),
+						),
+						ast.ASTBuildExpressionListItemWithoutComma(
+							ast.ASTBuildValue(0),
+						),
+					),
+				),
+			},
+		),
+	)
+
+	if err := document.EqualTo(nil, expected); err != nil {
+		t.Fatalf("expected document not equal to actual:\n%s", err)
+	}
 
 	if len(document.Declarations) != 1 {
 		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))

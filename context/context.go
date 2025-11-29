@@ -2,6 +2,7 @@ package context
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 )
@@ -173,9 +174,11 @@ func Join(ctxs ...*Context) *Context {
 func JoinObjects(objs ...ContextProvider) *Context {
 	ctxs := make([]*Context, 0, len(objs))
 	for _, obj := range objs {
-		if obj != nil {
-			ctxs = append(ctxs, obj.Context())
+		val := reflect.ValueOf(obj)
+		if val.Kind() == reflect.Invalid || (val.Kind() == reflect.Pointer && val.IsNil()) {
+			continue
 		}
+		ctxs = append(ctxs, obj.Context())
 	}
 
 	return Join(ctxs...)

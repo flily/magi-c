@@ -37,13 +37,13 @@ func (d *Document) Terminal() bool {
 	return false
 }
 
-func (d *Document) EqualTo(other Comparable) error {
+func (d *Document) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(d, other)
 	if err != nil {
 		return err
 	}
 
-	return CheckArrayEqual(d.Declarations, o.Declarations)
+	return CheckArrayEqual("DECLARATION LIST", d, d.Declarations, o.Declarations)
 }
 
 func (d *Document) Context() *context.Context {

@@ -88,7 +88,7 @@ func (p *PreprocessorInclude) Type() TokenType {
 	return NodePreprocessorInclude
 }
 
-func (p *PreprocessorInclude) EqualTo(other Comparable) error {
+func (p *PreprocessorInclude) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(p, other)
 	if err != nil {
 		return err
@@ -141,7 +141,7 @@ func (p *PreprocessorInline) Type() TokenType {
 	return NodePreprocessorInline
 }
 
-func (p *PreprocessorInline) EqualTo(other Comparable) error {
+func (p *PreprocessorInline) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(p, other)
 	if err != nil {
 		return err

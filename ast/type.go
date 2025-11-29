@@ -23,17 +23,32 @@ func NewArgumentDeclaration() *ArgumentDeclaration {
 	return a
 }
 
-func (p *ArgumentDeclaration) EqualTo(other Comparable) error {
+func ASTBuildArgumentWithComma(name string, t Type) *ArgumentDeclaration {
+	a := NewArgumentDeclaration()
+	a.Name = ASTBuildIdentifier(name)
+	a.Type = t
+	a.Comma = ASTBuildSymbol(Comma)
+	return a
+}
+
+func ASTBuildArgumentWithoutComma(name string, t Type) *ArgumentDeclaration {
+	a := NewArgumentDeclaration()
+	a.Name = ASTBuildIdentifier(name)
+	a.Type = t
+	return a
+}
+
+func (p *ArgumentDeclaration) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(p, other)
 	if err != nil {
 		return err
 	}
 
-	if err := p.Name.EqualTo(o.Name); err != nil {
+	if err := p.Name.EqualTo(p, o.Name); err != nil {
 		return err
 	}
 
-	if err := p.Type.EqualTo(o.Type); err != nil {
+	if err := p.Type.EqualTo(p, o.Type); err != nil {
 		return err
 	}
 
@@ -60,17 +75,24 @@ func NewArgumentList() *ArgumentList {
 	return l
 }
 
-func (l *ArgumentList) EqualTo(other Comparable) error {
+func ASTBuildArgumentList(args ...*ArgumentDeclaration) *ArgumentList {
+	l := NewArgumentList()
+	l.Arguments = args
+
+	return l
+}
+
+func (l *ArgumentList) EqualTo(archor context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
 	}
 
-	return CheckArrayEqual(l.Arguments, o.Arguments)
+	return CheckArrayEqual("ARGUMENT LIST", archor, l.Arguments, o.Arguments)
 }
 
 func (l *ArgumentList) Context() *context.Context {
-	if len(l.Arguments) == 0 {
+	if l == nil || len(l.Arguments) == 0 {
 		return nil
 	}
 
@@ -118,17 +140,17 @@ func ASTBuildSimpleType(name string) *SimpleType {
 
 func (t *SimpleType) typeNode() {}
 
-func (t *SimpleType) EqualTo(other Comparable) error {
+func (t *SimpleType) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(t, other)
 	if err != nil {
 		return err
 	}
 
-	if err := CheckArrayEqual(t.PointerAsterisk, o.PointerAsterisk); err != nil {
+	if err := CheckArrayEqual("POINTER ASTERISK", t, t.PointerAsterisk, o.PointerAsterisk); err != nil {
 		return err
 	}
 
-	if err := t.Identifier.EqualTo(o.Identifier); err != nil {
+	if err := t.Identifier.EqualTo(t, o.Identifier); err != nil {
 		return err
 	}
 
@@ -169,17 +191,17 @@ func NewFunctionType() *FunctionType {
 
 func (t *FunctionType) typeNode() {}
 
-func (t *FunctionType) EqualTo(other Comparable) error {
+func (t *FunctionType) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(t, other)
 	if err != nil {
 		return err
 	}
 
-	if err := t.Keyword.EqualTo(o.Keyword); err != nil {
+	if err := t.Keyword.EqualTo(t, o.Keyword); err != nil {
 		return err
 	}
 
-	if err := t.ArgumentLParen.EqualTo(o.ArgumentLParen); err != nil {
+	if err := t.ArgumentLParen.EqualTo(t, o.ArgumentLParen); err != nil {
 		return err
 	}
 
@@ -187,7 +209,7 @@ func (t *FunctionType) EqualTo(other Comparable) error {
 		return err
 	}
 
-	if err := t.ArgumentRParen.EqualTo(o.ArgumentRParen); err != nil {
+	if err := t.ArgumentRParen.EqualTo(t, o.ArgumentRParen); err != nil {
 		return err
 	}
 
@@ -195,11 +217,11 @@ func (t *FunctionType) EqualTo(other Comparable) error {
 		return err
 	}
 
-	if err := t.ReturnLParen.EqualTo(o.ReturnLParen); err != nil {
+	if err := t.ReturnLParen.EqualTo(t, o.ReturnLParen); err != nil {
 		return err
 	}
 
-	if err := t.ReturnRParen.EqualTo(o.ReturnRParen); err != nil {
+	if err := t.ReturnRParen.EqualTo(t, o.ReturnRParen); err != nil {
 		return err
 	}
 
@@ -236,17 +258,21 @@ func NewTypeListItem(t Type, comma *TerminalToken) *TypeListItem {
 	return l
 }
 
-func ASTBuildTypeListItem(t Type, comma *TerminalToken) *TypeListItem {
-	return NewTypeListItem(t, comma)
+func ASTBuildTypeListItemWithComma(t Type) *TypeListItem {
+	return NewTypeListItem(t, ASTBuildSymbol(Comma))
 }
 
-func (l *TypeListItem) EqualTo(other Comparable) error {
+func ASTBuildTypeListItemWithoutComma(t Type) *TypeListItem {
+	return NewTypeListItem(t, nil)
+}
+
+func (l *TypeListItem) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
 	}
 
-	if err := l.Type.EqualTo(o.Type); err != nil {
+	if err := l.Type.EqualTo(l, o.Type); err != nil {
 		return err
 	}
 
@@ -279,13 +305,13 @@ func ASTBuildTypeList(items ...*TypeListItem) *TypeList {
 	return NewTypeList(items...)
 }
 
-func (l *TypeList) EqualTo(other Comparable) error {
+func (l *TypeList) EqualTo(archor context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
 	}
 
-	return CheckArrayEqual(l.Types, o.Types)
+	return CheckArrayEqual("TYPE LIST", archor, l.Types, o.Types)
 }
 
 func (l *TypeList) Context() *context.Context {

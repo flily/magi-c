@@ -26,7 +26,7 @@ func (l *EOLLiteral) Type() TokenType {
 	return EOL
 }
 
-func (l *EOLLiteral) EqualTo(other Comparable) error {
+func (l *EOLLiteral) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (l *StringLiteral) Type() TokenType {
 	return String
 }
 
-func (l *StringLiteral) EqualTo(other Comparable) error {
+func (l *StringLiteral) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func (l *IntegerLiteral) Type() TokenType {
 	return Integer
 }
 
-func (l *IntegerLiteral) EqualTo(other Comparable) error {
+func (l *IntegerLiteral) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (l *FloatLiteral) Type() TokenType {
 	return Float
 }
 
-func (l *FloatLiteral) EqualTo(other Comparable) error {
+func (l *FloatLiteral) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
 		return err
@@ -183,7 +183,7 @@ func (i *Identifier) Type() TokenType {
 	return IdentifierName
 }
 
-func (i *Identifier) EqualTo(other Comparable) error {
+func (i *Identifier) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(i, other)
 	if err != nil {
 		return err
@@ -222,7 +222,7 @@ func (t *TerminalToken) Type() TokenType {
 	return t.Token
 }
 
-func (t *TerminalToken) EqualTo(other Comparable) error {
+func (t *TerminalToken) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(t, other)
 	if err != nil {
 		return err

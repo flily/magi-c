@@ -19,12 +19,12 @@ type FunctionDeclaration struct {
 	RBrace            *TerminalToken
 }
 
-func ASTBuildFunction(name string, args []*ArgumentDeclaration, returnTypes *TypeList, statements []Statement) *FunctionDeclaration {
+func ASTBuildFunction(name string, args *ArgumentList, returnTypes *TypeList, statements []Statement) *FunctionDeclaration {
 	funcDecl := &FunctionDeclaration{
 		Keyword:           NewTerminalToken(nil, Function),
 		Name:              ASTBuildIdentifier(name),
 		LParenArgs:        NewTerminalToken(nil, LeftParen),
-		Arguments:         nil,
+		Arguments:         args,
 		RParenArgs:        NewTerminalToken(nil, RightParen),
 		LParenReturnTypes: NewTerminalToken(nil, LeftParen),
 		ReturnTypes:       returnTypes,
@@ -39,21 +39,21 @@ func ASTBuildFunction(name string, args []*ArgumentDeclaration, returnTypes *Typ
 
 func (f *FunctionDeclaration) declarationNode() {}
 
-func (f *FunctionDeclaration) EqualTo(other Comparable) error {
+func (f *FunctionDeclaration) EqualTo(archor context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(f, other)
 	if err != nil {
 		return err
 	}
 
-	if err := f.Keyword.EqualTo(o.Keyword); err != nil {
+	if err := f.Keyword.EqualTo(f, o.Keyword); err != nil {
 		return err
 	}
 
-	if err := f.Name.EqualTo(o.Name); err != nil {
+	if err := f.Name.EqualTo(f, o.Name); err != nil {
 		return err
 	}
 
-	if err := f.LParenArgs.EqualTo(o.LParenArgs); err != nil {
+	if err := f.LParenArgs.EqualTo(f, o.LParenArgs); err != nil {
 		return err
 	}
 
@@ -61,11 +61,11 @@ func (f *FunctionDeclaration) EqualTo(other Comparable) error {
 		return err
 	}
 
-	if err := f.RParenArgs.EqualTo(o.RParenArgs); err != nil {
+	if err := f.RParenArgs.EqualTo(f, o.RParenArgs); err != nil {
 		return err
 	}
 
-	if err := f.LParenArgs.EqualTo(o.LParenArgs); err != nil {
+	if err := f.LParenArgs.EqualTo(f, o.LParenArgs); err != nil {
 		return err
 	}
 
@@ -73,19 +73,19 @@ func (f *FunctionDeclaration) EqualTo(other Comparable) error {
 		return err
 	}
 
-	if err := f.RParenReturnTypes.EqualTo(o.RParenReturnTypes); err != nil {
+	if err := f.RParenReturnTypes.EqualTo(f, o.RParenReturnTypes); err != nil {
 		return err
 	}
 
-	if err := f.LBrace.EqualTo(o.LBrace); err != nil {
+	if err := f.LBrace.EqualTo(f, o.LBrace); err != nil {
 		return err
 	}
 
-	if err := CheckArrayEqual(f.Statements, o.Statements); err != nil {
+	if err := CheckArrayEqual("STATEMENT LIST", f, f.Statements, o.Statements); err != nil {
 		return err
 	}
 
-	if err := f.RBrace.EqualTo(o.RBrace); err != nil {
+	if err := f.RBrace.EqualTo(f, o.RBrace); err != nil {
 		return err
 	}
 
@@ -93,7 +93,7 @@ func (f *FunctionDeclaration) EqualTo(other Comparable) error {
 }
 
 func (f *FunctionDeclaration) Context() *context.Context {
-	ctx := context.JoinObjects(
+	ctx1 := context.JoinObjects(
 		f.Keyword,
 		f.Name,
 		f.LParenArgs,
@@ -103,8 +103,16 @@ func (f *FunctionDeclaration) Context() *context.Context {
 		f.ReturnTypes,
 		f.RParenReturnTypes,
 		f.LBrace,
-		f.RBrace,
 	)
 
-	return ctx
+	stmtListCtxs := make([]context.ContextProvider, 0, len(f.Statements))
+	for _, stmt := range f.Statements {
+		stmtListCtxs = append(stmtListCtxs, stmt)
+	}
+
+	ctx2 := context.JoinObjects(stmtListCtxs...)
+	ctx3 := context.JoinObjects(f.RBrace)
+
+	return context.Join(ctx1, ctx2, ctx3)
+
 }
