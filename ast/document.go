@@ -37,10 +37,10 @@ func (d *Document) Terminal() bool {
 	return false
 }
 
-func (d *Document) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(d, other)
-	if !ok {
-		return false
+func (d *Document) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(d, other)
+	if err != nil {
+		return err
 	}
 
 	return CheckArrayEqual(d.Declarations, o.Declarations)

@@ -433,7 +433,7 @@ func (p *LLParser) parseTypeList() (*ast.TypeList, error) {
 			if err != nil {
 				return nil, err
 			}
-			item := ast.NewTypeListItems(typeNode)
+			item := ast.NewTypeListItem(typeNode, nil)
 
 			comma := p.currentToken()
 			if comma == nil {
@@ -479,7 +479,7 @@ func (p *LLParser) parseExpressionList() (*ast.ExpressionList, error) {
 		list.Expressions = append(list.Expressions, item)
 	}
 
-	return nil, nil
+	return list, nil
 }
 
 func (p *LLParser) parseExpression(precedence Precedence) (ast.Expression, error) {

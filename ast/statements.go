@@ -22,13 +22,20 @@ func NewReturnStatement(keyword *TerminalToken) *ReturnStatement {
 	return s
 }
 
-func (r *ReturnStatement) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(r, other)
-	if !ok {
-		return false
+func ASTBuildReturnStatement(value *ExpressionList) *ReturnStatement {
+	s := NewReturnStatement(ASTBuildKeyword(Return))
+	s.Value = value
+
+	return s
+}
+
+func (r *ReturnStatement) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(r, other)
+	if err != nil {
+		return err
 	}
 
-	return CheckNilPointerEqual(r.Value, o.Value)
+	return CheckNilPointerEqual(r, r.Value, o.Value)
 }
 
 func (r *ReturnStatement) Context() *context.Context {

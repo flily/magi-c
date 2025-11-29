@@ -14,64 +14,82 @@ type FunctionDeclaration struct {
 	LParenReturnTypes *TerminalToken
 	ReturnTypes       *TypeList
 	RParenReturnTypes *TerminalToken
-	LBracket          *TerminalToken
+	LBrace            *TerminalToken
 	Statements        []Statement
-	RBracket          *TerminalToken
+	RBrace            *TerminalToken
+}
+
+func ASTBuildFunction(name string, args []*ArgumentDeclaration, returnTypes *TypeList, statements []Statement) *FunctionDeclaration {
+	funcDecl := &FunctionDeclaration{
+		Keyword:           NewTerminalToken(nil, Function),
+		Name:              ASTBuildIdentifier(name),
+		LParenArgs:        NewTerminalToken(nil, LeftParen),
+		Arguments:         nil,
+		RParenArgs:        NewTerminalToken(nil, RightParen),
+		LParenReturnTypes: NewTerminalToken(nil, LeftParen),
+		ReturnTypes:       returnTypes,
+		RParenReturnTypes: NewTerminalToken(nil, RightParen),
+		LBrace:            NewTerminalToken(nil, LeftBrace),
+		Statements:        statements,
+		RBrace:            NewTerminalToken(nil, RightBrace),
+	}
+
+	return funcDecl
 }
 
 func (f *FunctionDeclaration) declarationNode() {}
 
-func (f *FunctionDeclaration) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(f, other)
-	if !ok {
-		return false
+func (f *FunctionDeclaration) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(f, other)
+	if err != nil {
+		return err
 	}
 
-	if !f.Keyword.EqualTo(o.Keyword) {
-		return false
+	if err := f.Keyword.EqualTo(o.Keyword); err != nil {
+		return err
 	}
 
-	if !f.Name.EqualTo(o.Name) {
-		return false
+	if err := f.Name.EqualTo(o.Name); err != nil {
+		return err
 	}
 
-	if !f.LParenArgs.EqualTo(o.LParenArgs) {
-		return false
+	if err := f.LParenArgs.EqualTo(o.LParenArgs); err != nil {
+		return err
 	}
 
-	if !CheckNilPointerEqual(f.Arguments, o.Arguments) {
-		return false
+	if err := CheckNilPointerEqual(f, f.Arguments, o.Arguments); err != nil {
+		return err
 	}
 
-	if !f.RParenArgs.EqualTo(o.RParenArgs) {
-		return false
+	if err := f.RParenArgs.EqualTo(o.RParenArgs); err != nil {
+		return err
 	}
 
-	if !f.LParenArgs.EqualTo(o.LParenArgs) {
-		return false
+	if err := f.LParenArgs.EqualTo(o.LParenArgs); err != nil {
+		return err
 	}
 
-	if !CheckNilPointerEqual(f.ReturnTypes, o.ReturnTypes) {
-		return false
+	if err := CheckNilPointerEqual(f, f.ReturnTypes, o.ReturnTypes); err != nil {
+		return err
 	}
 
-	if !f.RParenReturnTypes.EqualTo(o.RParenReturnTypes) {
-		return false
+	if err := f.RParenReturnTypes.EqualTo(o.RParenReturnTypes); err != nil {
+		return err
 	}
 
-	if !f.LBracket.EqualTo(o.LBracket) {
-		return false
+	if err := f.LBrace.EqualTo(o.LBrace); err != nil {
+		return err
 	}
 
-	if !CheckArrayEqual(f.Statements, o.Statements) {
-		return false
+	if err := CheckArrayEqual(f.Statements, o.Statements); err != nil {
+		return err
 	}
 
-	if !f.RBracket.EqualTo(o.RBracket) {
-		return false
+	if err := f.RBrace.EqualTo(o.RBrace); err != nil {
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (f *FunctionDeclaration) Context() *context.Context {
@@ -84,8 +102,8 @@ func (f *FunctionDeclaration) Context() *context.Context {
 		f.LParenReturnTypes,
 		f.ReturnTypes,
 		f.RParenReturnTypes,
-		f.LBracket,
-		f.RBracket,
+		f.LBrace,
+		f.RBrace,
 	)
 
 	return ctx

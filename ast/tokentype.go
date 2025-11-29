@@ -88,7 +88,7 @@ const (
 	RightBrace      // }
 	Comma           // ,
 	Period          // .
-	Colon           // :
+	Colon           // :  
 	Semicolon       // ;
 	DualColon       // ::
 	QuestionMark    // ?

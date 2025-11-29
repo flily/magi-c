@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"reflect"
+
 	"github.com/flily/magi-c/context"
 )
 
@@ -24,13 +26,17 @@ func (l *EOLLiteral) Type() TokenType {
 	return EOL
 }
 
-func (l *EOLLiteral) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func (l *EOLLiteral) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
-	return o.EOL == l.EOL
+	if o.EOL != l.EOL {
+		return NewError(l.Context(), "wrong EOL value, expect %s, got %s", o.EOL, l.EOL)
+	}
+
+	return nil
 }
 
 type StringLiteral struct {
@@ -53,13 +59,17 @@ func (l *StringLiteral) Type() TokenType {
 	return String
 }
 
-func (l *StringLiteral) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func (l *StringLiteral) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
-	return o.Value == l.Value
+	if o.Value != l.Value {
+		return NewError(l.Context(), "wrong string value, expect %s, got %s", o.Value, l.Value)
+	}
+
+	return nil
 }
 
 type IntegerLiteral struct {
@@ -82,13 +92,17 @@ func (l *IntegerLiteral) Type() TokenType {
 	return Integer
 }
 
-func (l *IntegerLiteral) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func (l *IntegerLiteral) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
-	return o.Value == l.Value
+	if o.Value != l.Value {
+		return NewError(l.Context(), "wrong integer value, expect %v, got %v", o.Value, l.Value)
+	}
+
+	return nil
 }
 
 type FloatLiteral struct {
@@ -111,13 +125,38 @@ func (l *FloatLiteral) Type() TokenType {
 	return Float
 }
 
-func (l *FloatLiteral) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func (l *FloatLiteral) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
-	return o.Value == l.Value
+	if o.Value != l.Value {
+		return NewError(l.Context(), "wrong float value, expect %v, got %v", o.Value, l.Value)
+	}
+
+	return nil
+}
+
+func ASTBuildValue(v any) Expression {
+	switch val := v.(type) {
+	case string:
+		return NewStringLiteral(nil, val)
+
+	case uint, uint8, uint16, uint32, uint64:
+		value := reflect.ValueOf(val)
+		return NewIntegerLiteral(nil, value.Uint())
+
+	case int, int8, int16, int32, int64:
+		value := reflect.ValueOf(val)
+		return NewIntegerLiteral(nil, uint64(value.Int()))
+
+	case float32, float64:
+		return NewFloatLiteral(nil, val.(float64))
+
+	default:
+		panic("ASTBuildValue: unsupported value type")
+	}
 }
 
 type Identifier struct {
@@ -134,19 +173,27 @@ func NewIdentifier(ctx *context.Context, name string) *Identifier {
 	return id
 }
 
+func ASTBuildIdentifier(name string) *Identifier {
+	return NewIdentifier(nil, name)
+}
+
 func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) Type() TokenType {
 	return IdentifierName
 }
 
-func (i *Identifier) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(i, other)
-	if !ok {
-		return false
+func (i *Identifier) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(i, other)
+	if err != nil {
+		return err
 	}
 
-	return o.Name == i.Name
+	if o.Name != i.Name {
+		return NewError(i.Context(), "wrong identifier name, expect %s, got %s", o.Name, i.Name)
+	}
+
+	return nil
 }
 
 type TerminalToken struct {
@@ -163,15 +210,27 @@ func NewTerminalToken(ctx *context.Context, token TokenType) *TerminalToken {
 	return t
 }
 
+func ASTBuildSymbol(token TokenType) *TerminalToken {
+	return NewTerminalToken(nil, token)
+}
+
+func ASTBuildKeyword(token TokenType) *TerminalToken {
+	return NewTerminalToken(nil, token)
+}
+
 func (t *TerminalToken) Type() TokenType {
 	return t.Token
 }
 
-func (t *TerminalToken) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(t, other)
-	if !ok {
-		return false
+func (t *TerminalToken) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(t, other)
+	if err != nil {
+		return err
 	}
 
-	return o.Token == t.Token
+	if o.Token != t.Token {
+		return NewError(t.Context(), "wrong token type, expect %v, got %v", o.Token, t.Token)
+	}
+
+	return nil
 }

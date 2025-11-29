@@ -7,7 +7,8 @@ import (
 )
 
 type Comparable interface {
-	EqualTo(other Comparable) bool
+	context.ContextProvider
+	EqualTo(other Comparable) error
 }
 
 type Node interface {
@@ -61,12 +62,11 @@ func (c *NonTerminalNode) HighlightText(message string, args ...any) string {
 	return ctx.HighlightText(message, args...)
 }
 
-func CheckNodeEqual[T Comparable](a T, b Comparable) (T, bool) {
+func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 	va := reflect.ValueOf(a)
 	switch va.Kind() {
 	case reflect.Invalid:
-		vb := reflect.ValueOf(b)
-		return *new(T), vb.Kind() == reflect.Invalid
+		panic(" CheckNodeEqual: a MUST NOT be nil")
 
 	case reflect.Pointer:
 		vb := reflect.ValueOf(b)
@@ -76,21 +76,25 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, bool) {
 
 		cb, ok := vb.Interface().(T)
 		if !ok {
-			return *new(T), false
+			return *new(T), NewError(a.Context(), "expect a %T", b)
 		}
 
 		if va.IsNil() && vb.IsNil() {
-			return cb, true
+			return cb, nil
 		}
 
-		return cb, true
+		if va.IsNil() || vb.IsNil() {
+			return *new(T), NewError(a.Context(), "MUST have syntax item present")
+		}
+
+		return cb, nil
 
 	default:
 		panic(" CheckNodeEqual: only pointer kinds are supported")
 	}
 }
 
-func CheckNilPointerEqual[T Comparable](a T, b T) bool {
+func CheckNilPointerEqual[T Comparable](provider context.ContextProvider, a T, b T) error {
 	va := reflect.ValueOf(a)
 	vb := reflect.ValueOf(b)
 
@@ -99,26 +103,35 @@ func CheckNilPointerEqual[T Comparable](a T, b T) bool {
 	}
 
 	if va.IsNil() && vb.IsNil() {
-		return true
+		return nil
 	}
 
-	if va.IsNil() || vb.IsNil() {
-		return false
+	if va.IsNil() {
+		return NewError(provider.Context(), "expected %T not found", b)
+	}
+
+	if vb.IsNil() {
+		return NewError(a.Context(), "unexpected %T found", a)
 	}
 
 	return a.EqualTo(b)
 }
 
-func CheckArrayEqual[T Comparable](a []T, b []T) bool {
+func CheckArrayEqual[T Comparable](a []T, b []T) error {
 	if len(a) != len(b) {
-		return false
+		ctxList := make([]context.ContextProvider, 0, len(a))
+		for _, item := range a {
+			ctxList = append(ctxList, item)
+		}
+		ctx := context.JoinObjects(ctxList...)
+		return NewError(ctx, "wrong number of items: expected %d, got %d", len(b), len(a))
 	}
 
 	for i, itemA := range a {
-		if !itemA.EqualTo(b[i]) {
-			return false
+		if err := itemA.EqualTo(b[i]); err != nil {
+			return err
 		}
 	}
 
-	return true
+	return nil
 }

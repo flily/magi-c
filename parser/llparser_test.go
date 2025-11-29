@@ -17,8 +17,8 @@ func TestLLParserSimpleStatement(t *testing.T) {
 		ast.ASTBuildIncludeAngle("stdio.h"),
 	)
 
-	if !document.EqualTo(expected) {
-		t.Fatalf("expected document not equal to actual")
+	if err := document.EqualTo(expected); err != nil {
+		t.Fatalf("expected document not equal to actual:\n%s", err)
 	}
 
 	if len(document.Declarations) != 1 {
@@ -43,6 +43,28 @@ func TestLLParserSimplestProgram(t *testing.T) {
 	}, "\n")
 
 	document := runBasicTestOnCode(t, code)
+	expected := ast.ASTBuildDocument(
+		ast.ASTBuildFunction(
+			"main",
+			nil,
+			ast.ASTBuildTypeList(
+				ast.ASTBuildTypeListItem(ast.ASTBuildSimpleType("int"), nil),
+			),
+			[]ast.Statement{
+				ast.ASTBuildReturnStatement(
+					ast.ASTBuildExpressionList(
+						ast.ASTBuildExpressionListItem(
+							ast.ASTBuildValue(0),
+							nil,
+						),
+					),
+				),
+			},
+		),
+	)
+	if err := document.EqualTo(expected); err != nil {
+		t.Fatalf("expected document not equal to actual:\n%s", err)
+	}
 
 	if len(document.Declarations) != 1 {
 		t.Fatalf("expect 1 declaration, got %d", len(document.Declarations))

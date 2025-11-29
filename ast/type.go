@@ -23,25 +23,25 @@ func NewArgumentDeclaration() *ArgumentDeclaration {
 	return a
 }
 
-func (p *ArgumentDeclaration) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(p, other)
-	if !ok {
-		return false
+func (p *ArgumentDeclaration) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(p, other)
+	if err != nil {
+		return err
 	}
 
-	if !p.Name.EqualTo(o.Name) {
-		return false
+	if err := p.Name.EqualTo(o.Name); err != nil {
+		return err
 	}
 
-	if !p.Type.EqualTo(o.Type) {
-		return false
+	if err := p.Type.EqualTo(o.Type); err != nil {
+		return err
 	}
 
-	if !CheckNilPointerEqual(p.Comma, o.Comma) {
-		return false
+	if err := CheckNilPointerEqual(p, p.Comma, o.Comma); err != nil {
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (p *ArgumentDeclaration) Context() *context.Context {
@@ -60,10 +60,10 @@ func NewArgumentList() *ArgumentList {
 	return l
 }
 
-func (l *ArgumentList) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func (l *ArgumentList) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
 	return CheckArrayEqual(l.Arguments, o.Arguments)
@@ -97,23 +97,42 @@ func NewSimpleType() *SimpleType {
 	return t
 }
 
+func ASTBuildSimpleType(name string) *SimpleType {
+	t := NewSimpleType()
+
+	start := 0
+	for i, c := range name {
+		if c == '*' {
+			asterisk := NewTerminalToken(nil, Asterisk)
+			t.AddPointerAsterisk(asterisk)
+			start = i + 1
+
+		} else {
+			break
+		}
+	}
+
+	t.Identifier = ASTBuildIdentifier(name[start:])
+	return t
+}
+
 func (t *SimpleType) typeNode() {}
 
-func (t *SimpleType) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(t, other)
-	if !ok {
-		return false
+func (t *SimpleType) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(t, other)
+	if err != nil {
+		return err
 	}
 
-	if !CheckArrayEqual(t.PointerAsterisk, o.PointerAsterisk) {
-		return false
+	if err := CheckArrayEqual(t.PointerAsterisk, o.PointerAsterisk); err != nil {
+		return err
 	}
 
-	if !t.Identifier.EqualTo(o.Identifier) {
-		return false
+	if err := t.Identifier.EqualTo(o.Identifier); err != nil {
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (t *SimpleType) Context() *context.Context {
@@ -150,41 +169,41 @@ func NewFunctionType() *FunctionType {
 
 func (t *FunctionType) typeNode() {}
 
-func (t *FunctionType) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(t, other)
-	if !ok {
-		return false
+func (t *FunctionType) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(t, other)
+	if err != nil {
+		return err
 	}
 
-	if !t.Keyword.EqualTo(o.Keyword) {
-		return false
+	if err := t.Keyword.EqualTo(o.Keyword); err != nil {
+		return err
 	}
 
-	if !t.ArgumentLParen.EqualTo(o.ArgumentLParen) {
-		return false
+	if err := t.ArgumentLParen.EqualTo(o.ArgumentLParen); err != nil {
+		return err
 	}
 
-	if !CheckNilPointerEqual(t.ArgumentList, o.ArgumentList) {
-		return false
+	if err := CheckNilPointerEqual(t, t.ArgumentList, o.ArgumentList); err != nil {
+		return err
 	}
 
-	if !t.ArgumentRParen.EqualTo(o.ArgumentRParen) {
-		return false
+	if err := t.ArgumentRParen.EqualTo(o.ArgumentRParen); err != nil {
+		return err
 	}
 
-	if !CheckNilPointerEqual(t.ReturnTypes, o.ReturnTypes) {
-		return false
+	if err := CheckNilPointerEqual(t, t.ReturnTypes, o.ReturnTypes); err != nil {
+		return err
 	}
 
-	if !t.ReturnLParen.EqualTo(o.ReturnLParen) {
-		return false
+	if err := t.ReturnLParen.EqualTo(o.ReturnLParen); err != nil {
+		return err
 	}
 
-	if !t.ReturnRParen.EqualTo(o.ReturnRParen) {
-		return false
+	if err := t.ReturnRParen.EqualTo(o.ReturnRParen); err != nil {
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (t *FunctionType) Context() *context.Context {
@@ -201,58 +220,69 @@ func (t *FunctionType) Context() *context.Context {
 	return ctx
 }
 
-type TypeListItems struct {
+type TypeListItem struct {
 	NonTerminalNode
 	Type  Type
 	Comma *TerminalToken
 }
 
-func NewTypeListItems(t Type) *TypeListItems {
-	l := &TypeListItems{
-		Type: t,
+func NewTypeListItem(t Type, comma *TerminalToken) *TypeListItem {
+	l := &TypeListItem{
+		Type:  t,
+		Comma: comma,
 	}
 	l.Init(l)
 
 	return l
 }
 
-func (l *TypeListItems) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
-	}
-
-	if !l.Type.EqualTo(o.Type) {
-		return false
-	}
-
-	if !CheckNilPointerEqual(l.Comma, o.Comma) {
-		return false
-	}
-
-	return true
+func ASTBuildTypeListItem(t Type, comma *TerminalToken) *TypeListItem {
+	return NewTypeListItem(t, comma)
 }
 
-func (l *TypeListItems) Context() *context.Context {
+func (l *TypeListItem) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
+	}
+
+	if err := l.Type.EqualTo(o.Type); err != nil {
+		return err
+	}
+
+	if err := CheckNilPointerEqual(l, l.Comma, o.Comma); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *TypeListItem) Context() *context.Context {
 	return context.JoinObjects(l.Type, l.Comma)
 }
 
 type TypeList struct {
-	Types []*TypeListItems
+	NonTerminalNode
+	Types []*TypeListItem
 }
 
-func NewTypeList() *TypeList {
+func NewTypeList(items ...*TypeListItem) *TypeList {
 	l := &TypeList{
-		Types: make([]*TypeListItems, 0, 2),
+		Types: items,
 	}
+	l.Init(l)
 
 	return l
 }
 
-func (l *TypeList) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func ASTBuildTypeList(items ...*TypeListItem) *TypeList {
+	return NewTypeList(items...)
+}
+
+func (l *TypeList) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
 	return CheckArrayEqual(l.Types, o.Types)

@@ -25,17 +25,25 @@ func NewExpressionListItem(e Expression, comma *TerminalToken) *ExpressionListIt
 	return item
 }
 
-func (i *ExpressionListItem) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(i, other)
-	if !ok {
-		return false
+func ASTBuildExpressionListItem(e Expression, comma *TerminalToken) *ExpressionListItem {
+	return NewExpressionListItem(e, comma)
+}
+
+func (i *ExpressionListItem) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(i, other)
+	if err != nil {
+		return err
 	}
 
-	if !i.Expression.EqualTo(o.Expression) {
-		return false
+	if err := i.Expression.EqualTo(o.Expression); err != nil {
+		return err
 	}
 
-	return CheckNilPointerEqual(i.Comma, o.Comma)
+	if err := CheckNilPointerEqual(i, i.Comma, o.Comma); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (i *ExpressionListItem) Context() *context.Context {
@@ -54,17 +62,25 @@ func NewExpressionList() *ExpressionList {
 	return l
 }
 
-func (l *ExpressionList) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(l, other)
-	if !ok {
-		return false
+func ASTBuildExpressionList(items ...*ExpressionListItem) *ExpressionList {
+	l := &ExpressionList{
+		Expressions: items,
+	}
+
+	return l
+}
+
+func (l *ExpressionList) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(l, other)
+	if err != nil {
+		return err
 	}
 
 	return CheckArrayEqual(l.Expressions, o.Expressions)
 }
 
 func (l *ExpressionList) Context() *context.Context {
-	if len(l.Expressions) == 0 {
+	if l == nil || len(l.Expressions) == 0 {
 		return nil
 	}
 
@@ -96,25 +112,25 @@ func NewInfixExpression(left Expression, operator *TerminalToken, right Expressi
 
 func (e *InfixExpression) expressionNode() {}
 
-func (e *InfixExpression) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(e, other)
-	if !ok {
-		return false
+func (e *InfixExpression) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(e, other)
+	if err != nil {
+		return err
 	}
 
-	if !e.LeftOperand.EqualTo(o.LeftOperand) {
-		return false
+	if err := e.LeftOperand.EqualTo(o.LeftOperand); err != nil {
+		return err
 	}
 
 	if e.Operator.Token != o.Operator.Token {
-		return false
+		return NewError(e.Operator.Context(), "expected operator %q, got %q", o.Operator.Token, e.Operator.Token)
 	}
 
-	if !e.RightOperand.EqualTo(o.RightOperand) {
-		return false
+	if err := e.RightOperand.EqualTo(o.RightOperand); err != nil {
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (e *InfixExpression) Context() *context.Context {

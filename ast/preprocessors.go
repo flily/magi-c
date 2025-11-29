@@ -88,13 +88,21 @@ func (p *PreprocessorInclude) Type() TokenType {
 	return NodePreprocessorInclude
 }
 
-func (p *PreprocessorInclude) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(p, other)
-	if !ok {
-		return false
+func (p *PreprocessorInclude) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(p, other)
+	if err != nil {
+		return err
 	}
 
-	return p.Content == o.Content && p.Bracket == o.Bracket
+	if p.Content != o.Content {
+		return NewError(p.Context(), "wrong include content, expect %s, got %s", o.Content, p.Content)
+	}
+
+	if p.Bracket != o.Bracket {
+		return NewError(p.Context(), "wrong include bracket, expect %s, got %s", o.Bracket, p.Bracket)
+	}
+
+	return nil
 }
 
 func (p *PreprocessorInclude) Context() *context.Context {
@@ -133,21 +141,21 @@ func (p *PreprocessorInline) Type() TokenType {
 	return NodePreprocessorInline
 }
 
-func (p *PreprocessorInline) EqualTo(other Comparable) bool {
-	o, ok := CheckNodeEqual(p, other)
-	if !ok {
-		return false
+func (p *PreprocessorInline) EqualTo(other Comparable) error {
+	o, err := CheckNodeEqual(p, other)
+	if err != nil {
+		return err
 	}
 
 	if p.CodeType.Content() != o.CodeType.Content() {
-		return false
+		return NewError(p.Context(), "wrong inline code type, expect %s, got %s", o.CodeType.Content(), p.CodeType.Content())
 	}
 
 	if p.Content.Content() != o.Content.Content() {
-		return false
+		return NewError(p.Context(), "wrong inline content, expect %s, got %s", o.Content.Content(), p.Content.Content())
 	}
 
-	return true
+	return nil
 }
 
 func (p *PreprocessorInline) Context() *context.Context {
