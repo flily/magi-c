@@ -114,6 +114,10 @@ func NewInfixExpression(left Expression, operator *TerminalToken, right Expressi
 	return expr
 }
 
+func ASTBuildInfixExpression(left Expression, operatorToken TokenType, right Expression) *InfixExpression {
+	return NewInfixExpression(left, ASTBuildSymbol(operatorToken), right)
+}
+
 func (e *InfixExpression) expressionNode() {}
 
 func (e *InfixExpression) EqualTo(_ context.ContextProvider, other Comparable) error {

@@ -7,20 +7,38 @@ import (
 	"github.com/flily/magi-c/preprocessor"
 )
 
-func runBasicTestOnCode(t *testing.T, code string) *ast.Document {
+type llparserCorrectTestCase struct {
+	Code     string
+	Expected *ast.Document
+}
+
+func newCorrectCodeTestCase(code string, expected *ast.Document) *llparserCorrectTestCase {
+	c := &llparserCorrectTestCase{
+		Code:     code,
+		Expected: expected,
+	}
+
+	return c
+}
+
+func (c *llparserCorrectTestCase) Run(t *testing.T) *ast.Document {
 	t.Helper()
 
-	parser := NewLLParserFromCode(code, "test.mc")
+	parser := NewLLParserFromCode(c.Code, "test.mc")
 	preprocessor.RegisterPreprocessors(parser)
-	document, err := parser.Parse()
+	got, err := parser.Parse()
 
 	if err != nil {
 		t.Fatalf("parse code failed:\n%s", err.Error())
 	}
 
-	if document == nil {
+	if got == nil {
 		t.Fatalf("document is nil")
 	}
 
-	return document
+	if err := got.EqualTo(nil, c.Expected); err != nil {
+		t.Fatalf("expected document not equal to actual:\n%s", err)
+	}
+
+	return got
 }

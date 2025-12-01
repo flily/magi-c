@@ -533,14 +533,15 @@ func (p *LLParser) parseComplexExpression(first ast.Expression, precedence Prece
 	return p.parseComplexExpression(expr, precedence)
 }
 
-func (p *LLParser) parseInfixExpression(left ast.Expression, precedence Precedence) (*ast.InfixExpression, error) {
+func (p *LLParser) parseInfixExpression(left ast.Expression, precedence Precedence) (ast.Expression, error) {
 	operator := takeToken[*ast.TerminalToken](p)
+	currentPrecedence := GetPrecedence(operator)
 
-	right, err := p.parseExpression(precedence)
+	right, err := p.parseExpression(currentPrecedence)
 	if err != nil {
 		return nil, err
 	}
 
 	expr := ast.NewInfixExpression(left, operator, right)
-	return expr, nil
+	return p.parseComplexExpression(expr, precedence)
 }
