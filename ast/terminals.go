@@ -66,7 +66,7 @@ func (l *StringLiteral) EqualTo(_ context.ContextProvider, other Comparable) err
 	}
 
 	if o.Value != l.Value {
-		return NewError(l.Context(), "wrong string value, expect %s, got %s", o.Value, l.Value)
+		return NewError(l.Context(), "wrong string value, expect '%s', got '%s'", o.Value, l.Value)
 	}
 
 	return nil

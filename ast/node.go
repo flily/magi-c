@@ -66,12 +66,16 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 	va := reflect.ValueOf(a)
 	switch va.Kind() {
 	case reflect.Invalid:
-		panic(" CheckNodeEqual: a MUST NOT be nil")
+		panic("CheckNodeEqual: `a` MUST NOT be untyped nil")
 
 	case reflect.Pointer:
 		vb := reflect.ValueOf(b)
+		if vb.Kind() == reflect.Invalid {
+			panic("CheckNodeEqual: `b` MUST NOT be untyped nil")
+		}
+
 		if vb.Kind() != reflect.Pointer {
-			panic(" CheckNodeEqual: only pointer kinds are supported")
+			panic("CheckNodeEqual: only pointer type parameters are supported")
 		}
 
 		cb, ok := vb.Interface().(T)
@@ -79,18 +83,22 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 			return *new(T), NewError(a.Context(), "expect a %T", b)
 		}
 
-		if va.IsNil() && vb.IsNil() {
+		if va.IsNil() {
+			if !vb.IsNil() {
+				panic("CheckNodeEqual: `a` MUST NOT be typed nil when `b` is not nil")
+			}
+
 			return cb, nil
 		}
 
-		if va.IsNil() || vb.IsNil() {
-			return *new(T), NewError(a.Context(), "MUST have syntax item present")
+		if vb.IsNil() {
+			return *new(T), NewError(a.Context(), "unexpected syntax element")
 		}
 
 		return cb, nil
 
 	default:
-		panic(" CheckNodeEqual: only pointer kinds are supported")
+		panic("CheckNodeEqual: only pointer kinds are supported")
 	}
 }
 
@@ -99,7 +107,7 @@ func CheckNilPointerEqual[T Comparable](archor context.ContextProvider, a T, b T
 	vb := reflect.ValueOf(b)
 
 	if va.Kind() != reflect.Pointer || vb.Kind() != reflect.Pointer {
-		panic(" CheckNilPointerEqual: only pointer kinds are supported")
+		panic("CheckNilPointerEqual: only pointer kinds are supported")
 	}
 
 	if va.IsNil() && vb.IsNil() {
