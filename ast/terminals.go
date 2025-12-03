@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/flily/magi-c/context"
@@ -155,7 +156,8 @@ func ASTBuildValue(v any) Expression {
 		return NewFloatLiteral(nil, val.(float64))
 
 	default:
-		panic("ASTBuildValue: unsupported value type")
+		s := fmt.Sprintf("ASTBuildValue: unsupported value type: %T", v)
+		panic(s)
 	}
 }
 
@@ -229,7 +231,7 @@ func (t *TerminalToken) EqualTo(_ context.ContextProvider, other Comparable) err
 	}
 
 	if o.Token != t.Token {
-		return NewError(t.Context(), "wrong token type, expect %v, got %v", o.Token, t.Token)
+		return NewError(t.Context(), "wrong token type, expect '%v', got '%v'", o.Token, t.Token)
 	}
 
 	return nil

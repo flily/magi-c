@@ -208,3 +208,174 @@ func TestFloatLiteralNotEqual(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildValueUnsupported(t *testing.T) {
+	exp := "ASTBuildValue: unsupported value type: *int"
+
+	errMsg := ""
+	defer func() {
+		if r := recover(); r != nil {
+			errMsg = r.(string)
+		}
+
+		if errMsg != exp {
+			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, errMsg)
+		}
+	}()
+
+	a := 0
+	_ = ASTBuildValue(&a)
+}
+
+func TestIdentifier(t *testing.T) {
+	text := "lorem ipsum"
+	ctxList := generateTestWords(text)
+
+	id := NewIdentifier(ctxList[0], "lorem")
+	if id.Type() != IdentifierName {
+		t.Fatalf("identifier type expected %d, got %d", IdentifierName, id.Type())
+	}
+
+	var _ TerminalNode = id
+	var _ Expression = id
+	id.expressionNode()
+
+	a := ASTBuildIdentifier("lorem")
+
+	if err := id.EqualTo(nil, a); err != nil {
+		t.Fatalf("expected identifier not equal to actual:\n%s", err)
+	}
+}
+
+func TestIdentifierNotEqual(t *testing.T) {
+	text := "lorem ipsum"
+	ctxList := generateTestWords(text)
+
+	id := NewIdentifier(ctxList[0], "lorem")
+	{
+		a := ASTBuildValue(1234)
+		exp := strings.Join([]string{
+			"   1:   lorem ipsum",
+			"        ^^^^^",
+			"        expect a *ast.IntegerLiteral",
+		}, "\n")
+
+		err := id.EqualTo(id, a)
+		if err == nil {
+			t.Fatalf("expected identifier not equal to actual")
+		}
+
+		if err.Error() != exp {
+			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+		}
+	}
+
+	{
+		a := ASTBuildIdentifier("ipsum")
+		err := id.EqualTo(id, a)
+		if err == nil {
+			t.Fatalf("expected identifier not equal to actual")
+		}
+
+		exp := strings.Join([]string{
+			"   1:   lorem ipsum",
+			"        ^^^^^",
+			"        wrong identifier name, expect ipsum, got lorem",
+		}, "\n")
+		if err.Error() != exp {
+			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+		}
+	}
+}
+
+func TestTerminalToken(t *testing.T) {
+	text := "+ if"
+	ctxList := generateTestWords(text)
+
+	symbol := NewTerminalToken(ctxList[0], Plus)
+	if symbol.Type() != Plus {
+		t.Fatalf("terminal token type expected %d, got %d", Plus, symbol.Type())
+	}
+
+	var _ TerminalNode = symbol
+
+	a := ASTBuildSymbol(Plus)
+
+	if err := symbol.EqualTo(nil, a); err != nil {
+		t.Fatalf("expected terminal token not equal to actual:\n%s", err)
+	}
+
+	keyword := NewTerminalToken(ctxList[1], If)
+	if keyword.Type() != If {
+		t.Fatalf("terminal token type expected %d, got %d", If, keyword.Type())
+	}
+
+	var _ TerminalNode = keyword
+
+	b := ASTBuildKeyword(If)
+
+	if err := keyword.EqualTo(nil, b); err != nil {
+		t.Fatalf("expected terminal token not equal to actual:\n%s", err)
+	}
+}
+
+func TestTerminalTokenNotEqual(t *testing.T) {
+	text := "+ if"
+	ctxList := generateTestWords(text)
+
+	symbol := NewTerminalToken(ctxList[0], Plus)
+	{
+		a := ASTBuildSymbol(Sub)
+		exp := strings.Join([]string{
+			"   1:   + if",
+			"        ^",
+			"        wrong token type, expect '-', got '+'",
+		}, "\n")
+
+		err := symbol.EqualTo(symbol, a)
+		if err == nil {
+			t.Fatalf("expected terminal token not equal to actual")
+		}
+
+		if err.Error() != exp {
+			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+		}
+	}
+
+	keyword := NewTerminalToken(ctxList[1], If)
+	{
+		b := ASTBuildKeyword(Else)
+		exp := strings.Join([]string{
+			"   1:   + if",
+			"          ^^",
+			"          wrong token type, expect 'else', got 'if'",
+		}, "\n")
+
+		err := keyword.EqualTo(keyword, b)
+		if err == nil {
+			t.Fatalf("expected terminal token not equal to actual")
+		}
+
+		if err.Error() != exp {
+			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+		}
+	}
+
+	{
+		c := ASTBuildValue(42)
+		exp := strings.Join([]string{
+			"   1:   + if",
+			"        ^",
+			"        expect a *ast.IntegerLiteral",
+		}, "\n")
+
+		err := symbol.EqualTo(symbol, c)
+		if err == nil {
+			t.Fatalf("expected terminal token not equal to actual")
+		}
+
+		if err.Error() != exp {
+			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+		}
+	}
+}
