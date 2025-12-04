@@ -475,8 +475,7 @@ func (p *LLParser) parseExpressionList() (*ast.ExpressionList, error) {
 		}
 
 		comma, _ := p.expectTerminalToken(ast.Comma)
-		item := ast.NewExpressionListItem(expr, comma)
-		list.Expressions = append(list.Expressions, item)
+		list.Add(expr, comma)
 	}
 
 	return list, nil

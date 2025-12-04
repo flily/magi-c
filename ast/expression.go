@@ -74,6 +74,11 @@ func ASTBuildExpressionList(items ...*ExpressionListItem) *ExpressionList {
 	return l
 }
 
+func (l *ExpressionList) Add(e Expression, comma *TerminalToken) {
+	item := NewExpressionListItem(e, comma)
+	l.Expressions = append(l.Expressions, item)
+}
+
 func (l *ExpressionList) EqualTo(archor context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
