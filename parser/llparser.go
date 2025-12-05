@@ -200,9 +200,8 @@ func (p *LLParser) parseDeclaration(current ast.TerminalNode) (ast.Declaration, 
 }
 
 func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
-	result := &ast.FunctionDeclaration{
-		Keyword: p.takeToken().(*ast.TerminalToken),
-	}
+	keyword := p.takeToken().(*ast.TerminalToken)
+	result := ast.NewFunctionDeclaration(keyword)
 
 	name, err := p.expectToken(ast.IdentifierName)
 	if err != nil {

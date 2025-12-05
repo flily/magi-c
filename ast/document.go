@@ -37,6 +37,10 @@ func (d *Document) Terminal() bool {
 	return false
 }
 
+func (d *Document) Add(declaration Declaration) {
+	d.Declarations = append(d.Declarations, declaration)
+}
+
 func (d *Document) EqualTo(_ context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(d, other)
 	if err != nil {

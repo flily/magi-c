@@ -231,7 +231,7 @@ func TestIdentifier(t *testing.T) {
 	text := "lorem ipsum"
 	ctxList := generateTestWords(text)
 
-	id := NewIdentifier(ctxList[0], "lorem")
+	id := NewIdentifier(ctxList[0])
 	if id.Type() != IdentifierName {
 		t.Fatalf("identifier type expected %d, got %d", IdentifierName, id.Type())
 	}
@@ -251,7 +251,7 @@ func TestIdentifierNotEqual(t *testing.T) {
 	text := "lorem ipsum"
 	ctxList := generateTestWords(text)
 
-	id := NewIdentifier(ctxList[0], "lorem")
+	id := NewIdentifier(ctxList[0])
 	{
 		a := ASTBuildValue(1234)
 		exp := strings.Join([]string{

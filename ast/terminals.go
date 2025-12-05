@@ -166,17 +166,22 @@ type Identifier struct {
 	Name string
 }
 
-func NewIdentifier(ctx *context.Context, name string) *Identifier {
+func NewIdentifier(ctx *context.Context) *Identifier {
 	id := &Identifier{
 		TerminalNodeBase: NewTerminalNodeBase(ctx),
-		Name:             name,
+		Name:             ctx.Content(),
 	}
 
 	return id
 }
 
 func ASTBuildIdentifier(name string) *Identifier {
-	return NewIdentifier(nil, name)
+	id := &Identifier{
+		TerminalNodeBase: NewTerminalNodeBase(nil),
+		Name:             name,
+	}
+
+	return id
 }
 
 func (i *Identifier) expressionNode() {}

@@ -101,7 +101,7 @@ func (t *Tokenizer) ScanWordToken(i int) ast.TerminalNode {
 
 	tokenType := ast.GetKeywordTokenType(content)
 	if tokenType == ast.Invalid {
-		return ast.NewIdentifier(ctx, content)
+		return ast.NewIdentifier(ctx)
 	}
 
 	return ast.NewTerminalToken(ctx, tokenType)

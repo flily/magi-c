@@ -19,6 +19,15 @@ type FunctionDeclaration struct {
 	RBrace            *TerminalToken
 }
 
+func NewFunctionDeclaration(keyword *TerminalToken) *FunctionDeclaration {
+	f := &FunctionDeclaration{
+		Keyword: keyword,
+	}
+	f.Init(f)
+
+	return f
+}
+
 func ASTBuildFunction(name string, args *ArgumentList, returnTypes *TypeList, statements []Statement) *FunctionDeclaration {
 	funcDecl := &FunctionDeclaration{
 		Keyword:           NewTerminalToken(nil, Function),
@@ -33,6 +42,7 @@ func ASTBuildFunction(name string, args *ArgumentList, returnTypes *TypeList, st
 		Statements:        statements,
 		RBrace:            NewTerminalToken(nil, RightBrace),
 	}
+	funcDecl.Init(funcDecl)
 
 	return funcDecl
 }
@@ -65,7 +75,7 @@ func (f *FunctionDeclaration) EqualTo(archor context.ContextProvider, other Comp
 		return err
 	}
 
-	if err := f.LParenArgs.EqualTo(f, o.LParenArgs); err != nil {
+	if err := f.LParenReturnTypes.EqualTo(f, o.LParenReturnTypes); err != nil {
 		return err
 	}
 

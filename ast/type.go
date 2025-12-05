@@ -82,6 +82,15 @@ func ASTBuildArgumentList(args ...*ArgumentDeclaration) *ArgumentList {
 	return l
 }
 
+func (l *ArgumentList) Add(name *Identifier, t Type, comma *TerminalToken) {
+	arg := &ArgumentDeclaration{
+		Name:  name,
+		Type:  t,
+		Comma: comma,
+	}
+	l.Arguments = append(l.Arguments, arg)
+}
+
 func (l *ArgumentList) EqualTo(archor context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {
@@ -303,6 +312,11 @@ func NewTypeList(items ...*TypeListItem) *TypeList {
 
 func ASTBuildTypeList(items ...*TypeListItem) *TypeList {
 	return NewTypeList(items...)
+}
+
+func (l *TypeList) Add(t Type, comma *TerminalToken) {
+	item := NewTypeListItem(t, comma)
+	l.Types = append(l.Types, item)
 }
 
 func (l *TypeList) EqualTo(archor context.ContextProvider, other Comparable) error {
