@@ -1,8 +1,15 @@
 package preprocessor
 
 import (
+	"strings"
+
 	"github.com/flily/magi-c/ast"
 	"github.com/flily/magi-c/context"
+)
+
+const (
+	PreprocessorCommandInline      = "inline"
+	PreprocessorCommandInlineClose = "end-inline"
 )
 
 type preprocessorInline struct {
@@ -37,14 +44,15 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 	}
 
 	var contentCtx *context.Context
+	content := make([]string, 0, 64)
 
 	for {
 		endName, endHashCtx, endNameCtx, err := ScanDirective(p.cursor)
-		if endName == "end-inline" && err == nil {
+		if endName == PreprocessorCommandInlineClose && err == nil {
 			p.cursor.SkipWhitespaceInLine()
 			endBlockType, endBtCtx := cursorScanUntilInLine(p.cursor, ' ', '\t')
 			if endBlockType == blockType {
-				directive := ast.NewPreprocessorInline(hash, name, btCtx, contentCtx, endHashCtx, endNameCtx, endBtCtx)
+				directive := ast.NewPreprocessorInline(hash, name, blockType, btCtx, strings.Join(content, "\n"), contentCtx, endHashCtx, endNameCtx, endBtCtx)
 				return directive, nil
 			}
 		}
@@ -55,6 +63,7 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 		} else {
 			contentCtx = context.Join(contentCtx, lineCtx)
 		}
+		content = append(content, lineCtx.Content())
 
 		cursorScanUntilInLine(p.cursor)
 		eof := p.cursor.NextLine()

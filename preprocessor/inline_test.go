@@ -1,8 +1,9 @@
 package preprocessor
 
 import (
-	"strings"
 	"testing"
+
+	"strings"
 
 	"github.com/flily/magi-c/ast"
 )
@@ -44,7 +45,7 @@ func TestInlineDirectiveBasic(t *testing.T) {
 		"                ^",
 		"                here",
 	}, "\n")
-	checkElementContext(t, result.CodeType, expType)
+	checkElementContext(t, result.CodeTypeCtx, expType)
 
 	expContent := strings.Join([]string{
 		"   2:   #include <stdio.h>",
@@ -53,7 +54,7 @@ func TestInlineDirectiveBasic(t *testing.T) {
 		"        ^^^^^^^^^^^",
 		"        here",
 	}, "\n")
-	checkElementContext(t, result.Content, expContent)
+	checkElementContext(t, result.ContentCtx, expContent)
 
 	expEndHash := strings.Join([]string{
 		"   4:   #end-inline c",
@@ -119,9 +120,9 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 		"                ^",
 		"                here",
 	}, "\n")
-	checkElementContext(t, result.CodeType, expType)
+	checkElementContext(t, result.CodeTypeCtx, expType)
 
-	if result.Content != nil {
+	if result.ContentCtx != nil {
 		t.Errorf("expect nil content context for empty inline block, got non-nil")
 	}
 

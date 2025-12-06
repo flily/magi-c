@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"strings"
 	"testing"
+	
+	"strings"
 )
 
 func TestCheckNodeEqualAIsUntypedNil(t *testing.T) {

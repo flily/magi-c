@@ -117,19 +117,23 @@ func (p *PreprocessorInclude) Context() *context.Context {
 
 type PreprocessorInline struct {
 	PreprocessorCommon
-	CodeType    *context.Context
-	Content     *context.Context
+	CodeTypeCtx *context.Context
+	ContentCtx  *context.Context
 	HashEnd     *context.Context
 	CommandEnd  *context.Context
 	CodeTypeEnd *context.Context
+	CodeType    string
+	Content     string
 }
 
-func NewPreprocessorInline(hash *context.Context, command *context.Context, codeType *context.Context, content *context.Context, hashEnd *context.Context, commandEnd *context.Context, codeTypeEnd *context.Context) *PreprocessorInline {
+func NewPreprocessorInline(hash *context.Context, command *context.Context, codeType string, codeTypeCtx *context.Context, content string, contentCtx *context.Context, hashEnd *context.Context, commandEnd *context.Context, codeTypeEnd *context.Context) *PreprocessorInline {
 	p := &PreprocessorInline{
 		PreprocessorCommon: PreprocessorCommon{
 			Hash:    hash,
 			Command: command,
 		},
+		CodeTypeCtx: codeTypeCtx,
+		ContentCtx:  contentCtx,
 		CodeType:    codeType,
 		Content:     content,
 		HashEnd:     hashEnd,
@@ -138,6 +142,16 @@ func NewPreprocessorInline(hash *context.Context, command *context.Context, code
 	}
 
 	p.Init(p)
+	return p
+}
+
+func ASTBuildInline(codeType string, content string) *PreprocessorInline {
+	p := &PreprocessorInline{
+		CodeType: codeType,
+		Content:  content,
+	}
+	p.Init(p)
+
 	return p
 }
 
@@ -153,21 +167,21 @@ func (p *PreprocessorInline) EqualTo(_ context.ContextProvider, other Comparable
 		return err
 	}
 
-	if p.CodeType.Content() != o.CodeType.Content() {
-		return NewError(p.Context(), "wrong inline code type, expect %s, got %s", o.CodeType.Content(), p.CodeType.Content())
+	if p.CodeType != o.CodeType {
+		return NewError(p.CodeTypeCtx, "wrong inline code type, expect '%s', got '%s'", o.CodeType, p.CodeType)
 	}
 
-	if p.Content.Content() != o.Content.Content() {
-		return NewError(p.Context(), "wrong inline content, expect %s, got %s", o.Content.Content(), p.Content.Content())
+	if p.Content != o.Content {
+		return NewError(p.ContentCtx, "wrong inline content, expect '%s', got '%s'", o.Content, p.Content)
 	}
 
 	return nil
 }
 
 func (p *PreprocessorInline) Context() *context.Context {
-	return context.Join(p.Hash, p.Command, p.CodeType, p.Content, p.HashEnd, p.CommandEnd, p.CodeTypeEnd)
+	return context.Join(p.Hash, p.Command, p.CodeTypeCtx, p.ContentCtx, p.HashEnd, p.CommandEnd, p.CodeTypeEnd)
 }
 
 func (p *PreprocessorInline) Empty() bool {
-	return p.Content == nil
+	return p.ContentCtx == nil
 }
