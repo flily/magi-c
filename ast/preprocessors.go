@@ -48,7 +48,8 @@ type PreprocessorInclude struct {
 	ContentCtx  *context.Context
 	RBracketCtx *context.Context
 	Content     string
-	Bracket     string
+	LBracket    string
+	RBracket    string
 }
 
 func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbracket *context.Context, content *context.Context, rbracket *context.Context) *PreprocessorInclude {
@@ -61,7 +62,8 @@ func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbr
 		ContentCtx:  content,
 		RBracketCtx: rbracket,
 		Content:     content.Content(),
-		Bracket:     lbracket.Content(),
+		LBracket:    lbracket.Content(),
+		RBracket:    rbracket.Content(),
 	}
 
 	p.Init(p)
@@ -71,7 +73,8 @@ func NewPreprocessorInclude(hash *context.Context, command *context.Context, lbr
 func ASTBuildIncludeAngle(name string) *PreprocessorInclude {
 	p := &PreprocessorInclude{}
 	p.Content = name
-	p.Bracket = "<"
+	p.LBracket = "<"
+	p.RBracket = ">"
 
 	return p
 }
@@ -79,7 +82,8 @@ func ASTBuildIncludeAngle(name string) *PreprocessorInclude {
 func ASTBuildIncludeQuote(name string) *PreprocessorInclude {
 	p := &PreprocessorInclude{}
 	p.Content = name
-	p.Bracket = `"`
+	p.LBracket = `"`
+	p.RBracket = `"`
 
 	return p
 }
@@ -95,11 +99,13 @@ func (p *PreprocessorInclude) EqualTo(_ context.ContextProvider, other Comparabl
 	}
 
 	if p.Content != o.Content {
-		return NewError(p.Context(), "wrong include content, expect %s, got %s", o.Content, p.Content)
+		return NewError(p.ContentCtx, "wrong include content, expect '%s', got '%s'", o.Content, p.Content)
 	}
 
-	if p.Bracket != o.Bracket {
-		return NewError(p.Context(), "wrong include bracket, expect %s, got %s", o.Bracket, p.Bracket)
+	if p.LBracket != o.LBracket {
+		ctx := context.Join(p.LBracketCtx, p.RBracketCtx)
+		return NewError(ctx, "wrong include bracket, expect '%s' and '%s', got '%s' and '%s'",
+			o.LBracket, o.RBracket, p.LBracket, p.RBracket)
 	}
 
 	return nil
