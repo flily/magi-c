@@ -55,15 +55,7 @@ func (f *FunctionDeclaration) EqualTo(archor context.ContextProvider, other Comp
 		return err
 	}
 
-	if err := f.Keyword.EqualTo(f, o.Keyword); err != nil {
-		return err
-	}
-
 	if err := f.Name.EqualTo(f, o.Name); err != nil {
-		return err
-	}
-
-	if err := f.LParenArgs.EqualTo(f, o.LParenArgs); err != nil {
 		return err
 	}
 
@@ -71,31 +63,11 @@ func (f *FunctionDeclaration) EqualTo(archor context.ContextProvider, other Comp
 		return err
 	}
 
-	if err := f.RParenArgs.EqualTo(f, o.RParenArgs); err != nil {
-		return err
-	}
-
-	if err := f.LParenReturnTypes.EqualTo(f, o.LParenReturnTypes); err != nil {
-		return err
-	}
-
 	if err := CheckNilPointerEqual(f, f.ReturnTypes, o.ReturnTypes); err != nil {
 		return err
 	}
 
-	if err := f.RParenReturnTypes.EqualTo(f, o.RParenReturnTypes); err != nil {
-		return err
-	}
-
-	if err := f.LBrace.EqualTo(f, o.LBrace); err != nil {
-		return err
-	}
-
 	if err := CheckArrayEqual("STATEMENT LIST", f, f.Statements, o.Statements); err != nil {
-		return err
-	}
-
-	if err := f.RBrace.EqualTo(f, o.RBrace); err != nil {
 		return err
 	}
 
