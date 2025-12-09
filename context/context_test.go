@@ -330,6 +330,107 @@ func TestContextHighlightTextMultipleLines1(t *testing.T) {
 	}
 }
 
+func TestContextNextContext(t *testing.T) {
+	fd := createTestFile1()
+
+	{
+		line1 := fd.LineContext(3)
+		// 0         1         2         3         4
+		// 0    5    0    5    0    5    0    5    0
+		// sed do eiusmod tempor incididunt
+		ctx := line1.Mark(7, 14)
+
+		expected := strings.Join([]string{
+			"   4:   sed do eiusmod tempor incididunt",
+			"               ^^^^^^^",
+			"               the quick brown fox",
+		}, "\n")
+		checkContextWith(t, ctx, expected, "the quick brown fox")
+
+		nextCtx := ctx.NextContext()
+		if nextCtx == nil {
+			t.Fatalf("expected non-nil next context, got nil")
+		}
+
+		expectedNext := strings.Join([]string{
+			"   4:   sed do eiusmod tempor incididunt",
+			"                      ^",
+			"                      here",
+		}, "\n")
+		checkContextWith(t, nextCtx, expectedNext, "here")
+	}
+
+	{
+		line2 := fd.LineContext(3)
+		// 0         1         2         3         4
+		// 0    5    0    5    0    5    0    5    0
+		// sed do eiusmod tempor incididunt
+		ctx := line2.Mark(22, 32)
+
+		expected := strings.Join([]string{
+			"   4:   sed do eiusmod tempor incididunt",
+			"                              ^^^^^^^^^^",
+			"                              the quick brown fox",
+		}, "\n")
+		checkContextWith(t, ctx, expected, "the quick brown fox")
+
+		nextCtx := ctx.NextContext()
+		if nextCtx == nil {
+			t.Fatalf("expected non-nil next context, got nil")
+		}
+
+		expectedNext := strings.Join([]string{
+			"   5:   ut labore et dolore magna aliqua",
+			"        ^",
+			"        here",
+		}, "\n")
+		checkContextWith(t, nextCtx, expectedNext, "here")
+
+		nextInLine := ctx.NextInLineContext()
+		if nextInLine == nil {
+			t.Fatalf("expected non-nil next in line context, got nil")
+		}
+
+		expectedNextInLine := strings.Join([]string{
+			"   4:   sed do eiusmod tempor incididunt<EOL LF>",
+			"                                        ^^^^^^^^",
+			"                                        here",
+		}, "\n")
+		checkContextWith(t, nextInLine, expectedNextInLine, "here")
+	}
+}
+
+func TestContextNextContextAtEnd(t *testing.T) {
+	fd := createTestFile1()
+
+	{
+		line := fd.LineContext(9)
+		// 0         1         2         3         4         5
+		// 0    5    0    5    0    5    0    5    0    5    0
+		// excepteur sint occaecat cupid atat non proident
+		ctx := line.Mark(39, 47)
+
+		expected := strings.Join([]string{
+			"  10:   excepteur sint occaecat cupid atat non proident",
+			"                                               ^^^^^^^^",
+			"                                               the quick brown fox",
+		}, "\n")
+		checkContextWith(t, ctx, expected, "the quick brown fox")
+
+		nextCtx := ctx.NextContext()
+		if nextCtx == nil {
+			t.Fatalf("expected nil next context, got non-nil")
+		}
+
+		expectedNext := strings.Join([]string{
+			"  11:   <EOF>",
+			"        ^^^^^",
+			"        here",
+		}, "\n")
+		checkContextWith(t, nextCtx, expectedNext, "here")
+	}
+}
+
 func TestJoinContext(t *testing.T) {
 	if c := Join(); c != nil {
 		t.Fatalf("expected nil context, got non-nil")

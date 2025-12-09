@@ -154,6 +154,44 @@ func (c *Context) Content() string {
 	return c.Lines[0].HighlightContent()
 }
 
+func (c *Context) NextInLineContext() *Context {
+	line, column := c.Last()
+	lineContent := c.File.Line(line)
+	if lineContent == nil {
+		return nil
+	}
+
+	if column < lineContent.Length() {
+		_, result := lineContent.Mark(column, column+1)
+		return result
+	}
+
+	_, result := lineContent.Mark(column, column+1)
+	return result
+}
+
+func (c *Context) NextContext() *Context {
+	line, column := c.Last()
+	lineContent := c.File.Line(line)
+	if lineContent == nil {
+		return nil
+	}
+
+	if column < lineContent.Length() {
+		_, result := lineContent.Mark(column, column+1)
+		return result
+	}
+
+	nextLineContent := c.File.Line(line + 1)
+	if nextLineContent == nil {
+		_, result := lineContent.Mark(column, column)
+		return result
+	}
+
+	_, result := nextLineContent.Mark(0, 1)
+	return result
+}
+
 func Join(ctxs ...*Context) *Context {
 	if len(ctxs) == 0 {
 		return nil
