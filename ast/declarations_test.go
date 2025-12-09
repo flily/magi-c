@@ -108,7 +108,189 @@ func TestFunctionDeclaration(t *testing.T) {
 	}
 }
 
-func TestFunctionDeclarationNotEqual(t *testing.T) {
+func TestFunctionDeclarationNotEqualOnNodeType(t *testing.T) {
+	text := strings.Join([]string{
+		//  0   1 2 3   4 5 6   7 8 9 10 11 12
+		"func add ( a int , b int ) ( int ) {",
+		//      13 14 15 16
+		"    return a + b",
+		// 17
+		"}",
+	}, "\n")
+	ctxList := generateTestWords(text)
+
+	funcDecl := makeFunctionDeclarationTokens1(ctxList)
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"   1:   func add ( a int , b int ) ( int ) {",
+		"        ^^^^ ^^^ ^ ^ ^^^ ^ ^ ^^^ ^ ^ ^^^ ^ ^",
+		"   2:       return a + b",
+		"            ^^^^^^ ^ ^ ^",
+		"   3:   }",
+		"        ^",
+		"        expect a *ast.IntegerLiteral",
+	}, "\n")
+	err := funcDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("FunctionDeclaration expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
+func TestFunctionDeclarationNotEqualOnFunctionName(t *testing.T) {
+	text := strings.Join([]string{
+		//  0   1 2 3   4 5 6   7 8 9 10 11 12
+		"func add ( a int , b int ) ( int ) {",
+		//      13 14 15 16
+		"    return a + b",
+		// 17
+		"}",
+	}, "\n")
+	ctxList := generateTestWords(text)
+
+	funcDecl := makeFunctionDeclarationTokens1(ctxList)
+	expected := ASTBuildFunction(
+		"foobar",
+		ASTBuildArgumentList(
+			ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+		),
+		ASTBuildTypeList(
+			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("int")),
+		),
+		[]Statement{
+			ASTBuildReturnStatement(
+				ASTBuildExpressionList(
+					ASTBuildExpressionListItemWithComma(
+						ASTBuildIdentifier("a"),
+					),
+					ASTBuildExpressionListItemWithoutComma(
+						ASTBuildIdentifier("b"),
+					),
+				),
+			),
+		},
+	)
+
+	message := strings.Join([]string{
+		"   1:   func add ( a int , b int ) ( int ) {",
+		"             ^^^",
+		"             wrong identifier name, expect 'foobar', got 'add'",
+	}, "\n")
+	err := funcDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("FunctionDeclaration expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
+func TestFunctionDeclarationNotEquaOnArgumentList(t *testing.T) {
+	text := strings.Join([]string{
+		//  0   1 2 3   4 5 6   7 8 9 10 11 12
+		"func add ( a int , b int ) ( int ) {",
+		//      13 14 15 16
+		"    return a + b",
+		// 17
+		"}",
+	}, "\n")
+	ctxList := generateTestWords(text)
+
+	funcDecl := makeFunctionDeclarationTokens1(ctxList)
+	expected := ASTBuildFunction(
+		"add",
+		ASTBuildArgumentList(
+			ASTBuildArgumentWithComma("x", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+		),
+		ASTBuildTypeList(
+			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("int")),
+		),
+		[]Statement{
+			ASTBuildReturnStatement(
+				ASTBuildExpressionList(
+					ASTBuildExpressionListItemWithComma(
+						ASTBuildIdentifier("a"),
+					),
+					ASTBuildExpressionListItemWithoutComma(
+						ASTBuildIdentifier("b"),
+					),
+				),
+			),
+		},
+	)
+
+	message := strings.Join([]string{
+		"   1:   func add ( a int , b int ) ( int ) {",
+		"                   ^",
+		"                   wrong identifier name, expect 'x', got 'a'",
+	}, "\n")
+	err := funcDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("FunctionDeclaration expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
+func TestFunctionDeclarationNotEquaOnReturnTypeList(t *testing.T) {
+	text := strings.Join([]string{
+		//  0   1 2 3   4 5 6   7 8 9 10 11 12
+		"func add ( a int , b int ) ( int ) {",
+		//      13 14 15 16
+		"    return a + b",
+		// 17
+		"}",
+	}, "\n")
+	ctxList := generateTestWords(text)
+
+	funcDecl := makeFunctionDeclarationTokens1(ctxList)
+	expected := ASTBuildFunction(
+		"add",
+		ASTBuildArgumentList(
+			ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+		),
+		ASTBuildTypeList(
+			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("float")),
+		),
+		[]Statement{
+			ASTBuildReturnStatement(
+				ASTBuildExpressionList(
+					ASTBuildExpressionListItemWithComma(
+						ASTBuildIdentifier("a"),
+					),
+					ASTBuildExpressionListItemWithoutComma(
+						ASTBuildIdentifier("b"),
+					),
+				),
+			),
+		},
+	)
+
+	message := strings.Join([]string{
+		"   1:   func add ( a int , b int ) ( int ) {",
+		"                                     ^^^",
+		"                                     wrong identifier name, expect 'float', got 'int'",
+	}, "\n")
+	err := funcDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("FunctionDeclaration expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
+func TestFunctionDeclarationNotEquaOnExpressionList(t *testing.T) {
 	text := strings.Join([]string{
 		//  0   1 2 3   4 5 6   7 8 9 10 11 12
 		"func add ( a int , b int ) ( int ) {",
@@ -120,10 +302,6 @@ func TestFunctionDeclarationNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	funcDecl := makeFunctionDeclarationTokens1(ctxList)
-
-	var _ Declaration = funcDecl
-	funcDecl.declarationNode()
-
 	expected := ASTBuildFunction(
 		"add",
 		ASTBuildArgumentList(
@@ -150,7 +328,7 @@ func TestFunctionDeclarationNotEqual(t *testing.T) {
 	message := strings.Join([]string{
 		"   2:       return b + a",
 		"                   ^",
-		"                   wrong identifier name, expect a, got b",
+		"                   wrong identifier name, expect 'a', got 'b'",
 	}, "\n")
 	err := funcDecl.EqualTo(nil, expected)
 	if err == nil {

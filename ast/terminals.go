@@ -197,7 +197,7 @@ func (i *Identifier) EqualTo(_ context.ContextProvider, other Comparable) error 
 	}
 
 	if o.Name != i.Name {
-		return NewError(i.Context(), "wrong identifier name, expect %s, got %s", o.Name, i.Name)
+		return NewError(i.Context(), "wrong identifier name, expect '%s', got '%s'", o.Name, i.Name)
 	}
 
 	return nil

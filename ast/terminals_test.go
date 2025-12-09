@@ -280,7 +280,7 @@ func TestIdentifierNotEqual(t *testing.T) {
 		exp := strings.Join([]string{
 			"   1:   lorem ipsum",
 			"        ^^^^^",
-			"        wrong identifier name, expect ipsum, got lorem",
+			"        wrong identifier name, expect 'ipsum', got 'lorem'",
 		}, "\n")
 		if err.Error() != exp {
 			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())

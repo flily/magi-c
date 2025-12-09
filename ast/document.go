@@ -15,6 +15,7 @@ type Statement interface {
 }
 
 type Document struct {
+	NonTerminalNode
 	Filename     string
 	Declarations []Declaration
 }
@@ -23,6 +24,7 @@ func NewDocument(declarations []Declaration) *Document {
 	d := &Document{
 		Declarations: declarations,
 	}
+	d.Init(d)
 
 	return d
 }
@@ -51,19 +53,10 @@ func (d *Document) EqualTo(_ context.ContextProvider, other Comparable) error {
 }
 
 func (d *Document) Context() *context.Context {
-	if len(d.Declarations) == 0 {
-		return nil
-	}
-
 	ctxList := make([]*context.Context, 0, len(d.Declarations))
 	for _, n := range d.Declarations {
 		ctxList = append(ctxList, n.Context())
 	}
 
 	return context.Join(ctxList...)
-}
-
-func (d *Document) HighlightText(message string, args ...any) string {
-	ctx := d.Context()
-	return ctx.HighlightText(message, args...)
 }
