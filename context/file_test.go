@@ -26,7 +26,7 @@ func TestLineContentBasicInfo(t *testing.T) {
 func TestLineContextMark(t *testing.T) {
 	s := "lorem ipsum dolor sit amet"
 	line := NewLineFromBytes(42, []byte(s), nil)
-	ctx := line.MarkLine(6, 11)
+	ctx := line.MarkLine(nil, 6, 11)
 
 	if ctx.StringContent() != s {
 		t.Errorf("expected context content '%s', got '%s'", s, ctx.StringContent())

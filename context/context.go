@@ -162,11 +162,11 @@ func (c *Context) NextInLineContext() *Context {
 	}
 
 	if column < lineContent.Length() {
-		_, result := lineContent.Mark(column, column+1)
+		_, result := lineContent.Mark(c.File, column, column+1)
 		return result
 	}
 
-	_, result := lineContent.Mark(column, column+1)
+	_, result := lineContent.Mark(c.File, column, column+1)
 	return result
 }
 
@@ -178,17 +178,17 @@ func (c *Context) NextContext() *Context {
 	}
 
 	if column < lineContent.Length() {
-		_, result := lineContent.Mark(column, column+1)
+		_, result := lineContent.Mark(c.File, column, column+1)
 		return result
 	}
 
 	nextLineContent := c.File.Line(line + 1)
 	if nextLineContent == nil {
-		_, result := lineContent.Mark(column, column)
+		_, result := lineContent.Mark(c.File, column, column)
 		return result
 	}
 
-	_, result := nextLineContent.Mark(0, 1)
+	_, result := nextLineContent.Mark(c.File, 0, 1)
 	return result
 }
 

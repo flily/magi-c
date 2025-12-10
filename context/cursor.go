@@ -265,7 +265,7 @@ func (c *Cursor) SetState(state *CursorState) {
 
 func (c *Cursor) MakeContext(begin *CursorState, finish *CursorState) (string, *Context) {
 	line := c.File.Line(begin.Line)
-	return line.Mark(begin.Column, finish.Column)
+	return line.Mark(c.File, begin.Column, finish.Column)
 }
 
 func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *Context) {
