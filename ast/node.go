@@ -115,7 +115,7 @@ func CheckNilPointerEqual[T Comparable](archor context.ContextProvider, a T, b T
 	}
 
 	if va.IsNil() {
-		return NewError(archor.Context(), "expected %T not found", b)
+		return NewError(archor.Context().NextInLineContext(), "expect %T", b)
 	}
 
 	if vb.IsNil() {
