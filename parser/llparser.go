@@ -361,7 +361,7 @@ func (p *LLParser) parseArgument() (*ast.ArgumentDeclaration, error) {
 }
 
 func (p *LLParser) parseSimpleType() (*ast.SimpleType, error) {
-	t := ast.NewSimpleType()
+	asterisks := make([]*ast.TerminalToken, 0, 2)
 
 	for {
 		current := p.currentToken()
@@ -373,11 +373,11 @@ func (p *LLParser) parseSimpleType() (*ast.SimpleType, error) {
 		switch current.Type() {
 		case ast.Asterisk:
 			asterisk := takeToken[*ast.TerminalToken](p)
-			t.AddPointerAsterisk(asterisk)
+			asterisks = append(asterisks, asterisk)
 
 		case ast.IdentifierName:
 			identifier := takeToken[*ast.Identifier](p)
-			t.Identifier = identifier
+			t := ast.NewSimpleType(asterisks, identifier)
 			return t, nil
 
 		default:

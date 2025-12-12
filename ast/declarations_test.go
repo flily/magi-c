@@ -18,14 +18,12 @@ func makeFunctionDeclarationTokens1(ctxList []*context.Context) *FunctionDeclara
 	args := NewArgumentList()
 
 	argAName := NewIdentifier(ctxList[3])
-	argAType := NewSimpleType()
-	argAType.Identifier = NewIdentifier(ctxList[4])
+	argAType := NewSimpleType(nil, NewIdentifier(ctxList[4]))
 	argAComma := NewTerminalToken(ctxList[5], Comma)
 	args.Add(argAName, argAType, argAComma)
 
 	argBName := NewIdentifier(ctxList[6])
-	argBType := NewSimpleType()
-	argBType.Identifier = NewIdentifier(ctxList[7])
+	argBType := NewSimpleType(nil, NewIdentifier(ctxList[7]))
 	args.Add(argBName, argBType, nil)
 
 	funcDecl.Arguments = args
@@ -33,8 +31,7 @@ func makeFunctionDeclarationTokens1(ctxList []*context.Context) *FunctionDeclara
 
 	funcDecl.LParenReturnTypes = NewTerminalToken(ctxList[9], LeftParen)
 
-	returnType := NewSimpleType()
-	returnType.Identifier = NewIdentifier(ctxList[10])
+	returnType := NewSimpleType(nil, NewIdentifier(ctxList[10]))
 
 	returnTypes := NewTypeList()
 	returnTypes.Add(returnType, nil)

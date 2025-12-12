@@ -119,9 +119,10 @@ type SimpleType struct {
 	Identifier      *Identifier
 }
 
-func NewSimpleType() *SimpleType {
+func NewSimpleType(asterisks []*TerminalToken, identifier *Identifier) *SimpleType {
 	t := &SimpleType{
-		PointerAsterisk: make([]*TerminalToken, 0, 2),
+		PointerAsterisk: asterisks,
+		Identifier:      identifier,
 	}
 	t.Init(t)
 
@@ -129,7 +130,7 @@ func NewSimpleType() *SimpleType {
 }
 
 func ASTBuildSimpleType(name string) *SimpleType {
-	t := NewSimpleType()
+	t := NewSimpleType(nil, nil)
 
 	start := 0
 	for i, c := range name {
@@ -178,77 +179,6 @@ func (t *SimpleType) Context() *context.Context {
 
 func (t *SimpleType) AddPointerAsterisk(asterisk *TerminalToken) {
 	t.PointerAsterisk = append(t.PointerAsterisk, asterisk)
-}
-
-type FunctionType struct {
-	NonTerminalNode
-	Keyword        *TerminalToken
-	ArgumentLParen *TerminalToken
-	ArgumentList   *ArgumentList
-	ArgumentRParen *TerminalToken
-	ReturnLParen   *TerminalToken
-	ReturnTypes    *ArgumentList
-	ReturnRParen   *TerminalToken
-}
-
-func NewFunctionType() *FunctionType {
-	t := &FunctionType{}
-	t.Init(t)
-
-	return t
-}
-
-func (t *FunctionType) typeNode() {}
-
-func (t *FunctionType) EqualTo(_ context.ContextProvider, other Comparable) error {
-	o, err := CheckNodeEqual(t, other)
-	if err != nil {
-		return err
-	}
-
-	if err := t.Keyword.EqualTo(t, o.Keyword); err != nil {
-		return err
-	}
-
-	if err := t.ArgumentLParen.EqualTo(t, o.ArgumentLParen); err != nil {
-		return err
-	}
-
-	if err := CheckNilPointerEqual(t, t.ArgumentList, o.ArgumentList); err != nil {
-		return err
-	}
-
-	if err := t.ArgumentRParen.EqualTo(t, o.ArgumentRParen); err != nil {
-		return err
-	}
-
-	if err := CheckNilPointerEqual(t, t.ReturnTypes, o.ReturnTypes); err != nil {
-		return err
-	}
-
-	if err := t.ReturnLParen.EqualTo(t, o.ReturnLParen); err != nil {
-		return err
-	}
-
-	if err := t.ReturnRParen.EqualTo(t, o.ReturnRParen); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *FunctionType) Context() *context.Context {
-	ctx := context.JoinObjects(
-		t.Keyword,
-		t.ArgumentLParen,
-		t.ArgumentList,
-		t.ArgumentRParen,
-		t.ReturnLParen,
-		t.ReturnTypes,
-		t.ReturnRParen,
-	)
-
-	return ctx
 }
 
 type TypeListItem struct {
