@@ -31,7 +31,7 @@ func TestLLParserSimplestProgram(t *testing.T) {
 				"main",
 				nil,
 				ast.ASTBuildTypeList(
-					ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildTypeListItemWithoutComma("int"),
 				),
 				[]ast.Statement{
 					ast.ASTBuildReturnStatement(
@@ -59,12 +59,12 @@ func TestLLParserFunctionWithArguments(t *testing.T) {
 			ast.ASTBuildFunction(
 				"add",
 				ast.ASTBuildArgumentList(
-					ast.ASTBuildArgumentWithComma("a", ast.ASTBuildSimpleType("int")),
-					ast.ASTBuildArgumentWithoutComma("b", ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildArgumentWithComma("a", "int"),
+					ast.ASTBuildArgumentWithoutComma("b", "int"),
 				),
 				ast.ASTBuildTypeList(
-					ast.ASTBuildTypeListItemWithComma(ast.ASTBuildSimpleType("int")),
-					ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildTypeListItemWithComma("int"),
+					ast.ASTBuildTypeListItemWithoutComma("int"),
 				),
 				[]ast.Statement{
 					ast.ASTBuildReturnStatement(
@@ -95,9 +95,9 @@ func TestLLParserReturnWithExpressionList(t *testing.T) {
 				"foo",
 				nil,
 				ast.ASTBuildTypeList(
-					ast.ASTBuildTypeListItemWithComma(ast.ASTBuildSimpleType("int")),
-					ast.ASTBuildTypeListItemWithComma(ast.ASTBuildSimpleType("int")),
-					ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildTypeListItemWithComma("int"),
+					ast.ASTBuildTypeListItemWithComma("int"),
+					ast.ASTBuildTypeListItemWithoutComma("int"),
 				),
 				[]ast.Statement{
 					ast.ASTBuildReturnStatement(
@@ -131,7 +131,7 @@ func TestLLParserReturnWithExpressionArithmetic1(t *testing.T) {
 				"add",
 				nil,
 				ast.ASTBuildTypeList(
-					ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildTypeListItemWithoutComma("int"),
 				),
 				[]ast.Statement{
 					ast.ASTBuildReturnStatement(
@@ -163,11 +163,11 @@ func TestLLParserReturnWithExpressionArithmetic2(t *testing.T) {
 			ast.ASTBuildFunction(
 				"add",
 				ast.ASTBuildArgumentList(
-					ast.ASTBuildArgumentWithComma("a", ast.ASTBuildSimpleType("int")),
-					ast.ASTBuildArgumentWithoutComma("b", ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildArgumentWithComma("a", "int"),
+					ast.ASTBuildArgumentWithoutComma("b", "int"),
 				),
 				ast.ASTBuildTypeList(
-					ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildTypeListItemWithoutComma("int"),
 				),
 				[]ast.Statement{
 					ast.ASTBuildReturnStatement(
@@ -198,11 +198,11 @@ func TestLLParserReturnWithExpressionArithmetic3(t *testing.T) {
 			ast.ASTBuildFunction(
 				"add",
 				ast.ASTBuildArgumentList(
-					ast.ASTBuildArgumentWithComma("a", ast.ASTBuildSimpleType("int")),
-					ast.ASTBuildArgumentWithoutComma("b", ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildArgumentWithComma("a", "int"),
+					ast.ASTBuildArgumentWithoutComma("b", "int"),
 				),
 				ast.ASTBuildTypeList(
-					ast.ASTBuildTypeListItemWithoutComma(ast.ASTBuildSimpleType("int")),
+					ast.ASTBuildTypeListItemWithoutComma("int"),
 				),
 				[]ast.Statement{
 					ast.ASTBuildReturnStatement(

@@ -80,11 +80,11 @@ func TestFunctionDeclaration(t *testing.T) {
 	expected := ASTBuildFunction(
 		"add",
 		ASTBuildArgumentList(
-			ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
-			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithComma("a", "int"),
+			ASTBuildArgumentWithoutComma("b", "int"),
 		),
 		ASTBuildTypeList(
-			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("int")),
+			ASTBuildTypeListItemWithoutComma("int"),
 		),
 		[]Statement{
 			ASTBuildReturnStatement(
@@ -152,11 +152,11 @@ func TestFunctionDeclarationNotEqualOnFunctionName(t *testing.T) {
 	expected := ASTBuildFunction(
 		"foobar",
 		ASTBuildArgumentList(
-			ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
-			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithComma("a", "int"),
+			ASTBuildArgumentWithoutComma("b", "int"),
 		),
 		ASTBuildTypeList(
-			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("int")),
+			ASTBuildTypeListItemWithoutComma("int"),
 		),
 		[]Statement{
 			ASTBuildReturnStatement(
@@ -202,11 +202,11 @@ func TestFunctionDeclarationNotEquaOnArgumentList(t *testing.T) {
 	expected := ASTBuildFunction(
 		"add",
 		ASTBuildArgumentList(
-			ASTBuildArgumentWithComma("x", ASTBuildSimpleType("int")),
-			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithComma("x", "int"),
+			ASTBuildArgumentWithoutComma("b", "int"),
 		),
 		ASTBuildTypeList(
-			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("int")),
+			ASTBuildTypeListItemWithoutComma("int"),
 		),
 		[]Statement{
 			ASTBuildReturnStatement(
@@ -252,11 +252,11 @@ func TestFunctionDeclarationNotEquaOnReturnTypeList(t *testing.T) {
 	expected := ASTBuildFunction(
 		"add",
 		ASTBuildArgumentList(
-			ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
-			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithComma("a", "int"),
+			ASTBuildArgumentWithoutComma("b", "int"),
 		),
 		ASTBuildTypeList(
-			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("float")),
+			ASTBuildTypeListItemWithoutComma("float"),
 		),
 		[]Statement{
 			ASTBuildReturnStatement(
@@ -302,11 +302,11 @@ func TestFunctionDeclarationNotEquaOnExpressionList(t *testing.T) {
 	expected := ASTBuildFunction(
 		"add",
 		ASTBuildArgumentList(
-			ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
-			ASTBuildArgumentWithoutComma("b", ASTBuildSimpleType("int")),
+			ASTBuildArgumentWithComma("a", "int"),
+			ASTBuildArgumentWithoutComma("b", "int"),
 		),
 		ASTBuildTypeList(
-			ASTBuildTypeListItemWithoutComma(ASTBuildSimpleType("int")),
+			ASTBuildTypeListItemWithoutComma("int"),
 		),
 		[]Statement{
 			ASTBuildReturnStatement(

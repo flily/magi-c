@@ -6,26 +6,6 @@ import (
 	"strings"
 )
 
-func TestArgumentList(t *testing.T) {
-	text := "a int , b float , c string"
-	ctxList := generateTestWords(text)
-
-	args := NewArgumentList()
-	args.Add(NewIdentifier(ctxList[0]), NewSimpleType(nil, NewIdentifier(ctxList[1])), NewTerminalToken(ctxList[2], Comma))
-	args.Add(NewIdentifier(ctxList[3]), NewSimpleType(nil, NewIdentifier(ctxList[4])), NewTerminalToken(ctxList[5], Comma))
-	args.Add(NewIdentifier(ctxList[6]), NewSimpleType(nil, NewIdentifier(ctxList[7])), nil)
-
-	expected := ASTBuildArgumentList(
-		ASTBuildArgumentWithComma("a", ASTBuildSimpleType("int")),
-		ASTBuildArgumentWithComma("b", ASTBuildSimpleType("float")),
-		ASTBuildArgumentWithoutComma("c", ASTBuildSimpleType("string")),
-	)
-
-	if err := args.EqualTo(nil, expected); err != nil {
-		t.Fatalf("ArgumentList not equal: %s", err)
-	}
-}
-
 func TestSimpleType(t *testing.T) {
 	text := "* * lorem"
 	ctxList := generateTestWords(text)
@@ -122,6 +102,365 @@ func TestSimpleTypeNotEqualOnIdentifier(t *testing.T) {
 	}, "\n")
 
 	err := simpleType.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestArgumentDeclaration(t *testing.T) {
+	text := "argName * int ,"
+	ctxList := generateTestWords(text)
+
+	argName := NewIdentifier(ctxList[0])
+	argType := NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[1], Asterisk)}, NewIdentifier(ctxList[2]))
+	argComma := NewTerminalToken(ctxList[3], Comma)
+	argDecl := NewArgumentDeclaration(argName, argType, argComma)
+
+	expected := ASTBuildArgumentWithComma("argName", "*int")
+
+	if err := argDecl.EqualTo(nil, expected); err != nil {
+		t.Fatalf("ArgumentDeclaration not equal: %s", err)
+	}
+}
+
+func TestArgumentDeclarationNotEqualOnNodeType(t *testing.T) {
+	text := "lorem * int ,"
+	ctxList := generateTestWords(text)
+
+	argName := NewIdentifier(ctxList[0])
+	argType := NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[1], Asterisk)}, NewIdentifier(ctxList[2]))
+	argComma := NewTerminalToken(ctxList[3], Comma)
+	argDecl := NewArgumentDeclaration(argName, argType, argComma)
+
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"   1:   lorem * int ,",
+		"        ^^^^^ ^ ^^^ ^",
+		"        expect a *ast.IntegerLiteral",
+	}, "\n")
+
+	err := argDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestArgumentDeclarationNotEqualOnName(t *testing.T) {
+	text := "lorem * int ,"
+	ctxList := generateTestWords(text)
+
+	argName := NewIdentifier(ctxList[0])
+	argType := NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[1], Asterisk)}, NewIdentifier(ctxList[2]))
+	argComma := NewTerminalToken(ctxList[3], Comma)
+	argDecl := NewArgumentDeclaration(argName, argType, argComma)
+
+	expected := ASTBuildArgumentWithComma("ipsum", "*int")
+	message := strings.Join([]string{
+		"   1:   lorem * int ,",
+		"        ^^^^^",
+		"        wrong identifier name, expect 'ipsum', got 'lorem'",
+	}, "\n")
+
+	err := argDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestArgumentDeclarationNotEqualOnType(t *testing.T) {
+	text := "lorem * int ,"
+	ctxList := generateTestWords(text)
+
+	argName := NewIdentifier(ctxList[0])
+	argType := NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[1], Asterisk)}, NewIdentifier(ctxList[2]))
+	argComma := NewTerminalToken(ctxList[3], Comma)
+	argDecl := NewArgumentDeclaration(argName, argType, argComma)
+
+	expected := ASTBuildArgumentWithComma("lorem", "int")
+	message := strings.Join([]string{
+		"   1:   lorem * int ,",
+		"              ^",
+		"              wrong number of POINTER ASTERISK: expected 0, got 1",
+	}, "\n")
+
+	err := argDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestArgumentDeclarationNotEqualOnComma(t *testing.T) {
+	text := "lorem * int ,"
+	ctxList := generateTestWords(text)
+
+	argName := NewIdentifier(ctxList[0])
+	argType := NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[1], Asterisk)}, NewIdentifier(ctxList[2]))
+	argComma := NewTerminalToken(ctxList[3], Comma)
+	argDecl := NewArgumentDeclaration(argName, argType, argComma)
+
+	expected := ASTBuildArgumentWithoutComma("lorem", "*int")
+	message := strings.Join([]string{
+		"   1:   lorem * int ,",
+		"                    ^",
+		"                    unexpected *ast.TerminalToken found",
+	}, "\n")
+
+	err := argDecl.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestArgumentList(t *testing.T) {
+	text := "a int , b float , c string"
+	ctxList := generateTestWords(text)
+
+	args := NewArgumentList()
+	args.Add(NewIdentifier(ctxList[0]), NewSimpleType(nil, NewIdentifier(ctxList[1])), NewTerminalToken(ctxList[2], Comma))
+	args.Add(NewIdentifier(ctxList[3]), NewSimpleType(nil, NewIdentifier(ctxList[4])), NewTerminalToken(ctxList[5], Comma))
+	args.Add(NewIdentifier(ctxList[6]), NewSimpleType(nil, NewIdentifier(ctxList[7])), nil)
+
+	expected := ASTBuildArgumentList(
+		ASTBuildArgumentWithComma("a", "int"),
+		ASTBuildArgumentWithComma("b", "float"),
+		ASTBuildArgumentWithoutComma("c", "string"),
+	)
+
+	if err := args.EqualTo(nil, expected); err != nil {
+		t.Fatalf("ArgumentList not equal: %s", err)
+	}
+}
+
+func TestArgumentListNotEqualOnNodeType(t *testing.T) {
+	text := "a int , b float , c string"
+	ctxList := generateTestWords(text)
+
+	args := NewArgumentList()
+	args.Add(NewIdentifier(ctxList[0]), NewSimpleType(nil, NewIdentifier(ctxList[1])), NewTerminalToken(ctxList[2], Comma))
+	args.Add(NewIdentifier(ctxList[3]), NewSimpleType(nil, NewIdentifier(ctxList[4])), NewTerminalToken(ctxList[5], Comma))
+	args.Add(NewIdentifier(ctxList[6]), NewSimpleType(nil, NewIdentifier(ctxList[7])), nil)
+
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"   1:   a int , b float , c string",
+		"        ^ ^^^ ^ ^ ^^^^^ ^ ^ ^^^^^^",
+		"        expect a *ast.IntegerLiteral",
+	}, "\n")
+
+	err := args.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestTypeListItem(t *testing.T) {
+	text := "* * int ,"
+	ctxList := generateTestWords(text)
+
+	typeItem := NewTypeListItem(
+		NewSimpleType(
+			[]*TerminalToken{
+				NewTerminalToken(ctxList[0], Asterisk),
+				NewTerminalToken(ctxList[1], Asterisk),
+			},
+			NewIdentifier(ctxList[2]),
+		),
+		NewTerminalToken(ctxList[3], Comma),
+	)
+
+	expected := ASTBuildTypeListItemWithComma("**int")
+
+	if err := typeItem.EqualTo(nil, expected); err != nil {
+		t.Fatalf("TypeListItem not equal: %s", err)
+	}
+}
+
+func TestTypeListItemNotEqualOnNodeType(t *testing.T) {
+	text := "* * int ,"
+	ctxList := generateTestWords(text)
+
+	typeItem := NewTypeListItem(
+		NewSimpleType(
+			[]*TerminalToken{
+				NewTerminalToken(ctxList[0], Asterisk),
+				NewTerminalToken(ctxList[1], Asterisk),
+			},
+			NewIdentifier(ctxList[2]),
+		),
+		NewTerminalToken(ctxList[3], Comma),
+	)
+
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"   1:   * * int ,",
+		"        ^ ^ ^^^ ^",
+		"        expect a *ast.IntegerLiteral",
+	}, "\n")
+
+	err := typeItem.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestTypeListItemNotEqualOnType(t *testing.T) {
+	text := "* * int ,"
+	ctxList := generateTestWords(text)
+
+	typeItem := NewTypeListItem(
+		NewSimpleType(
+			[]*TerminalToken{
+				NewTerminalToken(ctxList[0], Asterisk),
+				NewTerminalToken(ctxList[1], Asterisk),
+			},
+			NewIdentifier(ctxList[2]),
+		),
+		NewTerminalToken(ctxList[3], Comma),
+	)
+
+	expected := ASTBuildTypeListItemWithComma("*int")
+	message := strings.Join([]string{
+		"   1:   * * int ,",
+		"        ^ ^",
+		"        wrong number of POINTER ASTERISK: expected 1, got 2",
+	}, "\n")
+
+	err := typeItem.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestTypeListItemNotEqualOnComma(t *testing.T) {
+	text := "* * int ,"
+	ctxList := generateTestWords(text)
+
+	typeItem := NewTypeListItem(
+		NewSimpleType(
+			[]*TerminalToken{
+				NewTerminalToken(ctxList[0], Asterisk),
+				NewTerminalToken(ctxList[1], Asterisk),
+			},
+			NewIdentifier(ctxList[2]),
+		),
+		NewTerminalToken(ctxList[3], Comma),
+	)
+
+	expected := ASTBuildTypeListItemWithoutComma("**int")
+	message := strings.Join([]string{
+		"   1:   * * int ,",
+		"                ^",
+		"                unexpected *ast.TerminalToken found",
+	}, "\n")
+
+	err := typeItem.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestTypeList(t *testing.T) {
+	text := "* int , * * float , string"
+	ctxList := generateTestWords(text)
+
+	types := NewTypeList()
+	types.Add(NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[0], Asterisk)}, NewIdentifier(ctxList[1])), NewTerminalToken(ctxList[2], Comma))
+	types.Add(NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[3], Asterisk), NewTerminalToken(ctxList[4], Asterisk)}, NewIdentifier(ctxList[5])), NewTerminalToken(ctxList[6], Comma))
+	types.Add(NewSimpleType(nil, NewIdentifier(ctxList[7])), nil)
+
+	expected := ASTBuildTypeList(
+		ASTBuildTypeListItemWithComma("*int"),
+		ASTBuildTypeListItemWithComma("**float"),
+		ASTBuildTypeListItemWithoutComma("string"),
+	)
+
+	if err := types.EqualTo(nil, expected); err != nil {
+		t.Fatalf("TypeList not equal: %s", err)
+	}
+}
+
+func TestTypeListNotEqualOnNodeType(t *testing.T) {
+	text := "* int , * * float , string"
+	ctxList := generateTestWords(text)
+
+	types := NewTypeList()
+	types.Add(NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[0], Asterisk)}, NewIdentifier(ctxList[1])), NewTerminalToken(ctxList[2], Comma))
+	types.Add(NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[3], Asterisk), NewTerminalToken(ctxList[4], Asterisk)}, NewIdentifier(ctxList[5])), NewTerminalToken(ctxList[6], Comma))
+	types.Add(NewSimpleType(nil, NewIdentifier(ctxList[7])), nil)
+
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"   1:   * int , * * float , string",
+		"        ^ ^^^ ^ ^ ^ ^^^^^ ^ ^^^^^^",
+		"        expect a *ast.IntegerLiteral",
+	}, "\n")
+
+	err := types.EqualTo(nil, expected)
+	if err == nil {
+		t.Fatalf("expect a error but got nil")
+	}
+
+	if err.Error() != message {
+		t.Fatalf("wrong error message:\n%s\nexpect\n%s", err, message)
+	}
+}
+
+func TestTypeListNotEqualOnSize(t *testing.T) {
+	text := "* int , * * float , string"
+	ctxList := generateTestWords(text)
+
+	types := NewTypeList()
+	types.Add(NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[0], Asterisk)}, NewIdentifier(ctxList[1])), NewTerminalToken(ctxList[2], Comma))
+	types.Add(NewSimpleType([]*TerminalToken{NewTerminalToken(ctxList[3], Asterisk), NewTerminalToken(ctxList[4], Asterisk)}, NewIdentifier(ctxList[5])), NewTerminalToken(ctxList[6], Comma))
+	types.Add(NewSimpleType(nil, NewIdentifier(ctxList[7])), nil)
+
+	expected := ASTBuildTypeList(
+		ASTBuildTypeListItemWithComma("*int"),
+		ASTBuildTypeListItemWithComma("**float"),
+	)
+	message := strings.Join([]string{
+		"   1:   * int , * * float , string",
+		"        ^ ^^^ ^ ^ ^ ^^^^^ ^ ^^^^^^",
+		"        wrong number of TYPE LIST: expected 2, got 3",
+	}, "\n")
+
+	err := types.EqualTo(nil, expected)
 	if err == nil {
 		t.Fatalf("expect a error but got nil")
 	}

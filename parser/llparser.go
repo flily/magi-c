@@ -323,8 +323,7 @@ func (p *LLParser) parseReturn(keyword *ast.TerminalToken) (ast.Statement, error
 }
 
 func (p *LLParser) parseArgument() (*ast.ArgumentDeclaration, error) {
-	arg := ast.NewArgumentDeclaration()
-	arg.Name = takeToken[*ast.Identifier](p)
+	argName := takeToken[*ast.Identifier](p)
 
 	typeLead := p.currentToken()
 	if typeLead == nil {
@@ -349,14 +348,15 @@ func (p *LLParser) parseArgument() (*ast.ArgumentDeclaration, error) {
 	if err != nil {
 		return nil, err
 	}
-	arg.Type = typeNode
 
+	var argComma *ast.TerminalToken = nil
 	last := p.currentToken()
 	if last != nil && last.Type() == ast.Comma {
 		comma := takeToken[*ast.TerminalToken](p)
-		arg.Comma = comma
+		argComma = comma
 	}
 
+	arg := ast.NewArgumentDeclaration(argName, typeNode, argComma)
 	return arg, nil
 }
 

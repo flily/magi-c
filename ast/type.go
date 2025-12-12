@@ -9,6 +9,74 @@ type Type interface {
 	typeNode()
 }
 
+type SimpleType struct {
+	NonTerminalNode
+	PointerAsterisk []*TerminalToken
+	Identifier      *Identifier
+}
+
+func NewSimpleType(asterisks []*TerminalToken, identifier *Identifier) *SimpleType {
+	t := &SimpleType{
+		PointerAsterisk: asterisks,
+		Identifier:      identifier,
+	}
+	t.Init(t)
+
+	return t
+}
+
+func ASTBuildSimpleType(name string) *SimpleType {
+	t := NewSimpleType(nil, nil)
+
+	start := 0
+	for i, c := range name {
+		if c == '*' {
+			asterisk := NewTerminalToken(nil, Asterisk)
+			t.AddPointerAsterisk(asterisk)
+			start = i + 1
+
+		} else {
+			break
+		}
+	}
+
+	t.Identifier = ASTBuildIdentifier(name[start:])
+	return t
+}
+
+func (t *SimpleType) typeNode() {}
+
+func (t *SimpleType) EqualTo(_ context.ContextProvider, other Comparable) error {
+	o, err := CheckNodeEqual(t, other)
+	if err != nil {
+		return err
+	}
+
+	if err := CheckArrayEqual("POINTER ASTERISK", t, t.PointerAsterisk, o.PointerAsterisk); err != nil {
+		return err
+	}
+
+	if err := t.Identifier.EqualTo(t, o.Identifier); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *SimpleType) Context() *context.Context {
+	ctxList := make([]context.ContextProvider, 0, len(t.PointerAsterisk)+1)
+	for _, asterisk := range t.PointerAsterisk {
+		ctxList = append(ctxList, asterisk)
+	}
+	ctxList = append(ctxList, t.Identifier)
+
+	return context.JoinObjects(ctxList...)
+}
+
+func (t *SimpleType) AddPointerAsterisk(asterisk *TerminalToken) {
+	t.PointerAsterisk = append(t.PointerAsterisk, asterisk)
+}
+
 type ArgumentDeclaration struct {
 	NonTerminalNode
 	Name  *Identifier
@@ -16,25 +84,24 @@ type ArgumentDeclaration struct {
 	Comma *TerminalToken
 }
 
-func NewArgumentDeclaration() *ArgumentDeclaration {
-	a := &ArgumentDeclaration{}
+func NewArgumentDeclaration(name *Identifier, t Type, comma *TerminalToken) *ArgumentDeclaration {
+	a := &ArgumentDeclaration{
+		Name:  name,
+		Type:  t,
+		Comma: comma,
+	}
 	a.Init(a)
 
 	return a
 }
 
-func ASTBuildArgumentWithComma(name string, t Type) *ArgumentDeclaration {
-	a := NewArgumentDeclaration()
-	a.Name = ASTBuildIdentifier(name)
-	a.Type = t
-	a.Comma = ASTBuildSymbol(Comma)
+func ASTBuildArgumentWithComma(name string, t string) *ArgumentDeclaration {
+	a := NewArgumentDeclaration(ASTBuildIdentifier(name), ASTBuildSimpleType(t), ASTBuildSymbol(Comma))
 	return a
 }
 
-func ASTBuildArgumentWithoutComma(name string, t Type) *ArgumentDeclaration {
-	a := NewArgumentDeclaration()
-	a.Name = ASTBuildIdentifier(name)
-	a.Type = t
+func ASTBuildArgumentWithoutComma(name string, t string) *ArgumentDeclaration {
+	a := NewArgumentDeclaration(ASTBuildIdentifier(name), ASTBuildSimpleType(t), nil)
 	return a
 }
 
@@ -113,74 +180,6 @@ func (l *ArgumentList) Context() *context.Context {
 	return context.JoinObjects(ctxList...)
 }
 
-type SimpleType struct {
-	NonTerminalNode
-	PointerAsterisk []*TerminalToken
-	Identifier      *Identifier
-}
-
-func NewSimpleType(asterisks []*TerminalToken, identifier *Identifier) *SimpleType {
-	t := &SimpleType{
-		PointerAsterisk: asterisks,
-		Identifier:      identifier,
-	}
-	t.Init(t)
-
-	return t
-}
-
-func ASTBuildSimpleType(name string) *SimpleType {
-	t := NewSimpleType(nil, nil)
-
-	start := 0
-	for i, c := range name {
-		if c == '*' {
-			asterisk := NewTerminalToken(nil, Asterisk)
-			t.AddPointerAsterisk(asterisk)
-			start = i + 1
-
-		} else {
-			break
-		}
-	}
-
-	t.Identifier = ASTBuildIdentifier(name[start:])
-	return t
-}
-
-func (t *SimpleType) typeNode() {}
-
-func (t *SimpleType) EqualTo(_ context.ContextProvider, other Comparable) error {
-	o, err := CheckNodeEqual(t, other)
-	if err != nil {
-		return err
-	}
-
-	if err := CheckArrayEqual("POINTER ASTERISK", t, t.PointerAsterisk, o.PointerAsterisk); err != nil {
-		return err
-	}
-
-	if err := t.Identifier.EqualTo(t, o.Identifier); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *SimpleType) Context() *context.Context {
-	ctxList := make([]context.ContextProvider, 0, len(t.PointerAsterisk)+1)
-	for _, asterisk := range t.PointerAsterisk {
-		ctxList = append(ctxList, asterisk)
-	}
-	ctxList = append(ctxList, t.Identifier)
-
-	return context.JoinObjects(ctxList...)
-}
-
-func (t *SimpleType) AddPointerAsterisk(asterisk *TerminalToken) {
-	t.PointerAsterisk = append(t.PointerAsterisk, asterisk)
-}
-
 type TypeListItem struct {
 	NonTerminalNode
 	Type  Type
@@ -197,12 +196,12 @@ func NewTypeListItem(t Type, comma *TerminalToken) *TypeListItem {
 	return l
 }
 
-func ASTBuildTypeListItemWithComma(t Type) *TypeListItem {
-	return NewTypeListItem(t, ASTBuildSymbol(Comma))
+func ASTBuildTypeListItemWithComma(t string) *TypeListItem {
+	return NewTypeListItem(ASTBuildSimpleType(t), ASTBuildSymbol(Comma))
 }
 
-func ASTBuildTypeListItemWithoutComma(t Type) *TypeListItem {
-	return NewTypeListItem(t, nil)
+func ASTBuildTypeListItemWithoutComma(t string) *TypeListItem {
+	return NewTypeListItem(ASTBuildSimpleType(t), nil)
 }
 
 func (l *TypeListItem) EqualTo(_ context.ContextProvider, other Comparable) error {
