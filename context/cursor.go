@@ -54,9 +54,9 @@ func (c *Cursor) PositionString() string {
 }
 
 func (c *Cursor) EOFContext() *Context {
-	lastLine := c.File.Line(c.File.Lines() - 1)
-	beginState := NewCursorState(lastLine.Line, lastLine.Length())
-	finishState := NewCursorState(lastLine.Line, lastLine.Length()+1)
+	lastLine := c.File.LineContext(c.File.Lines() - 1)
+	beginState := NewCursorState(lastLine.Line(), lastLine.Length())
+	finishState := NewCursorState(lastLine.Line(), lastLine.Length()+1)
 	_, ctx := c.MakeContext(beginState, finishState)
 	return ctx
 }
@@ -264,8 +264,9 @@ func (c *Cursor) SetState(state *CursorState) {
 }
 
 func (c *Cursor) MakeContext(begin *CursorState, finish *CursorState) (string, *Context) {
-	line := c.File.Line(begin.Line)
-	return line.Mark(c.File, begin.Column, finish.Column)
+	line := c.File.LineContext(begin.Line)
+	ctx := line.Mark(begin.Column, finish.Column)
+	return ctx.Content(), ctx
 }
 
 func (c *Cursor) FinishWith(begin *CursorState, finish *CursorState) (string, *Context) {

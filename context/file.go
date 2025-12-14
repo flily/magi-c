@@ -110,29 +110,13 @@ func (l *LineContent) ToLineContext(file *FileContext) *LineContext {
 	return ctx
 }
 
-func (l *LineContent) MarkLine(file *FileContext, start int, end int) *LineContext {
-	if start > l.Length() || end > l.Length()+1 {
-		err := fmt.Errorf("invalid context argument start=%d end=%d length=%d",
-			start, end, l.Length())
-
-		panic(err)
-	}
-
+// Only used in tests
+func (l *LineContent) markLine(start int, end int) *LineContext {
 	ctx := &LineContext{
-		File:    file,
 		Content: l,
 	}
 
 	return ctx.MarkLine(start, end)
-}
-
-func (l *LineContent) Mark(file *FileContext, start int, end int) (string, *Context) {
-	lctx := l.MarkLine(file, start, end)
-	content := ""
-	if start < l.Length() {
-		content = string(l.Content[start:end])
-	}
-	return content, lctx.ToContext()
 }
 
 type FileContext struct {

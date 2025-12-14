@@ -156,39 +156,39 @@ func (c *Context) Content() string {
 
 func (c *Context) NextInLineContext() *Context {
 	line, column := c.Last()
-	lineContent := c.File.Line(line)
-	if lineContent == nil {
+	lineCtx := c.File.LineContext(line)
+	if lineCtx == nil {
 		return nil
 	}
 
-	if column < lineContent.Length() {
-		_, result := lineContent.Mark(c.File, column, column+1)
+	if column < lineCtx.Length() {
+		result := lineCtx.Mark(column, column+1)
 		return result
 	}
 
-	_, result := lineContent.Mark(c.File, column, column+1)
+	result := lineCtx.Mark(column, column+1)
 	return result
 }
 
 func (c *Context) NextContext() *Context {
 	line, column := c.Last()
-	lineContent := c.File.Line(line)
-	if lineContent == nil {
+	lineCtx := c.File.LineContext(line)
+	if lineCtx == nil {
 		return nil
 	}
 
-	if column < lineContent.Length() {
-		_, result := lineContent.Mark(c.File, column, column+1)
+	if column < lineCtx.Length() {
+		result := lineCtx.Mark(column, column+1)
 		return result
 	}
 
-	nextLineContent := c.File.Line(line + 1)
-	if nextLineContent == nil {
-		_, result := lineContent.Mark(c.File, column, column)
+	nextLineCtx := c.File.LineContext(line + 1)
+	if nextLineCtx == nil {
+		result := lineCtx.Mark(column, column)
 		return result
 	}
 
-	_, result := nextLineContent.Mark(c.File, 0, 1)
+	result := nextLineCtx.Mark(0, 1)
 	return result
 }
 

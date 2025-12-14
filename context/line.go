@@ -83,6 +83,10 @@ func (l *LineContext) Length() int {
 	return l.Content.Length()
 }
 
+func (l *LineContext) Line() int {
+	return l.Content.Line
+}
+
 func (l *LineContext) Rune(n int) (rune, bool) {
 	if n < 0 || n >= l.Length() {
 		return 0, true
