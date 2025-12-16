@@ -96,10 +96,14 @@ type StyleWriter struct {
 	EOL   string
 }
 
-func (w *StyleWriter) WriteLine(format string, args ...any) error {
-	s := fmt.Sprintf(format+w.EOL, args...)
+func (w *StyleWriter) Write(format string, args ...any) error {
+	s := fmt.Sprintf(format, args...)
 	_, err := w.out.WriteString(s)
 	return err
+}
+
+func (w *StyleWriter) WriteLine(format string, args ...any) error {
+	return w.Write(format+w.EOL, args...)
 }
 
 type Node interface {
