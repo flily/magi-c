@@ -10,7 +10,8 @@ func TestIntegerWrite(t *testing.T) {
 		expected string
 	}{
 		{NewIntegerLiteral(42), "42"},
-		{NewHexIntegerLiteral(255), "0xff"},
+		{NewHexIntegerLiteralUpper(255), "0xFF"},
+		{NewHexIntegerLiteralLower(255), "0xff"},
 		{NewOctalIntegerLiteral(64), "0100"},
 	}
 
@@ -20,6 +21,9 @@ func TestIntegerWrite(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Integer Write failed, '%d': %s", c.value, err)
 		}
+
+		var _ Expression = c.value
+		c.value.expressionNode()
 
 		result := builder.String()
 		if result != c.expected {

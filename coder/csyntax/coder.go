@@ -3,6 +3,7 @@ package csyntax
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 type CStandard int
@@ -106,6 +107,26 @@ func (w *StyleWriter) WriteLine(format string, args ...any) error {
 	return w.Write(format+w.EOL, args...)
 }
 
+func (w *StyleWriter) WriteIndent(level int) error {
+	indent := strings.Repeat(w.style.Indent, level)
+	return w.Write("%s", indent)
+}
+
 type Node interface {
 	Write(out *StyleWriter, level int) error
+}
+
+type Expression interface {
+	Node
+	expressionNode()
+}
+
+type Statement interface {
+	Node
+	statementNode()
+}
+
+type Declaration interface {
+	Node
+	declarationNode()
 }
