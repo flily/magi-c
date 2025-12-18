@@ -73,6 +73,11 @@ func (s *CodeStyle) MakeWriter(out io.StringWriter) *StyleWriter {
 	return w
 }
 
+func (s *CodeStyle) Clone() *CodeStyle {
+	clone := *s
+	return &clone
+}
+
 type Context struct {
 	Filename string
 	Line     int
