@@ -1,6 +1,8 @@
 package csyntax
 
-import "strings"
+import (
+	"strings"
+)
 
 type Type struct {
 	Base         string

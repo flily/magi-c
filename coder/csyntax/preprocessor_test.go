@@ -1,8 +1,9 @@
 package csyntax
 
 import (
-	"strings"
 	"testing"
+
+	"strings"
 )
 
 func TestPreprocessorIncludeWrite(t *testing.T) {
