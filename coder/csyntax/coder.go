@@ -78,6 +78,28 @@ func (s *CodeStyle) Clone() *CodeStyle {
 	return &clone
 }
 
+func (s *CodeStyle) Comma() string {
+	base := ","
+
+	if s.CommaSpacingBefore {
+		base = " " + base
+	}
+
+	if s.CommaSpacingAfter {
+		base = base + " "
+	}
+
+	return base
+}
+
+func (s *CodeStyle) Assign() string {
+	if s.AssignmentSpacing {
+		return " = "
+	}
+
+	return "="
+}
+
 type Context struct {
 	Filename string
 	Line     int

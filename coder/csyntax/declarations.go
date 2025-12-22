@@ -10,14 +10,35 @@ type VariableDeclarator struct {
 	Initializer  Expression
 }
 
+func NewVariableDeclarator(name string, pointerLevel int, initializer Expression) VariableDeclarator {
+	d := VariableDeclarator{
+		PointerLevel: pointerLevel,
+		Name:         name,
+		Initializer:  initializer,
+	}
+
+	return d
+}
+
 type VariableDeclaration struct {
 	Type       string
 	Declarator []VariableDeclarator
 }
 
+func NewVariableDeclaration(typ string, declarators []VariableDeclarator) *VariableDeclaration {
+	d := &VariableDeclaration{
+		Type:       typ,
+		Declarator: declarators,
+	}
+
+	return d
+}
+
 func (v *VariableDeclaration) declarationNode() {}
 
 func (v *VariableDeclaration) statementNode() {}
+
+// int a = 3;
 
 func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 	if err := out.WriteIndent(level); err != nil {
@@ -30,7 +51,7 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 
 	for i, decl := range v.Declarator {
 		if i > 0 {
-			if err := out.Write(", "); err != nil {
+			if err := out.Write(out.style.Comma()); err != nil {
 				return err
 			}
 		}
@@ -51,7 +72,7 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 		}
 
 		if decl.Initializer != nil {
-			if err := out.Write(" = "); err != nil {
+			if err := out.Write(out.style.Assign()); err != nil {
 				return err
 			}
 			if err := decl.Initializer.Write(out, level); err != nil {
@@ -61,4 +82,13 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 	}
 
 	return out.WriteLine(";")
+}
+
+func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Expression) {
+	decl := VariableDeclarator{
+		Name:         name,
+		PointerLevel: pointerLevel,
+		Initializer:  initializer,
+	}
+	v.Declarator = append(v.Declarator, decl)
 }
