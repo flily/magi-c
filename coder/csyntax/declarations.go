@@ -38,14 +38,12 @@ func (v *VariableDeclaration) declarationNode() {}
 
 func (v *VariableDeclaration) statementNode() {}
 
-// int a = 3;
-
 func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 	if err := out.WriteIndent(level); err != nil {
 		return err
 	}
 
-	if err := out.Write("%s ", v.Type); err != nil {
+	if err := out.Write("%s", v.Type); err != nil {
 		return err
 	}
 
@@ -56,15 +54,22 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 			}
 		}
 
+		commaSpace := out.style.CommaSpacingAfter
+
 		pointer := ""
 		if decl.PointerLevel > 0 {
 			pointer = strings.Repeat("*", decl.PointerLevel)
-			if out.style.PointerSpacingBefore {
+			if !commaSpace && (i == 0 && out.style.PointerSpacingBefore) {
 				pointer = " " + pointer
 			}
 			if out.style.PointerSpacingAfter {
 				pointer = pointer + " "
 			}
+		}
+
+		if len(pointer) <= 0 && i == 0 {
+			// space between type and first declarator
+			pointer = " "
 		}
 
 		if err := out.Write("%s%s", pointer, decl.Name); err != nil {
