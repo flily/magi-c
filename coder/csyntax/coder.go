@@ -15,6 +15,14 @@ const (
 	EOLCR   = "\r"
 	EOLLF   = "\n"
 	EOLCRLF = "\r\n"
+
+	Space           = " "
+	PointerAsterisk = "*"
+	Semicolon       = ";"
+	Comma           = ","
+	Assign          = "="
+	LeftBrace       = "{"
+	RightBrace      = "}"
 )
 
 type CodeStyle struct {
@@ -79,14 +87,14 @@ func (s *CodeStyle) Clone() *CodeStyle {
 }
 
 func (s *CodeStyle) Comma() string {
-	base := ","
+	base := Comma
 
 	if s.CommaSpacingBefore {
-		base = " " + base
+		base = Space + base
 	}
 
 	if s.CommaSpacingAfter {
-		base = base + " "
+		base = base + Space
 	}
 
 	return base
@@ -94,10 +102,10 @@ func (s *CodeStyle) Comma() string {
 
 func (s *CodeStyle) Assign() string {
 	if s.AssignmentSpacing {
-		return " = "
+		return Space + Assign + Space
 	}
 
-	return "="
+	return Assign
 }
 
 type Context struct {

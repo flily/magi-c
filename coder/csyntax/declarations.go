@@ -58,18 +58,18 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 
 		pointer := ""
 		if decl.PointerLevel > 0 {
-			pointer = strings.Repeat("*", decl.PointerLevel)
+			pointer = strings.Repeat(PointerAsterisk, decl.PointerLevel)
 			if !commaSpace && (i == 0 && out.style.PointerSpacingBefore) {
-				pointer = " " + pointer
+				pointer = Space + pointer
 			}
 			if out.style.PointerSpacingAfter {
-				pointer = pointer + " "
+				pointer = pointer + Space
 			}
 		}
 
 		if len(pointer) <= 0 && i == 0 {
 			// space between type and first declarator
-			pointer = " "
+			pointer = Space
 		}
 
 		if err := out.Write("%s%s", pointer, decl.Name); err != nil {
@@ -86,14 +86,10 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 		}
 	}
 
-	return out.WriteLine(";")
+	return out.WriteLine(Semicolon)
 }
 
 func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Expression) {
-	decl := VariableDeclarator{
-		Name:         name,
-		PointerLevel: pointerLevel,
-		Initializer:  initializer,
-	}
+	decl := NewVariableDeclarator(name, pointerLevel, initializer)
 	v.Declarator = append(v.Declarator, decl)
 }

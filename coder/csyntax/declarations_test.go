@@ -8,6 +8,11 @@ func TestVariableDeclarationOneVariableStyle1(t *testing.T) {
 	stat := NewVariableDeclaration("int", nil)
 	stat.Add("a", 0, NewIntegerLiteral(3))
 
+	var _ Statement = stat
+	stat.statementNode()
+	var _ Declaration = stat
+	stat.declarationNode()
+
 	builder, writer := makeTestWriter(testStyle1)
 	err := stat.Write(writer, 0)
 	if err != nil {

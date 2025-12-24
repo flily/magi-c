@@ -10,6 +10,11 @@ func TestPreprocessorIncludeWrite(t *testing.T) {
 	ctx := NewContext("test.mc", 42)
 	include := NewIncludeAngle(ctx, "stdio.h")
 
+	var _ Declaration = include
+	include.declarationNode()
+	var _ Statement = include
+	include.statementNode()
+
 	builder, writer := makeTestWriter(KRStyle)
 	err := include.Write(writer, 0)
 	if err != nil {

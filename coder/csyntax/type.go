@@ -33,13 +33,13 @@ func (t *Type) Write(out *StyleWriter, level int) error {
 
 	format := "%s"
 	if out.style.PointerSpacingBefore {
-		format = " " + format
+		format = Space + format
 	}
 	if out.style.PointerSpacingAfter {
-		format = format + " "
+		format = format + Space
 	}
 
-	pointer := strings.Repeat("*", t.PointerLevel)
+	pointer := strings.Repeat(PointerAsterisk, t.PointerLevel)
 	format = "%s" + format
 	return out.Write(format, t.Base, pointer)
 }

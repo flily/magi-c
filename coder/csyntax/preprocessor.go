@@ -29,6 +29,10 @@ func NewIncludeQuote(ctx *Context, filename string) *IncludeDirective {
 	return d
 }
 
+func (d *IncludeDirective) declarationNode() {}
+
+func (d *IncludeDirective) statementNode() {}
+
 func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
 	if err := d.Context.Write(out, level); err != nil {
 		return err
