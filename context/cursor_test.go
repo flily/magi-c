@@ -120,6 +120,27 @@ func TestCursorCurrentChar(t *testing.T) {
 	}
 }
 
+func TestCursorCurrentCharAtEmptyLine(t *testing.T) {
+	text := "\n"
+
+	cursor := NewCursorFromString("example.txt", text)
+
+	r, ctx := cursor.CurrentChar()
+	exp := strings.Join([]string{
+		"   1:   <EOL LF>",
+		"        ^^^^^^^^",
+		"        here",
+	}, "\n")
+	got := ctx.HighlightText("here")
+	if got != exp {
+		t.Errorf("expected:\n%s\ngot:\n%s", exp, got)
+	}
+
+	if r != 0 {
+		t.Errorf("expected rune 0 at %s, got '%c'", cursor.PositionString(), r)
+	}
+}
+
 func TestCursorPeek(t *testing.T) {
 	cursor := createTestCursor1()
 

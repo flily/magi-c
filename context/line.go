@@ -241,6 +241,10 @@ func (l *LineContext) HighlightContent() string {
 	}
 
 	h := l.Highlights[0]
+	if len(l.Content.Content) <= 0 {
+		return ""
+	}
+
 	return string(l.Content.Content[h.Start:h.End])
 }
 
