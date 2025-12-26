@@ -25,6 +25,8 @@ func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitia
 }
 
 func checkScanDirectiveError(t *testing.T, code string, prep PreprocessorInitializer, expected string) {
+	t.Helper()
+
 	cursor := context.NewCursorFromString("example.c", code)
 	_, err := scanDirectiveOn(cursor, prep)
 	if err == nil {
@@ -38,6 +40,8 @@ func checkScanDirectiveError(t *testing.T, code string, prep PreprocessorInitial
 }
 
 func checkElementContext(t *testing.T, ctx *context.Context, expected string) {
+	t.Helper()
+
 	got := ctx.HighlightText("here")
 	if got != expected {
 		t.Errorf("expect highlight on element:\n%s\ngot:\n%s", expected, got)

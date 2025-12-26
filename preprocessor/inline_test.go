@@ -159,6 +159,76 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 	checkElementContext(t, final, finalExp)
 }
 
+func TestInlineDirectiveWithIndent(t *testing.T) {
+	code := strings.Join([]string{
+		"    #inline c",
+		`    printf("hello, world\n");`,
+		"    #end-inline c",
+	}, "\n")
+
+	node, final := testScanDirectiveCorrect(t, code, Inline)
+	result, ok := node.(*ast.PreprocessorInline)
+	if !ok {
+		t.Fatalf("expect PreprocessorInline node, got %T", node)
+	}
+
+	expHash := strings.Join([]string{
+		"   1:       #inline c",
+		"            ^",
+		"            here",
+	}, "\n")
+	checkElementContext(t, result.Hash, expHash)
+
+	expCmd := strings.Join([]string{
+		"   1:       #inline c",
+		"             ^^^^^^",
+		"             here",
+	}, "\n")
+	checkElementContext(t, result.Command, expCmd)
+
+	expType := strings.Join([]string{
+		"   1:       #inline c",
+		"                    ^",
+		"                    here",
+	}, "\n")
+	checkElementContext(t, result.CodeTypeCtx, expType)
+
+	expContent := strings.Join([]string{
+		`   2:       printf("hello, world\n");`,
+		"        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"        here",
+	}, "\n")
+	checkElementContext(t, result.ContentCtx, expContent)
+
+	expEndHash := strings.Join([]string{
+		"   3:       #end-inline c",
+		"            ^",
+		"            here",
+	}, "\n")
+	checkElementContext(t, result.HashEnd, expEndHash)
+
+	expEndCmd := strings.Join([]string{
+		"   3:       #end-inline c",
+		"             ^^^^^^^^^^",
+		"             here",
+	}, "\n")
+	checkElementContext(t, result.CommandEnd, expEndCmd)
+
+	expEndType := strings.Join([]string{
+		"   3:       #end-inline c",
+		"                        ^",
+		"                        here",
+	}, "\n")
+	checkElementContext(t, result.CodeTypeEnd, expEndType)
+
+	finalExp := strings.Join([]string{
+		"   3:       #end-inline c<EOF>",
+		"                         ^^^^^",
+		"                         here",
+	}, "\n")
+	checkElementContext(t, final, finalExp)
+}
+
 func TestInlineDirectiveWithoutBlockType(t *testing.T) {
 	code := strings.Join([]string{
 		"#inline",

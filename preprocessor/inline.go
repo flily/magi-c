@@ -69,7 +69,7 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 		eof := p.cursor.NextLine()
 		if eof {
 			_, ctx := p.cursor.CurrentChar()
-			return nil, ast.NewError(ctx, "expect '#end-inline %s' to close inline block, got EOF", blockType)
+			return nil, ast.NewError(ctx, "expect '#%s %s' to close inline block, got EOF", PreprocessorCommandInlineClose, blockType)
 		}
 	}
 }
