@@ -47,6 +47,28 @@ func TestLLParserSimplestProgram(t *testing.T) {
 	).Run(t)
 }
 
+func TestLLParserSimplestProgramVoidReturn(t *testing.T) {
+	newCorrectCodeTestCase(
+		strings.Join([]string{
+			"fun main() {",
+			"    return",
+			"}",
+		}, "\n"),
+		ast.ASTBuildDocument(
+			ast.ASTBuildFunction(
+				"main",
+				nil,
+				nil,
+				[]ast.Statement{
+					ast.ASTBuildReturnStatement(
+						ast.NewExpressionList(),
+					),
+				},
+			),
+		),
+	).Run(t)
+}
+
 func TestLLParserFunctionWithArguments(t *testing.T) {
 	newCorrectCodeTestCase(
 		strings.Join([]string{

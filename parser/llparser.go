@@ -239,41 +239,52 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 		result.RParenArgs = rParenArgs.(*ast.TerminalToken)
 	}
 
-	lParenReturnTypes, err := p.expectToken(ast.LeftParen)
-	if err != nil {
-		return nil, err
-	}
-	result.LParenReturnTypes = lParenReturnTypes.(*ast.TerminalToken)
-
-	typeLead, err := p.expectToken(ast.RightParen, ast.IdentifierName)
+	lParanOrBrace, err := p.expectToken(ast.LeftParen, ast.LeftBrace)
 	if err != nil {
 		return nil, err
 	}
 
-	switch typeLead.Type() {
-	case ast.RightParen:
-		result.RParenReturnTypes = typeLead.(*ast.TerminalToken)
+	var lBrace *ast.TerminalToken
 
-	case ast.IdentifierName:
-		p.restoreToken()
-		types, err := p.parseTypeList()
+	if lParanOrBrace.Type() == ast.LeftParen {
+		result.LParenReturnTypes = lParanOrBrace.(*ast.TerminalToken)
+
+		typeLead, err := p.expectToken(ast.RightParen, ast.IdentifierName)
 		if err != nil {
 			return nil, err
 		}
-		result.ReturnTypes = types
 
-		rParenReturnTypes, err := p.expectToken(ast.RightParen)
+		switch typeLead.Type() {
+		case ast.RightParen:
+			result.RParenReturnTypes = typeLead.(*ast.TerminalToken)
+
+		case ast.IdentifierName:
+			p.restoreToken()
+			types, err := p.parseTypeList()
+			if err != nil {
+				return nil, err
+			}
+			result.ReturnTypes = types
+
+			rParenReturnTypes, err := p.expectToken(ast.RightParen)
+			if err != nil {
+				return nil, err
+			}
+			result.RParenReturnTypes = rParenReturnTypes.(*ast.TerminalToken)
+		}
+
+		bodyBrace, err := p.expectToken(ast.LeftBrace)
 		if err != nil {
 			return nil, err
 		}
-		result.RParenReturnTypes = rParenReturnTypes.(*ast.TerminalToken)
+
+		lBrace = bodyBrace.(*ast.TerminalToken)
+
+	} else {
+		lBrace = lParanOrBrace.(*ast.TerminalToken)
 	}
 
-	lBracket, err := p.expectToken(ast.LeftBrace)
-	if err != nil {
-		return nil, err
-	}
-	result.LBrace = lBracket.(*ast.TerminalToken)
+	result.LBrace = lBrace
 
 	for {
 		current := p.currentToken()
