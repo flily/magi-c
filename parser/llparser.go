@@ -316,6 +316,12 @@ func (p *LLParser) parseStatement(start ast.TerminalNode) (ast.Statement, error)
 	case ast.Return:
 		return p.parseReturn(start.(*ast.TerminalToken))
 
+	case ast.NodePreprocessorInclude:
+		return start.(*ast.PreprocessorInclude), nil
+
+	case ast.NodePreprocessorInline:
+		return start.(*ast.PreprocessorInline), nil
+
 	default:
 		return nil, ast.NewError(start.Context(), "unexpected token '%s' in statement", start.Type().String())
 	}

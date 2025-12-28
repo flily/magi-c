@@ -69,6 +69,59 @@ func TestLLParserSimplestProgramVoidReturn(t *testing.T) {
 	).Run(t)
 }
 
+func TestLLParserSimplestProgramVoidReturnWithPreprocessorInclude(t *testing.T) {
+	newCorrectCodeTestCase(
+		strings.Join([]string{
+			"#include <stdio.h>",
+			"fun main() {",
+			"    return",
+			"}",
+		}, "\n"),
+		ast.ASTBuildDocument(
+			ast.ASTBuildIncludeAngle("stdio.h"),
+			ast.ASTBuildFunction(
+				"main",
+				nil,
+				nil,
+				[]ast.Statement{
+					ast.ASTBuildReturnStatement(
+						ast.NewExpressionList(),
+					),
+				},
+			),
+		),
+	).Run(t)
+}
+
+func TestLLParserSimplestProgramVoidReturnWithPreprocessorInline(t *testing.T) {
+	newCorrectCodeTestCase(
+		strings.Join([]string{
+			"fun main() {",
+			"    #inline c",
+			`        printf("hello, world\n");`,
+			"    #end-inline c",
+			"    return",
+			"}",
+		}, "\n"),
+		ast.ASTBuildDocument(
+			ast.ASTBuildFunction(
+				"main",
+				nil,
+				nil,
+				[]ast.Statement{
+					ast.ASTBuildInline(
+						"c",
+						`        printf("hello, world\n");`,
+					),
+					ast.ASTBuildReturnStatement(
+						ast.NewExpressionList(),
+					),
+				},
+			),
+		),
+	).Run(t)
+}
+
 func TestLLParserFunctionWithArguments(t *testing.T) {
 	newCorrectCodeTestCase(
 		strings.Join([]string{
