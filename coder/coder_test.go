@@ -17,7 +17,9 @@ func TestCoderFromBinary(t *testing.T) {
 		``,
 	}, "\n"))
 
-	_, err := NewCoderFromBinary(source, "example.mc")
+	c := NewCache()
+
+	_, err := c.NewCoderFromBinary(source, "example.mc")
 	if err != nil {
 		t.Fatalf("NewCoderFromBinary failed:\n%s", err)
 	}

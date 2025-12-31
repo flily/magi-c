@@ -24,7 +24,8 @@ func main() {
 		return
 	}
 
-	coder, err := coder.NewCoderFromBinary(content, filename)
+	cache := coder.NewCache()
+	coder, err := cache.NewCoderFromBinary(content, filename)
 	if err != nil {
 		fmt.Printf("parse file '%s' error\n%s\n", filename, err)
 		return
