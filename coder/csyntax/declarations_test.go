@@ -131,20 +131,21 @@ func TestVariableDeclarationTwoPointerVariableStyle1(t *testing.T) {
 	}
 }
 
-func TestVariableDeclarationTwoPointerVariableStyle2(t *testing.T) {
-	stat := NewVariableDeclaration("int", nil)
-	stat.Add("p", 1, NewIntegerLiteral(3))
-	stat.Add("q", 2, NewIntegerLiteral(5))
+func TestParameterListWrite(t *testing.T) {
+	param1 := NewParameterListItem(NewType("int", 0), "a")
+	param2 := NewParameterListItem(NewType("float", 1), "b")
 
-	builder, writer := makeTestWriter(testStyle2)
-	err := stat.Write(writer, 0)
+	paramList := NewParameterList([]ParameterListItem{*param1, *param2})
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := paramList.Write(writer, 0)
 	if err != nil {
-		t.Fatalf("VariableDeclaration Write failed: %s", err)
+		t.Fatalf("ParameterList Write failed: %s", err)
 	}
 
-	expected := "int *p = 3,**q = 5;\n"
+	expected := "int a, float* b"
 	result := builder.String()
 	if result != expected {
-		t.Fatalf("VariableDeclaration Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
+		t.Fatalf("ParameterList Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
 	}
 }

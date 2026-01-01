@@ -93,3 +93,59 @@ func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Exp
 	decl := NewVariableDeclarator(name, pointerLevel, initializer)
 	v.Declarator = append(v.Declarator, decl)
 }
+
+type ParameterListItem struct {
+	Type *Type
+	Name string
+}
+
+func NewParameterListItem(typ *Type, name string) *ParameterListItem {
+	p := &ParameterListItem{
+		Type: typ,
+		Name: name,
+	}
+
+	return p
+}
+
+func (i *ParameterListItem) Write(out *StyleWriter, level int) error {
+	if err := i.Type.Write(out, level); err != nil {
+		return err
+	}
+
+	if i.Type.PointerLevel <= 0 || (!out.style.PointerSpacingAfter && i.Type.PointerLevel > 0) {
+		if err := out.Write(Space); err != nil {
+			return err
+		}
+	}
+
+	return out.Write("%s", i.Name)
+}
+
+type ParameterList struct {
+	Items []ParameterListItem
+}
+
+func NewParameterList(items []ParameterListItem) *ParameterList {
+	p := &ParameterList{
+		Items: items,
+	}
+
+	return p
+}
+
+func (p *ParameterList) Write(out *StyleWriter, level int) error {
+	for i, item := range p.Items {
+		if i > 0 {
+			if err := out.Write(out.style.Comma()); err != nil {
+				return err
+			}
+		}
+
+		if err := item.Write(out, level); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
