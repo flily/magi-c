@@ -40,3 +40,38 @@ func TestAssignmentStatementOnPointerVariable(t *testing.T) {
 		t.Fatalf("AssignmentStatement Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
 	}
 }
+
+func TestReturnStatementWithoutExpression(t *testing.T) {
+	stat := NewReturnStatement(nil)
+
+	var _ Statement = stat
+	stat.statementNode()
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := stat.Write(writer, 0)
+	if err != nil {
+		t.Fatalf("ReturnStatement Write failed: %s", err)
+	}
+
+	expected := "return;\n"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("ReturnStatement Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
+	}
+}
+
+func TestReturnStatementWithSimpleIntegerLiteral(t *testing.T) {
+	stat := NewReturnStatement(NewIntegerLiteral(42))
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := stat.Write(writer, 0)
+	if err != nil {
+		t.Fatalf("ReturnStatement Write failed: %s", err)
+	}
+
+	expected := "return 42;\n"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("ReturnStatement Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
+	}
+}

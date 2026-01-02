@@ -93,3 +93,37 @@ func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
 
 	return out.WriteLine(Semicolon)
 }
+
+type ReturnStatement struct {
+	Expression Expression
+}
+
+func NewReturnStatement(expression Expression) *ReturnStatement {
+	s := &ReturnStatement{
+		Expression: expression,
+	}
+
+	return s
+}
+
+func (s *ReturnStatement) statementNode() {}
+
+func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
+	if err := out.WriteIndent(level); err != nil {
+		return err
+	}
+
+	if s.Expression == nil {
+		return out.WriteLine("return;")
+	}
+
+	if err := out.Write("return "); err != nil {
+		return err
+	}
+
+	if err := s.Expression.Write(out, level); err != nil {
+		return err
+	}
+
+	return out.WriteLine(Semicolon)
+}
