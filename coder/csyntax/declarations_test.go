@@ -2,6 +2,8 @@ package csyntax
 
 import (
 	"testing"
+
+	"strings"
 )
 
 func TestVariableDeclarationOneVariableStyle1(t *testing.T) {
@@ -135,7 +137,7 @@ func TestParameterListWrite(t *testing.T) {
 	param1 := NewParameterListItem(NewType("int", 0), "a")
 	param2 := NewParameterListItem(NewType("float", 1), "b")
 
-	paramList := NewParameterList([]ParameterListItem{*param1, *param2})
+	paramList := NewParameterList(param1, param2)
 
 	builder, writer := makeTestWriter(testStyle1)
 	err := paramList.Write(writer, 0)
@@ -147,5 +149,35 @@ func TestParameterListWrite(t *testing.T) {
 	result := builder.String()
 	if result != expected {
 		t.Fatalf("ParameterList Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
+	}
+}
+
+func TestFunctionDeclarationWithEmptyBody(t *testing.T) {
+	f := NewFunctionDeclaration("add",
+		NewType("int", 0),
+		NewParameterList(
+			NewParameterListItem(NewType("int", 0), "a"),
+			NewParameterListItem(NewType("int", 0), "b"),
+		),
+		nil,
+	)
+
+	var _ Declaration = f
+	f.declarationNode()
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := f.Write(writer, 0)
+	if err != nil {
+		t.Fatalf("FunctionDeclaration Write failed: %s", err)
+	}
+
+	expected := strings.Join([]string{
+		"int add(int a, int b) {",
+		"}",
+		"",
+	}, "\n")
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("FunctionDeclaration Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
 	}
 }

@@ -123,10 +123,10 @@ func (i *ParameterListItem) Write(out *StyleWriter, level int) error {
 }
 
 type ParameterList struct {
-	Items []ParameterListItem
+	Items []*ParameterListItem
 }
 
-func NewParameterList(items []ParameterListItem) *ParameterList {
+func NewParameterList(items ...*ParameterListItem) *ParameterList {
 	p := &ParameterList{
 		Items: items,
 	}
@@ -145,6 +145,74 @@ func (p *ParameterList) Write(out *StyleWriter, level int) error {
 		if err := item.Write(out, level); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+type FunctionDeclaration struct {
+	ReturnType *Type
+	Name       string
+	Parameters *ParameterList
+	Body       []Statement
+}
+
+func NewFunctionDeclaration(name string, returnType *Type, parameters *ParameterList, body []Statement) *FunctionDeclaration {
+	f := &FunctionDeclaration{
+		ReturnType: returnType,
+		Name:       name,
+		Parameters: parameters,
+		Body:       body,
+	}
+
+	return f
+}
+
+func (f *FunctionDeclaration) declarationNode() {}
+
+func (f *FunctionDeclaration) AddStatement(stmt Statement) {
+	f.Body = append(f.Body, stmt)
+}
+
+func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
+	if err := out.WriteIndent(level); err != nil {
+		return err
+	}
+
+	if err := f.ReturnType.Write(out, level); err != nil {
+		return err
+	}
+
+	if err := out.Write(" %s(", f.Name); err != nil {
+		return err
+	}
+
+	if err := f.Parameters.Write(out, level); err != nil {
+		return err
+	}
+
+	if err := out.Write(")"); err != nil {
+		return err
+	}
+
+	if out.style.FunctionBraceOnNewLine {
+		if err := out.WriteLine("%s%s%s", out.EOL, out.style.FunctionBraceIndent, LeftBrace); err != nil {
+			return err
+		}
+	} else {
+		if err := out.WriteLine(" %s", LeftBrace); err != nil {
+			return err
+		}
+	}
+
+	for _, stmt := range f.Body {
+		if err := stmt.Write(out, level+1); err != nil {
+			return err
+		}
+	}
+
+	if err := out.WriteLine("%s%s", out.style.FunctionBraceIndent, RightBrace); err != nil {
+		return err
 	}
 
 	return nil
