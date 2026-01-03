@@ -1,5 +1,7 @@
 package csyntax
 
+// Base on ISO/IEC 9899:1999
+
 import (
 	"fmt"
 	"io"
@@ -50,7 +52,7 @@ type CodeStyle struct {
 var (
 	KRStyle = &CodeStyle{
 		Indent:                 "    ",
-		FunctionBraceOnNewLine: true,
+		FunctionBraceOnNewLine: false,
 		FunctionBraceIndent:    "",
 		IfBraceOnNewLine:       false,
 		IfBraceIndent:          "",
