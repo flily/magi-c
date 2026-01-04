@@ -181,3 +181,34 @@ func TestFunctionDeclarationWithEmptyBody(t *testing.T) {
 		t.Fatalf("FunctionDeclaration Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
 	}
 }
+
+func TestFunctionDeclarationWithSimpleReturn(t *testing.T) {
+	f := NewFunctionDeclaration("add",
+		NewType("int", 0),
+		NewParameterList(
+			NewParameterListItem(NewType("int", 0), "a"),
+			NewParameterListItem(NewType("int", 0), "b"),
+		),
+		nil,
+	)
+
+	returnStat := NewReturnStatement(NewIntegerLiteral(42))
+	f.AddStatement(returnStat)
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := f.Write(writer, 0)
+	if err != nil {
+		t.Fatalf("FunctionDeclaration Write failed: %s", err)
+	}
+
+	expected := strings.Join([]string{
+		"int add(int a, int b) {",
+		"    return 42;",
+		"}",
+		"",
+	}, "\n")
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("FunctionDeclaration Write result wrong:\nexpected:\n%s\ngot:\n%s", expected, result)
+	}
+}
