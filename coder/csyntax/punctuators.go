@@ -131,10 +131,14 @@ var operatorString = map[Punctuator]string{
 	PunctuatorSpace:             " ",
 }
 
-func (op Punctuator) String() string {
-	if s, ok := operatorString[op]; ok {
+func (p Punctuator) String() string {
+	if s, ok := operatorString[p]; ok {
 		return s
 	}
 
 	return "INVALID"
+}
+
+func (p Punctuator) ItemString() string {
+	return p.String()
 }

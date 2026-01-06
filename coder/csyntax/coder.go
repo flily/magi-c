@@ -128,6 +128,32 @@ func (c *Context) Write(out *StyleWriter, level int) error {
 	return out.WriteLine("#line %d \"%s\"", c.Line, c.Filename)
 }
 
+type CodeElement interface {
+	WritableItem
+}
+
+type WritableItem interface {
+	ItemString() string
+}
+
+type WritableCollection interface {
+	Write(out *StyleWriter, level int) error
+}
+
+type DelimiterCharacter string
+
+func Delimiter(c string) DelimiterCharacter {
+	return DelimiterCharacter(c)
+}
+
+func (d DelimiterCharacter) ItemString() string {
+	return string(d)
+}
+
+const (
+	DelimiterSpace DelimiterCharacter = " "
+)
+
 type StyleWriter struct {
 	out   io.StringWriter
 	style *CodeStyle
@@ -144,9 +170,34 @@ func (w *StyleWriter) WriteLine(format string, args ...any) error {
 	return w.Write(format+w.EOL, args...)
 }
 
+func (w *StyleWriter) MakeIndent(level int) string {
+	return strings.Repeat(w.style.Indent, level)
+}
+
 func (w *StyleWriter) WriteIndent(level int) error {
-	indent := strings.Repeat(w.style.Indent, level)
-	return w.Write("%s", indent)
+	return w.Write("%s", w.MakeIndent(level))
+}
+
+func (w *StyleWriter) WriteItems(level int, items ...any) error {
+	for i, item := range items {
+		switch it := item.(type) {
+		case WritableItem:
+			if _, err := w.out.WriteString(it.ItemString()); err != nil {
+				return err
+			}
+
+		case WritableCollection:
+			if err := it.Write(w, level); err != nil {
+				return err
+			}
+
+		default:
+			err := fmt.Sprintf("type %T in %d is not acceptable", item, i)
+			panic(err)
+		}
+	}
+
+	return nil
 }
 
 type Node interface {
