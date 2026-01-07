@@ -55,14 +55,20 @@ func (i *Integer) expressionNode() {}
 func (i *Integer) codeElement() {}
 
 func (i *Integer) Write(out *StyleWriter, level int) error {
+	var elem CodeElement
 	switch i.Format {
 	case IntegerFormatHexadecimalUpper:
-		return out.Write("0x%X", i.Value)
+		elem = FormatStringElement("0x%X", i.Value)
+
 	case IntegerFormatHexadecimalLower:
-		return out.Write("0x%x", i.Value)
+		elem = FormatStringElement("0x%x", i.Value)
+
 	case IntegerFormatOctal:
-		return out.Write("0%o", i.Value)
+		elem = FormatStringElement("0%o", i.Value)
+
 	default:
-		return out.Write("%d", i.Value)
+		elem = FormatStringElement("%d", i.Value)
 	}
+
+	return out.Write(level, elem)
 }

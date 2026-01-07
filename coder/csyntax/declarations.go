@@ -1,7 +1,5 @@
 package csyntax
 
-import "strings"
-
 type VariableDeclarator struct {
 	PointerLevel int
 	Name         string
@@ -43,50 +41,40 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	if err := out.Write("%s", v.Type); err != nil {
+	if err := out.Write(0, v.Type); err != nil {
 		return err
 	}
 
 	for i, decl := range v.Declarator {
 		if i > 0 {
-			if err := out.Write(out.style.Comma()); err != nil {
+			if err := out.Write(0, out.style.Comma()); err != nil {
 				return err
 			}
 		}
 
-		commaSpace := out.style.CommaSpacingAfter
-
-		pointer := ""
-		if decl.PointerLevel > 0 {
-			pointer = strings.Repeat(PointerAsterisk, decl.PointerLevel)
-			if !commaSpace && (i == 0 && out.style.PointerSpacingBefore) {
-				pointer = Space + pointer
-			}
-			if out.style.PointerSpacingAfter {
-				pointer = pointer + Space
-			}
-		}
-
-		if len(pointer) <= 0 && i == 0 {
-			// space between type and first declarator
-			pointer = Space
-		}
-
-		if err := out.Write("%s%s", pointer, decl.Name); err != nil {
+		pointer := PunctuatorAsterisk.Duplicate(decl.PointerLevel)
+		err := out.Write(0,
+			NewElementCollection(
+				out.style.PointerSpacingBefore.Select(DelimiterSpace),
+				pointer,
+				out.style.PointerSpacingAfter.Select(DelimiterSpace),
+			).On(decl.PointerLevel > 0),
+			NewElementCollection(
+				DelimiterSpace,
+			).On(decl.PointerLevel <= 0 && i == 0),
+			StringElement(decl.Name))
+		if err != nil {
 			return err
 		}
 
 		if decl.Initializer != nil {
-			if err := out.Write(out.style.Assign()); err != nil {
-				return err
-			}
-			if err := decl.Initializer.Write(out, level); err != nil {
+			if err := out.Write(0, out.style.Assign(), decl.Initializer); err != nil {
 				return err
 			}
 		}
 	}
 
-	return out.WriteLine(Semicolon)
+	return out.Write(0, PunctuatorSemicolon, out.EOL)
 }
 
 func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Expression) {
@@ -96,30 +84,20 @@ func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Exp
 
 type ParameterListItem struct {
 	Type *Type
-	Name string
+	Name StringElement
 }
 
 func NewParameterListItem(typ *Type, name string) *ParameterListItem {
 	p := &ParameterListItem{
 		Type: typ,
-		Name: name,
+		Name: StringElement(name),
 	}
 
 	return p
 }
 
 func (i *ParameterListItem) Write(out *StyleWriter, level int) error {
-	if err := i.Type.Write(out, level); err != nil {
-		return err
-	}
-
-	if i.Type.PointerLevel <= 0 || (!out.style.PointerSpacingAfter && i.Type.PointerLevel > 0) {
-		if err := out.Write(Space); err != nil {
-			return err
-		}
-	}
-
-	return out.Write("%s", i.Name)
+	return out.Write(level, i.Type, out.style.PointerSpacingAfter.Select(DelimiterSpace), i.Name)
 }
 
 type ParameterList struct {
@@ -139,7 +117,7 @@ func (p *ParameterList) codeElement() {}
 func (p *ParameterList) Write(out *StyleWriter, level int) error {
 	for i, item := range p.Items {
 		if i > 0 {
-			if err := out.Write(out.style.Comma()); err != nil {
+			if err := out.Write(0, out.style.Comma()); err != nil {
 				return err
 			}
 		}
@@ -184,15 +162,15 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 	}
 
 	var err error
-	err = out.WriteItems(0, f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen)
+	err = out.Write(0, f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen)
 	if err != nil {
 		return err
 	}
 
 	if out.style.FunctionBraceOnNewLine {
-		err = out.WriteItems(0, out.EOL, out.style.FunctionBraceIndent, OperatorLeftBrace, out.EOL)
+		err = out.Write(0, out.EOL, out.style.FunctionBraceIndent, OperatorLeftBrace, out.EOL)
 	} else {
-		err = out.WriteItems(0, DelimiterSpace, OperatorLeftBrace, out.EOL)
+		err = out.Write(0, DelimiterSpace, OperatorLeftBrace, out.EOL)
 	}
 
 	for _, stmt := range f.Body {
@@ -201,7 +179,7 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 		}
 	}
 
-	if err := out.WriteItems(0, out.style.FunctionBraceIndent, OperatorRightBrace, out.EOL); err != nil {
+	if err := out.Write(0, out.style.FunctionBraceIndent, OperatorRightBrace, out.EOL); err != nil {
 		return err
 	}
 

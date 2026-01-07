@@ -1,9 +1,5 @@
 package csyntax
 
-import (
-	"strings"
-)
-
 type BlockContext int
 
 const (
@@ -35,36 +31,21 @@ func (b *CodeBlock) codeElement() {}
 func (b *CodeBlock) statementNode() {}
 
 func (b *CodeBlock) Write(out *StyleWriter, level int) error {
-	if err := out.WriteIndent(level); err != nil {
-		return err
-	}
-
-	if err := out.WriteLine(LeftBrace); err != nil {
-		return err
-	}
-
-	for _, stmt := range b.Statements {
-		if err := stmt.Write(out, level+1); err != nil {
-			return err
-		}
-	}
-
-	if err := out.WriteIndent(level); err != nil {
-		return err
-	}
-
-	return out.WriteLine(RightBrace)
+	return out.Write(0, OperatorLeftBrace, out.EOL,
+		FromCodeElements(b.Statements...),
+		out.MakeIndent(level), OperatorRightBrace, out.EOL,
+	)
 }
 
 type AssignmentStatement struct {
-	LeftIdentifier   string
+	LeftIdentifier   StringElement
 	LeftPointerLevel int
 	RightExpression  Expression
 }
 
 func NewAssignmentStatement(leftIdentifier string, leftPointerLevel int, rightExpression Expression) *AssignmentStatement {
 	s := &AssignmentStatement{
-		LeftIdentifier:   leftIdentifier,
+		LeftIdentifier:   StringElement(leftIdentifier),
 		LeftPointerLevel: leftPointerLevel,
 		RightExpression:  rightExpression,
 	}
@@ -81,21 +62,11 @@ func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	pointer := strings.Repeat(PointerAsterisk, s.LeftPointerLevel)
-	pointerSpace := ""
-	if s.LeftPointerLevel > 0 && out.style.PointerSpacingBefore {
-		pointerSpace = Space
-	}
-
-	if err := out.Write("%s%s%s%s", pointer, pointerSpace, s.LeftIdentifier, out.style.Assign()); err != nil {
-		return err
-	}
-
-	if err := s.RightExpression.Write(out, level); err != nil {
-		return err
-	}
-
-	return out.WriteLine(Semicolon)
+	pointer := PunctuatorAsterisk.Duplicate(s.LeftPointerLevel)
+	return out.Write(0,
+		pointer, out.style.PointerSpacingBefore.Select(DelimiterSpace),
+		s.LeftIdentifier, out.style.Assign(), s.RightExpression,
+		PunctuatorSemicolon, out.EOL)
 }
 
 type ReturnStatement struct {
@@ -120,8 +91,8 @@ func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
 	}
 
 	if s.Expression == nil {
-		return out.WriteItems(level, KeywordReturn, PunctuatorSemicolon, out.EOL) // return;
+		return out.Write(level, KeywordReturn, PunctuatorSemicolon, out.EOL) // return;
 	}
 
-	return out.WriteItems(level, KeywordReturn, DelimiterSpace, s.Expression, PunctuatorSemicolon, out.EOL) // return expr;
+	return out.Write(level, KeywordReturn, DelimiterSpace, s.Expression, PunctuatorSemicolon, out.EOL) // return expr;
 }

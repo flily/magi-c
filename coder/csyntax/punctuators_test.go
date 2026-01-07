@@ -27,7 +27,7 @@ func TestPunctuatorString(t *testing.T) {
 func TestWritePunctuators(t *testing.T) {
 	builder, writer := makeTestWriter(testStyle1)
 
-	writer.WriteItems(0, OperatorAdd, OperatorAssign)
+	writer.Write(0, OperatorAdd, OperatorAssign)
 	expected := "+="
 	result := builder.String()
 	if result != expected {

@@ -50,7 +50,7 @@ func TestCodeStyleClone(t *testing.T) {
 func TestStyleWriterWriteStrings(t *testing.T) {
 	builder, writer := makeTestWriter(testStyle1)
 
-	err := writer.WriteItems(0, NewStringElement("hello"), NewStringElement("world"))
+	err := writer.Write(0, StringElement("hello"), StringElement("world"))
 	if err != nil {
 		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
 	}
@@ -65,7 +65,7 @@ func TestStyleWriterWriteStrings(t *testing.T) {
 func TestStyleWriterWriteStringsWithDelimiter(t *testing.T) {
 	builder, writer := makeTestWriter(testStyle1)
 
-	err := writer.WriteItems(0, NewStringElement("hello"), NewDelimiter(" "), NewStringElement("world"))
+	err := writer.Write(0, StringElement("hello"), NewDelimiter(" "), StringElement("world"))
 	if err != nil {
 		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
 	}
@@ -80,7 +80,7 @@ func TestStyleWriterWriteStringsWithDelimiter(t *testing.T) {
 func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
 	builder, writer := makeTestWriter(testStyle1)
 
-	err := writer.WriteItems(0, NewStringElement("hello"), NewDelimiter(" "), NewDelimiter(" "), NewStringElement("world"))
+	err := writer.Write(0, StringElement("hello"), NewDelimiter(" "), NewDelimiter(" "), StringElement("world"))
 	if err != nil {
 		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
 	}

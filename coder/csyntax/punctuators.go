@@ -55,6 +55,7 @@ const (
 	PunctuatorComma             // ,
 	PunctuatorColon             // :
 	PunctuatorSemicolon         // ;
+	PunctuatorAsterisk          // *
 	PunctuatorEllipsis          // ...
 	PunctuatorHash              // #
 	PunctuatorDoubleHash        // ##
@@ -119,6 +120,7 @@ var operatorString = map[Punctuator]string{
 	PunctuatorComma:             ",",
 	PunctuatorColon:             ":",
 	PunctuatorSemicolon:         ";",
+	PunctuatorAsterisk:          "*",
 	PunctuatorEllipsis:          "...",
 	PunctuatorHash:              "#",
 	PunctuatorDoubleHash:        "##",
@@ -143,4 +145,12 @@ func (p Punctuator) codeElement() {}
 
 func (p Punctuator) ItemString() string {
 	return p.String()
+}
+
+func (p Punctuator) Duplicate(count int) ElementCollection {
+	result := make(ElementCollection, count)
+	for i := range result {
+		result[i] = p
+	}
+	return result
 }

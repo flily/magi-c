@@ -10,9 +10,9 @@ type IncludeDirective struct {
 func NewIncludeAngle(ctx *Context, filename string) *IncludeDirective {
 	d := &IncludeDirective{
 		Context:  *ctx,
-		Filename: NewStringElement(filename),
-		quoteL:   NewStringElement("<"),
-		quoteR:   NewStringElement(">"),
+		Filename: StringElement(filename),
+		quoteL:   StringElement("<"),
+		quoteR:   StringElement(">"),
 	}
 
 	return d
@@ -21,9 +21,9 @@ func NewIncludeAngle(ctx *Context, filename string) *IncludeDirective {
 func NewIncludeQuote(ctx *Context, filename string) *IncludeDirective {
 	d := &IncludeDirective{
 		Context:  *ctx,
-		Filename: NewStringElement(filename),
-		quoteL:   NewStringElement("\""),
-		quoteR:   NewStringElement("\""),
+		Filename: StringElement(filename),
+		quoteL:   StringElement("\""),
+		quoteR:   StringElement("\""),
 	}
 
 	return d
@@ -40,5 +40,5 @@ func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	return out.WriteItems(level, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR, out.EOL)
+	return out.Write(level, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR, out.EOL)
 }

@@ -29,7 +29,7 @@ func NewPointerType(base string) *Type {
 func (t *Type) codeElement() {}
 
 func (t *Type) Write(out *StyleWriter, level int) error {
-	parts := make([]CodeElement, 0, 10)
+	parts := make([]CodeElement, 0, 4)
 
 	parts = append(parts, t.Base)
 
@@ -39,12 +39,12 @@ func (t *Type) Write(out *StyleWriter, level int) error {
 		}
 
 		pointer := strings.Repeat(PointerAsterisk, t.PointerLevel)
-		parts = append(parts, NewStringElement(pointer))
+		parts = append(parts, StringElement(pointer))
 
 		if out.style.PointerSpacingAfter {
 			parts = append(parts, DelimiterSpace)
 		}
 	}
 
-	return out.WriteItems(level, parts...)
+	return out.Write(level, parts...)
 }

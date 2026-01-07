@@ -27,26 +27,36 @@ const (
 	RightBrace      = "}"
 )
 
+type StyleBoolean bool
+
+func (b StyleBoolean) Select(value CodeElement) CodeElement {
+	if b {
+		return value
+	}
+
+	return DelimiterNone
+}
+
 type CodeStyle struct {
 	Indent                 StringElement
-	FunctionBraceOnNewLine bool
+	FunctionBraceOnNewLine StyleBoolean
 	FunctionBraceIndent    StringElement
-	IfBraceOnNewLine       bool
+	IfBraceOnNewLine       StyleBoolean
 	IfBraceIndent          StringElement
-	ForBraceOnNewLine      bool
+	ForBraceOnNewLine      StyleBoolean
 	ForBraceIndent         StringElement
-	WhileBraceOnNewLine    bool
+	WhileBraceOnNewLine    StyleBoolean
 	WhileBraceIndent       StringElement
-	SwitchBraceOnNewLine   bool
+	SwitchBraceOnNewLine   StyleBoolean
 	SwitchBraceIndent      StringElement
 	CaseBranchIndent       StringElement
-	AssignmentSpacing      bool
-	BinaryOperationSpacing bool
-	TypeCastSpacing        bool
-	CommaSpacingBefore     bool
-	CommaSpacingAfter      bool
-	PointerSpacingBefore   bool
-	PointerSpacingAfter    bool
+	AssignmentSpacing      StyleBoolean
+	BinaryOperationSpacing StyleBoolean
+	TypeCastSpacing        StyleBoolean
+	CommaSpacingBefore     StyleBoolean
+	CommaSpacingAfter      StyleBoolean
+	PointerSpacingBefore   StyleBoolean
+	PointerSpacingAfter    StyleBoolean
 }
 
 var (
@@ -88,26 +98,24 @@ func (s *CodeStyle) Clone() *CodeStyle {
 	return &clone
 }
 
-func (s *CodeStyle) Comma() string {
-	base := Comma
-
-	if s.CommaSpacingBefore {
-		base = Space + base
+func (s *CodeStyle) Comma() ElementCollection {
+	result := []CodeElement{
+		s.CommaSpacingBefore.Select(DelimiterSpace),
+		PunctuatorComma,
+		s.CommaSpacingAfter.Select(DelimiterSpace),
 	}
 
-	if s.CommaSpacingAfter {
-		base = base + Space
-	}
-
-	return base
+	return result
 }
 
-func (s *CodeStyle) Assign() string {
-	if s.AssignmentSpacing {
-		return Space + Assign + Space
+func (s *CodeStyle) Assign() ElementCollection {
+	result := []CodeElement{
+		s.AssignmentSpacing.Select(DelimiterSpace),
+		OperatorAssign,
+		s.AssignmentSpacing.Select(DelimiterSpace),
 	}
 
-	return Assign
+	return result
 }
 
 type Context struct {
@@ -125,8 +133,10 @@ func NewContext(filename string, line int) *Context {
 }
 
 func (c *Context) Write(out *StyleWriter, level int) error {
-	return out.WriteItems(level, PreprocessorLine, DelimiterSpace, NewIntegerElement(c.Line),
-		DelimiterSpace, NewStringElement("\""+c.Filename+"\""), out.EOL)
+	return out.Write(level,
+		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(c.Line),
+		DelimiterSpace, StringElement("\""+c.Filename+"\""), out.EOL,
+	)
 }
 
 type CodeElement interface {
@@ -137,12 +147,29 @@ type ElementCollection []CodeElement
 
 func (c ElementCollection) codeElement() {}
 
-func (c ElementCollection) Write(out *StyleWriter, level int) error {
-	return out.WriteItems(level, c...)
+func FromCodeElements[T CodeElement](items ...T) ElementCollection {
+	collection := make(ElementCollection, len(items))
+	for i, item := range items {
+		collection[i] = item
+	}
+
+	return collection
 }
 
 func NewElementCollection(items ...CodeElement) ElementCollection {
-	return ElementCollection(items)
+	return FromCodeElements(items...)
+}
+
+func (c ElementCollection) Write(out *StyleWriter, level int) error {
+	return out.Write(level, c...)
+}
+
+func (c ElementCollection) On(cond bool) ElementCollection {
+	if cond {
+		return c
+	}
+
+	return nil
 }
 
 type WritableItem interface {
@@ -157,12 +184,13 @@ type WritableCollection interface {
 
 type StringElement string
 
-func NewStringElement(s string) StringElement {
-	return StringElement(s)
+func NewIntegerStringElement(i int) StringElement {
+	return StringElement(fmt.Sprintf("%d", i))
 }
 
-func NewIntegerElement(i int) StringElement {
-	return StringElement(fmt.Sprintf("%d", i))
+func FormatStringElement(format string, args ...any) StringElement {
+	s := fmt.Sprintf(format, args...)
+	return StringElement(s)
 }
 
 func (e StringElement) codeElement() {}
@@ -192,7 +220,7 @@ func (d DelimiterCharacter) ItemString() string {
 }
 
 const (
-	DelimiterNone                       = ""
+	DelimiterNone    StringElement      = ""
 	DelimiterSpace   DelimiterCharacter = " "
 	DefaultDelimiter DelimiterCharacter = " "
 )
@@ -204,33 +232,25 @@ type StyleWriter struct {
 	lastWasDelimiter bool
 }
 
-func (w *StyleWriter) Write(format string, args ...any) error {
-	s := fmt.Sprintf(format, args...)
-	_, err := w.out.WriteString(s)
-	return err
-}
-
-func (w *StyleWriter) WriteLine(format string, args ...any) error {
-	return w.Write(format+string(w.EOL), args...)
-}
-
 func (w *StyleWriter) MakeIndent(level int) StringElement {
 	return StringElement(strings.Repeat(string(w.style.Indent), level))
 }
 
 func (w *StyleWriter) WriteIndent(level int) error {
-	return w.WriteItems(0, w.MakeIndent(level))
+	return w.Write(0, w.MakeIndent(level))
 }
 
-func (w *StyleWriter) WriteItems(level int, items ...CodeElement) error {
+func (w *StyleWriter) Write(level int, items ...CodeElement) error {
 	for i, item := range items {
 		_, isDelimiter := item.(DelimiterCharacter)
+		fmt.Printf("write (%T) '%+v' delim=%v  last=%v\n", item, item, isDelimiter, w.lastWasDelimiter)
 
 		switch it := item.(type) {
 		case StringElement:
 			if _, err := w.out.WriteString(it.String()); err != nil {
 				return err
 			}
+			w.lastWasDelimiter = isDelimiter
 
 		case WritableItem:
 			if w.lastWasDelimiter && isDelimiter {
@@ -251,8 +271,6 @@ func (w *StyleWriter) WriteItems(level int, items ...CodeElement) error {
 			err := fmt.Sprintf("type %T in %d is not acceptable", item, i)
 			panic(err)
 		}
-
-		w.lastWasDelimiter = isDelimiter
 	}
 
 	return nil
