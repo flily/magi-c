@@ -46,3 +46,48 @@ func TestCodeStyleClone(t *testing.T) {
 		t.Fatalf("CodeStyle Clone failed: modifying clone affected original")
 	}
 }
+
+func TestStyleWriterWriteStrings(t *testing.T) {
+	builder, writer := makeTestWriter(testStyle1)
+
+	err := writer.WriteItems(0, NewStringElement("hello"), NewStringElement("world"))
+	if err != nil {
+		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
+	}
+
+	expected := "helloworld"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
+	}
+}
+
+func TestStyleWriterWriteStringsWithDelimiter(t *testing.T) {
+	builder, writer := makeTestWriter(testStyle1)
+
+	err := writer.WriteItems(0, NewStringElement("hello"), NewDelimiter(" "), NewStringElement("world"))
+	if err != nil {
+		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
+	}
+
+	expected := "hello world"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
+	}
+}
+
+func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
+	builder, writer := makeTestWriter(testStyle1)
+
+	err := writer.WriteItems(0, NewStringElement("hello"), NewDelimiter(" "), NewDelimiter(" "), NewStringElement("world"))
+	if err != nil {
+		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
+	}
+
+	expected := "hello world"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
+	}
+}

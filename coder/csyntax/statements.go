@@ -30,6 +30,8 @@ func NewCodeBlock(statements []Statement) *CodeBlock {
 	return b
 }
 
+func (b *CodeBlock) codeElement() {}
+
 func (b *CodeBlock) statementNode() {}
 
 func (b *CodeBlock) Write(out *StyleWriter, level int) error {
@@ -70,6 +72,8 @@ func NewAssignmentStatement(leftIdentifier string, leftPointerLevel int, rightEx
 	return s
 }
 
+func (s *AssignmentStatement) codeElement() {}
+
 func (s *AssignmentStatement) statementNode() {}
 
 func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
@@ -108,22 +112,16 @@ func NewReturnStatement(expression Expression) *ReturnStatement {
 
 func (s *ReturnStatement) statementNode() {}
 
+func (s *ReturnStatement) codeElement() {}
+
 func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
 	if err := out.WriteIndent(level); err != nil {
 		return err
 	}
 
 	if s.Expression == nil {
-		return out.WriteLine("return;")
+		return out.WriteItems(level, KeywordReturn, PunctuatorSemicolon, out.EOL) // return;
 	}
 
-	if err := out.Write("return "); err != nil {
-		return err
-	}
-
-	if err := s.Expression.Write(out, level); err != nil {
-		return err
-	}
-
-	return out.WriteLine(Semicolon)
+	return out.WriteItems(level, KeywordReturn, DelimiterSpace, s.Expression, PunctuatorSemicolon, out.EOL) // return expr;
 }

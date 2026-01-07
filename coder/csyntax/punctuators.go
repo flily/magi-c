@@ -139,6 +139,8 @@ func (p Punctuator) String() string {
 	return "INVALID"
 }
 
+func (p Punctuator) codeElement() {}
+
 func (p Punctuator) ItemString() string {
 	return p.String()
 }

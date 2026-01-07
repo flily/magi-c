@@ -5,13 +5,13 @@ import (
 )
 
 type Type struct {
-	Base         string
+	Base         StringElement
 	PointerLevel int
 }
 
 func NewType(base string, pointerLevel int) *Type {
 	t := &Type{
-		Base:         base,
+		Base:         StringElement(base),
 		PointerLevel: pointerLevel,
 	}
 
@@ -26,20 +26,25 @@ func NewPointerType(base string) *Type {
 	return NewType(base, 1)
 }
 
+func (t *Type) codeElement() {}
+
 func (t *Type) Write(out *StyleWriter, level int) error {
-	if t.PointerLevel <= 0 {
-		return out.Write("%s", t.Base)
+	parts := make([]CodeElement, 0, 10)
+
+	parts = append(parts, t.Base)
+
+	if t.PointerLevel > 0 {
+		if out.style.PointerSpacingBefore {
+			parts = append(parts, DelimiterSpace)
+		}
+
+		pointer := strings.Repeat(PointerAsterisk, t.PointerLevel)
+		parts = append(parts, NewStringElement(pointer))
+
+		if out.style.PointerSpacingAfter {
+			parts = append(parts, DelimiterSpace)
+		}
 	}
 
-	format := "%s"
-	if out.style.PointerSpacingBefore {
-		format = Space + format
-	}
-	if out.style.PointerSpacingAfter {
-		format = format + Space
-	}
-
-	pointer := strings.Repeat(PointerAsterisk, t.PointerLevel)
-	format = "%s" + format
-	return out.Write(format, t.Base, pointer)
+	return out.WriteItems(level, parts...)
 }

@@ -28,18 +28,18 @@ const (
 )
 
 type CodeStyle struct {
-	Indent                 string
+	Indent                 StringElement
 	FunctionBraceOnNewLine bool
-	FunctionBraceIndent    string
+	FunctionBraceIndent    StringElement
 	IfBraceOnNewLine       bool
-	IfBraceIndent          string
+	IfBraceIndent          StringElement
 	ForBraceOnNewLine      bool
-	ForBraceIndent         string
+	ForBraceIndent         StringElement
 	WhileBraceOnNewLine    bool
-	WhileBraceIndent       string
+	WhileBraceIndent       StringElement
 	SwitchBraceOnNewLine   bool
-	SwitchBraceIndent      string
-	CaseBranchIndent       string
+	SwitchBraceIndent      StringElement
+	CaseBranchIndent       StringElement
 	AssignmentSpacing      bool
 	BinaryOperationSpacing bool
 	TypeCastSpacing        bool
@@ -125,25 +125,66 @@ func NewContext(filename string, line int) *Context {
 }
 
 func (c *Context) Write(out *StyleWriter, level int) error {
-	return out.WriteLine("#line %d \"%s\"", c.Line, c.Filename)
+	return out.WriteItems(level, PreprocessorLine, DelimiterSpace, NewIntegerElement(c.Line),
+		DelimiterSpace, NewStringElement("\""+c.Filename+"\""), out.EOL)
 }
 
 type CodeElement interface {
-	WritableItem
+	codeElement()
+}
+
+type ElementCollection []CodeElement
+
+func (c ElementCollection) codeElement() {}
+
+func (c ElementCollection) Write(out *StyleWriter, level int) error {
+	return out.WriteItems(level, c...)
+}
+
+func NewElementCollection(items ...CodeElement) ElementCollection {
+	return ElementCollection(items)
 }
 
 type WritableItem interface {
+	CodeElement
 	ItemString() string
 }
 
 type WritableCollection interface {
+	CodeElement
 	Write(out *StyleWriter, level int) error
+}
+
+type StringElement string
+
+func NewStringElement(s string) StringElement {
+	return StringElement(s)
+}
+
+func NewIntegerElement(i int) StringElement {
+	return StringElement(fmt.Sprintf("%d", i))
+}
+
+func (e StringElement) codeElement() {}
+
+func (e StringElement) String() string {
+	return string(e)
+}
+
+func (e StringElement) ItemString() string {
+	return string(e)
 }
 
 type DelimiterCharacter string
 
-func Delimiter(c string) DelimiterCharacter {
+func NewDelimiter(c string) DelimiterCharacter {
 	return DelimiterCharacter(c)
+}
+
+func (d DelimiterCharacter) codeElement() {}
+
+func (d DelimiterCharacter) String() string {
+	return string(d)
 }
 
 func (d DelimiterCharacter) ItemString() string {
@@ -151,13 +192,16 @@ func (d DelimiterCharacter) ItemString() string {
 }
 
 const (
-	DelimiterSpace DelimiterCharacter = " "
+	DelimiterNone                       = ""
+	DelimiterSpace   DelimiterCharacter = " "
+	DefaultDelimiter DelimiterCharacter = " "
 )
 
 type StyleWriter struct {
-	out   io.StringWriter
-	style *CodeStyle
-	EOL   string
+	out              io.StringWriter
+	style            *CodeStyle
+	EOL              StringElement
+	lastWasDelimiter bool
 }
 
 func (w *StyleWriter) Write(format string, args ...any) error {
@@ -167,21 +211,33 @@ func (w *StyleWriter) Write(format string, args ...any) error {
 }
 
 func (w *StyleWriter) WriteLine(format string, args ...any) error {
-	return w.Write(format+w.EOL, args...)
+	return w.Write(format+string(w.EOL), args...)
 }
 
-func (w *StyleWriter) MakeIndent(level int) string {
-	return strings.Repeat(w.style.Indent, level)
+func (w *StyleWriter) MakeIndent(level int) StringElement {
+	return StringElement(strings.Repeat(string(w.style.Indent), level))
 }
 
 func (w *StyleWriter) WriteIndent(level int) error {
-	return w.Write("%s", w.MakeIndent(level))
+	return w.WriteItems(0, w.MakeIndent(level))
 }
 
-func (w *StyleWriter) WriteItems(level int, items ...any) error {
+func (w *StyleWriter) WriteItems(level int, items ...CodeElement) error {
 	for i, item := range items {
+		_, isDelimiter := item.(DelimiterCharacter)
+
 		switch it := item.(type) {
+		case StringElement:
+			if _, err := w.out.WriteString(it.String()); err != nil {
+				return err
+			}
+
 		case WritableItem:
+			if w.lastWasDelimiter && isDelimiter {
+				continue
+			}
+
+			w.lastWasDelimiter = isDelimiter
 			if _, err := w.out.WriteString(it.ItemString()); err != nil {
 				return err
 			}
@@ -195,12 +251,15 @@ func (w *StyleWriter) WriteItems(level int, items ...any) error {
 			err := fmt.Sprintf("type %T in %d is not acceptable", item, i)
 			panic(err)
 		}
+
+		w.lastWasDelimiter = isDelimiter
 	}
 
 	return nil
 }
 
 type Node interface {
+	CodeElement
 	Write(out *StyleWriter, level int) error
 }
 

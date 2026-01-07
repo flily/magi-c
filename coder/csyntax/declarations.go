@@ -1,8 +1,6 @@
 package csyntax
 
-import (
-	"strings"
-)
+import "strings"
 
 type VariableDeclarator struct {
 	PointerLevel int
@@ -21,18 +19,20 @@ func NewVariableDeclarator(name string, pointerLevel int, initializer Expression
 }
 
 type VariableDeclaration struct {
-	Type       string
+	Type       StringElement
 	Declarator []VariableDeclarator
 }
 
 func NewVariableDeclaration(typ string, declarators []VariableDeclarator) *VariableDeclaration {
 	d := &VariableDeclaration{
-		Type:       typ,
+		Type:       StringElement(typ),
 		Declarator: declarators,
 	}
 
 	return d
 }
+
+func (v *VariableDeclaration) codeElement() {}
 
 func (v *VariableDeclaration) declarationNode() {}
 
@@ -134,6 +134,8 @@ func NewParameterList(items ...*ParameterListItem) *ParameterList {
 	return p
 }
 
+func (p *ParameterList) codeElement() {}
+
 func (p *ParameterList) Write(out *StyleWriter, level int) error {
 	for i, item := range p.Items {
 		if i > 0 {
@@ -152,7 +154,7 @@ func (p *ParameterList) Write(out *StyleWriter, level int) error {
 
 type FunctionDeclaration struct {
 	ReturnType *Type
-	Name       string
+	Name       StringElement
 	Parameters *ParameterList
 	Body       []Statement
 }
@@ -160,13 +162,15 @@ type FunctionDeclaration struct {
 func NewFunctionDeclaration(name string, returnType *Type, parameters *ParameterList, body []Statement) *FunctionDeclaration {
 	f := &FunctionDeclaration{
 		ReturnType: returnType,
-		Name:       name,
+		Name:       StringElement(name),
 		Parameters: parameters,
 		Body:       body,
 	}
 
 	return f
 }
+
+func (f *FunctionDeclaration) codeElement() {}
 
 func (f *FunctionDeclaration) declarationNode() {}
 
@@ -179,30 +183,16 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	if err := f.ReturnType.Write(out, level); err != nil {
-		return err
-	}
-
-	if err := out.Write(" %s(", f.Name); err != nil {
-		return err
-	}
-
-	if err := f.Parameters.Write(out, level); err != nil {
-		return err
-	}
-
-	if err := out.Write(")"); err != nil {
+	var err error
+	err = out.WriteItems(0, f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen)
+	if err != nil {
 		return err
 	}
 
 	if out.style.FunctionBraceOnNewLine {
-		if err := out.WriteLine("%s%s%s", out.EOL, out.style.FunctionBraceIndent, LeftBrace); err != nil {
-			return err
-		}
+		err = out.WriteItems(0, out.EOL, out.style.FunctionBraceIndent, OperatorLeftBrace, out.EOL)
 	} else {
-		if err := out.WriteLine(" %s", LeftBrace); err != nil {
-			return err
-		}
+		err = out.WriteItems(0, DelimiterSpace, OperatorLeftBrace, out.EOL)
 	}
 
 	for _, stmt := range f.Body {
@@ -211,7 +201,7 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 		}
 	}
 
-	if err := out.WriteLine("%s%s", out.style.FunctionBraceIndent, RightBrace); err != nil {
+	if err := out.WriteItems(0, out.style.FunctionBraceIndent, OperatorRightBrace, out.EOL); err != nil {
 		return err
 	}
 

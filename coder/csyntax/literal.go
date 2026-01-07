@@ -52,6 +52,8 @@ func NewOctalIntegerLiteral(value int64) *Integer {
 
 func (i *Integer) expressionNode() {}
 
+func (i *Integer) codeElement() {}
+
 func (i *Integer) Write(out *StyleWriter, level int) error {
 	switch i.Format {
 	case IntegerFormatHexadecimalUpper:
