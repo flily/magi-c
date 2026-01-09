@@ -1,7 +1,7 @@
 package csyntax
 
 type IncludeDirective struct {
-	Context
+	Context  *Context
 	Filename StringElement
 	quoteL   StringElement
 	quoteR   StringElement
@@ -9,7 +9,7 @@ type IncludeDirective struct {
 
 func NewIncludeAngle(ctx *Context, filename string) *IncludeDirective {
 	d := &IncludeDirective{
-		Context:  *ctx,
+		Context:  ctx,
 		Filename: StringElement(filename),
 		quoteL:   StringElement("<"),
 		quoteR:   StringElement(">"),
@@ -20,7 +20,7 @@ func NewIncludeAngle(ctx *Context, filename string) *IncludeDirective {
 
 func NewIncludeQuote(ctx *Context, filename string) *IncludeDirective {
 	d := &IncludeDirective{
-		Context:  *ctx,
+		Context:  ctx,
 		Filename: StringElement(filename),
 		quoteL:   StringElement("\""),
 		quoteR:   StringElement("\""),
@@ -36,9 +36,5 @@ func (d *IncludeDirective) declarationNode() {}
 func (d *IncludeDirective) statementNode() {}
 
 func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
-	if err := d.Context.Write(out, level); err != nil {
-		return err
-	}
-
-	return out.Write(level, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR, out.EOL)
+	return out.Write(level, d.Context, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR, out.style.EOL)
 }

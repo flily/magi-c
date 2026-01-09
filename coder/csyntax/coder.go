@@ -17,14 +17,6 @@ const (
 	EOLCR   = "\r"
 	EOLLF   = "\n"
 	EOLCRLF = "\r\n"
-
-	Space           = " "
-	PointerAsterisk = "*"
-	Semicolon       = ";"
-	Comma           = ","
-	Assign          = "="
-	LeftBrace       = "{"
-	RightBrace      = "}"
 )
 
 type StyleBoolean bool
@@ -57,6 +49,7 @@ type CodeStyle struct {
 	CommaSpacingAfter      StyleBoolean
 	PointerSpacingBefore   StyleBoolean
 	PointerSpacingAfter    StyleBoolean
+	EOL                    StringElement
 }
 
 var (
@@ -80,6 +73,7 @@ var (
 		CommaSpacingAfter:      true,
 		PointerSpacingBefore:   false,
 		PointerSpacingAfter:    true,
+		EOL:                    EOLLF,
 	}
 )
 
@@ -87,7 +81,6 @@ func (s *CodeStyle) MakeWriter(out io.StringWriter) *StyleWriter {
 	w := &StyleWriter{
 		out:   out,
 		style: s,
-		EOL:   EOLLF,
 	}
 
 	return w
@@ -118,6 +111,21 @@ func (s *CodeStyle) Assign() ElementCollection {
 	return result
 }
 
+func (s *CodeStyle) FunctionNewLine() ElementCollection {
+	result := []CodeElement{
+		DelimiterSpace,
+	}
+
+	if s.FunctionBraceOnNewLine {
+		result = []CodeElement{
+			s.EOL,
+			s.FunctionBraceIndent,
+		}
+	}
+
+	return result
+}
+
 type Context struct {
 	Filename string
 	Line     int
@@ -132,10 +140,12 @@ func NewContext(filename string, line int) *Context {
 	return c
 }
 
+func (c *Context) codeElement() {}
+
 func (c *Context) Write(out *StyleWriter, level int) error {
 	return out.Write(level,
 		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(c.Line),
-		DelimiterSpace, StringElement("\""+c.Filename+"\""), out.EOL,
+		DelimiterSpace, StringElement("\""+c.Filename+"\""), out.style.EOL,
 	)
 }
 
@@ -170,6 +180,14 @@ func (c ElementCollection) On(cond bool) ElementCollection {
 	}
 
 	return nil
+}
+
+func (c ElementCollection) Select(cond bool, alt ElementCollection) ElementCollection {
+	if cond {
+		return c
+	}
+
+	return alt
 }
 
 type WritableItem interface {
@@ -228,7 +246,6 @@ const (
 type StyleWriter struct {
 	out              io.StringWriter
 	style            *CodeStyle
-	EOL              StringElement
 	lastWasDelimiter bool
 }
 

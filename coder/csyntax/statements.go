@@ -31,9 +31,9 @@ func (b *CodeBlock) codeElement() {}
 func (b *CodeBlock) statementNode() {}
 
 func (b *CodeBlock) Write(out *StyleWriter, level int) error {
-	return out.Write(0, OperatorLeftBrace, out.EOL,
+	return out.Write(0, OperatorLeftBrace, out.style.EOL,
 		FromCodeElements(b.Statements...),
-		out.MakeIndent(level), OperatorRightBrace, out.EOL,
+		out.MakeIndent(level), OperatorRightBrace, out.style.EOL,
 	)
 }
 
@@ -66,7 +66,7 @@ func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
 	return out.Write(0,
 		pointer, out.style.PointerSpacingBefore.Select(DelimiterSpace),
 		s.LeftIdentifier, out.style.Assign(), s.RightExpression,
-		PunctuatorSemicolon, out.EOL)
+		PunctuatorSemicolon, out.style.EOL)
 }
 
 type ReturnStatement struct {
@@ -90,9 +90,7 @@ func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	if s.Expression == nil {
-		return out.Write(level, KeywordReturn, PunctuatorSemicolon, out.EOL) // return;
-	}
-
-	return out.Write(level, KeywordReturn, DelimiterSpace, s.Expression, PunctuatorSemicolon, out.EOL) // return expr;
+	return out.Write(level, KeywordReturn,
+		NewElementCollection(DelimiterSpace, s.Expression).On(s.Expression != nil),
+		PunctuatorSemicolon, out.style.EOL)
 }

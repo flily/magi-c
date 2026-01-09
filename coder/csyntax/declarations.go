@@ -41,40 +41,29 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	if err := out.Write(0, v.Type); err != nil {
-		return err
-	}
+	parts := make([]CodeElement, 0, 4+len(v.Declarator)*6)
+	parts = append(parts, v.Type)
 
 	for i, decl := range v.Declarator {
-		if i > 0 {
-			if err := out.Write(0, out.style.Comma()); err != nil {
-				return err
-			}
-		}
-
-		pointer := PunctuatorAsterisk.Duplicate(decl.PointerLevel)
-		err := out.Write(0,
+		parts = append(parts,
+			out.style.Comma().On(i > 0),
 			NewElementCollection(
 				out.style.PointerSpacingBefore.Select(DelimiterSpace),
-				pointer,
+				PunctuatorAsterisk.Duplicate(decl.PointerLevel),
 				out.style.PointerSpacingAfter.Select(DelimiterSpace),
 			).On(decl.PointerLevel > 0),
 			NewElementCollection(
 				DelimiterSpace,
 			).On(decl.PointerLevel <= 0 && i == 0),
-			StringElement(decl.Name))
-		if err != nil {
-			return err
-		}
-
-		if decl.Initializer != nil {
-			if err := out.Write(0, out.style.Assign(), decl.Initializer); err != nil {
-				return err
-			}
-		}
+			StringElement(decl.Name),
+			NewElementCollection(
+				out.style.Assign(), decl.Initializer,
+			).On(decl.Initializer != nil),
+		)
 	}
 
-	return out.Write(0, PunctuatorSemicolon, out.EOL)
+	parts = append(parts, PunctuatorSemicolon, out.style.EOL)
+	return out.Write(level, parts...)
 }
 
 func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Expression) {
@@ -96,6 +85,8 @@ func NewParameterListItem(typ *Type, name string) *ParameterListItem {
 	return p
 }
 
+func (i *ParameterListItem) codeElement() {}
+
 func (i *ParameterListItem) Write(out *StyleWriter, level int) error {
 	return out.Write(level, i.Type, out.style.PointerSpacingAfter.Select(DelimiterSpace), i.Name)
 }
@@ -115,19 +106,13 @@ func NewParameterList(items ...*ParameterListItem) *ParameterList {
 func (p *ParameterList) codeElement() {}
 
 func (p *ParameterList) Write(out *StyleWriter, level int) error {
-	for i, item := range p.Items {
-		if i > 0 {
-			if err := out.Write(0, out.style.Comma()); err != nil {
-				return err
-			}
-		}
+	parts := make([]CodeElement, 0, len(p.Items)*2)
 
-		if err := item.Write(out, level); err != nil {
-			return err
-		}
+	for i, item := range p.Items {
+		parts = append(parts, out.style.Comma().On(i > 0), item)
 	}
 
-	return nil
+	return out.Write(level, parts...)
 }
 
 type FunctionDeclaration struct {
@@ -162,15 +147,12 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 	}
 
 	var err error
-	err = out.Write(0, f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen)
+	err = out.Write(0,
+		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
+		out.style.FunctionNewLine(), OperatorLeftBrace, out.style.EOL,
+	)
 	if err != nil {
 		return err
-	}
-
-	if out.style.FunctionBraceOnNewLine {
-		err = out.Write(0, out.EOL, out.style.FunctionBraceIndent, OperatorLeftBrace, out.EOL)
-	} else {
-		err = out.Write(0, DelimiterSpace, OperatorLeftBrace, out.EOL)
 	}
 
 	for _, stmt := range f.Body {
@@ -179,7 +161,7 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 		}
 	}
 
-	if err := out.Write(0, out.style.FunctionBraceIndent, OperatorRightBrace, out.EOL); err != nil {
+	if err := out.Write(0, out.style.FunctionBraceIndent, OperatorRightBrace, out.style.EOL); err != nil {
 		return err
 	}
 

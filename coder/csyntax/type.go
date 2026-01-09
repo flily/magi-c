@@ -1,9 +1,5 @@
 package csyntax
 
-import (
-	"strings"
-)
-
 type Type struct {
 	Base         StringElement
 	PointerLevel int
@@ -29,21 +25,13 @@ func NewPointerType(base string) *Type {
 func (t *Type) codeElement() {}
 
 func (t *Type) Write(out *StyleWriter, level int) error {
-	parts := make([]CodeElement, 0, 4)
-
-	parts = append(parts, t.Base)
-
-	if t.PointerLevel > 0 {
-		if out.style.PointerSpacingBefore {
-			parts = append(parts, DelimiterSpace)
-		}
-
-		pointer := strings.Repeat(PointerAsterisk, t.PointerLevel)
-		parts = append(parts, StringElement(pointer))
-
-		if out.style.PointerSpacingAfter {
-			parts = append(parts, DelimiterSpace)
-		}
+	parts := []CodeElement{
+		t.Base,
+		NewElementCollection(
+			out.style.PointerSpacingBefore.Select(DelimiterSpace),
+			PunctuatorAsterisk.Duplicate(t.PointerLevel),
+			out.style.PointerSpacingAfter.Select(DelimiterSpace),
+		).On(t.PointerLevel > 0),
 	}
 
 	return out.Write(level, parts...)

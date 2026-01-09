@@ -28,6 +28,7 @@ var (
 		CommaSpacingAfter:      false,
 		PointerSpacingBefore:   true,
 		PointerSpacingAfter:    false,
+		EOL:                    EOLLF,
 	}
 )
 
