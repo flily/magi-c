@@ -36,5 +36,6 @@ func (d *IncludeDirective) declarationNode() {}
 func (d *IncludeDirective) statementNode() {}
 
 func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
-	return out.Write(level, d.Context, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR, out.style.EOL)
+	return out.WriteLine(level, d.Context,
+		PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR)
 }

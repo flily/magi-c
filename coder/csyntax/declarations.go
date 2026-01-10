@@ -37,10 +37,6 @@ func (v *VariableDeclaration) declarationNode() {}
 func (v *VariableDeclaration) statementNode() {}
 
 func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
-	if err := out.WriteIndent(level); err != nil {
-		return err
-	}
-
 	parts := make([]CodeElement, 0, 4+len(v.Declarator)*6)
 	parts = append(parts, v.Type)
 
@@ -62,8 +58,8 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 		)
 	}
 
-	parts = append(parts, PunctuatorSemicolon, out.style.EOL)
-	return out.Write(level, parts...)
+	parts = append(parts, PunctuatorSemicolon)
+	return out.WriteIndentLine(level, parts...)
 }
 
 func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Expression) {
@@ -147,9 +143,9 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 	}
 
 	var err error
-	err = out.Write(0,
+	err = out.WriteIndentLine(level,
 		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
-		out.style.FunctionNewLine(), OperatorLeftBrace, out.style.EOL,
+		out.style.FunctionNewLine(), OperatorLeftBrace,
 	)
 	if err != nil {
 		return err
@@ -161,7 +157,7 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 		}
 	}
 
-	if err := out.Write(0, out.style.FunctionBraceIndent, OperatorRightBrace, out.style.EOL); err != nil {
+	if err := out.WriteIndentLine(level, out.style.FunctionBraceIndent, OperatorRightBrace); err != nil {
 		return err
 	}
 

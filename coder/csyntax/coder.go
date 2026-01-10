@@ -260,8 +260,6 @@ func (w *StyleWriter) WriteIndent(level int) error {
 func (w *StyleWriter) Write(level int, items ...CodeElement) error {
 	for i, item := range items {
 		_, isDelimiter := item.(DelimiterCharacter)
-		fmt.Printf("write (%T) '%+v' delim=%v  last=%v\n", item, item, isDelimiter, w.lastWasDelimiter)
-
 		switch it := item.(type) {
 		case StringElement:
 			if _, err := w.out.WriteString(it.String()); err != nil {
@@ -291,6 +289,24 @@ func (w *StyleWriter) Write(level int, items ...CodeElement) error {
 	}
 
 	return nil
+}
+
+func (w *StyleWriter) WriteLine(level int, items ...CodeElement) error {
+	err := w.Write(level, items...)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.out.WriteString(w.style.EOL.String())
+	return err
+}
+
+func (w *StyleWriter) WriteIndentLine(level int, items ...CodeElement) error {
+	if err := w.WriteIndent(level); err != nil {
+		return err
+	}
+
+	return w.WriteLine(0, items...)
 }
 
 type Node interface {

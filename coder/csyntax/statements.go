@@ -31,9 +31,9 @@ func (b *CodeBlock) codeElement() {}
 func (b *CodeBlock) statementNode() {}
 
 func (b *CodeBlock) Write(out *StyleWriter, level int) error {
-	return out.Write(0, OperatorLeftBrace, out.style.EOL,
+	return out.WriteLine(level, OperatorLeftBrace, out.style.EOL,
 		FromCodeElements(b.Statements...),
-		out.MakeIndent(level), OperatorRightBrace, out.style.EOL,
+		out.MakeIndent(level), OperatorRightBrace,
 	)
 }
 
@@ -58,15 +58,11 @@ func (s *AssignmentStatement) codeElement() {}
 func (s *AssignmentStatement) statementNode() {}
 
 func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
-	if err := out.WriteIndent(level); err != nil {
-		return err
-	}
-
 	pointer := PunctuatorAsterisk.Duplicate(s.LeftPointerLevel)
-	return out.Write(0,
+	return out.WriteIndentLine(level,
 		pointer, out.style.PointerSpacingBefore.Select(DelimiterSpace),
 		s.LeftIdentifier, out.style.Assign(), s.RightExpression,
-		PunctuatorSemicolon, out.style.EOL)
+		PunctuatorSemicolon)
 }
 
 type ReturnStatement struct {
@@ -86,11 +82,7 @@ func (s *ReturnStatement) statementNode() {}
 func (s *ReturnStatement) codeElement() {}
 
 func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
-	if err := out.WriteIndent(level); err != nil {
-		return err
-	}
-
-	return out.Write(level, KeywordReturn,
+	return out.WriteIndentLine(level, KeywordReturn,
 		NewElementCollection(DelimiterSpace, s.Expression).On(s.Expression != nil),
-		PunctuatorSemicolon, out.style.EOL)
+		PunctuatorSemicolon)
 }
