@@ -7,7 +7,11 @@ import (
 func TestWriteKeywords(t *testing.T) {
 	builder, writer := makeTestWriter(testStyle1)
 
-	writer.Write(0, KeywordIf, KeywordReturn)
+	err := writer.Write(0, KeywordIf, KeywordReturn)
+	if err != nil {
+		t.Fatalf("WriteItems Keywords failed: %s", err)
+	}
+
 	expected := "ifreturn"
 	result := builder.String()
 	if result != expected {

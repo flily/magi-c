@@ -27,7 +27,11 @@ func TestPunctuatorString(t *testing.T) {
 func TestWritePunctuators(t *testing.T) {
 	builder, writer := makeTestWriter(testStyle1)
 
-	writer.Write(0, OperatorAdd, OperatorAssign)
+	err := writer.Write(0, OperatorAdd, OperatorAssign)
+	if err != nil {
+		t.Fatalf("WriteItems Punctuators failed: %s", err)
+	}
+
 	expected := "+="
 	result := builder.String()
 	if result != expected {

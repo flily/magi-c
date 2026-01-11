@@ -142,8 +142,7 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 		return err
 	}
 
-	var err error
-	err = out.WriteIndentLine(level,
+	err := out.WriteIndentLine(level,
 		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
 		out.style.FunctionNewLine(), OperatorLeftBrace,
 	)
