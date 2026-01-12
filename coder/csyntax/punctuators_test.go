@@ -17,6 +17,8 @@ func TestPunctuatorString(t *testing.T) {
 	}
 
 	for _, c := range cases {
+		checkInterfaceCodeElement(c.op)
+
 		result := c.op.String()
 		if result != c.expected {
 			t.Fatalf("Punctuator String result wrong for %d, expect '%s', got '%s'", c.op, c.expected, result)

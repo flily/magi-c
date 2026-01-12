@@ -7,8 +7,8 @@ import (
 func TestAssignmentStatementOnNormalVariable(t *testing.T) {
 	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
 
-	var _ Statement = stat
-	stat.statementNode()
+	checkInterfaceCodeElement(stat)
+	checkInterfaceStatement(stat)
 
 	builder, writer := makeTestWriter(testStyle1)
 	err := stat.Write(writer, 0)
@@ -44,8 +44,8 @@ func TestAssignmentStatementOnPointerVariable(t *testing.T) {
 func TestReturnStatementWithoutExpression(t *testing.T) {
 	stat := NewReturnStatement(nil)
 
-	var _ Statement = stat
-	stat.statementNode()
+	checkInterfaceCodeElement(stat)
+	checkInterfaceStatement(stat)
 
 	builder, writer := makeTestWriter(testStyle1)
 	err := stat.Write(writer, 0)

@@ -26,8 +26,7 @@ func NewCodeBlock(statements []Statement) *CodeBlock {
 	return b
 }
 
-func (b *CodeBlock) codeElement() {}
-
+func (b *CodeBlock) codeElement()   {}
 func (b *CodeBlock) statementNode() {}
 
 func (b *CodeBlock) Write(out *StyleWriter, level int) error {
@@ -53,8 +52,7 @@ func NewAssignmentStatement(leftIdentifier string, leftPointerLevel int, rightEx
 	return s
 }
 
-func (s *AssignmentStatement) codeElement() {}
-
+func (s *AssignmentStatement) codeElement()   {}
 func (s *AssignmentStatement) statementNode() {}
 
 func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
@@ -77,9 +75,8 @@ func NewReturnStatement(expression Expression) *ReturnStatement {
 	return s
 }
 
+func (s *ReturnStatement) codeElement()   {}
 func (s *ReturnStatement) statementNode() {}
-
-func (s *ReturnStatement) codeElement() {}
 
 func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
 	return out.WriteIndentLine(level, KeywordReturn,

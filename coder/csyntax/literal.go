@@ -50,9 +50,8 @@ func NewOctalIntegerLiteral(value int64) *Integer {
 	return i
 }
 
+func (i *Integer) codeElement()    {}
 func (i *Integer) expressionNode() {}
-
-func (i *Integer) codeElement() {}
 
 func (i *Integer) Write(out *StyleWriter, level int) error {
 	var elem CodeElement

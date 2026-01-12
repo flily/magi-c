@@ -10,10 +10,9 @@ func TestVariableDeclarationOneVariableStyle1(t *testing.T) {
 	stat := NewVariableDeclaration("int", nil)
 	stat.Add("a", 0, NewIntegerLiteral(3))
 
-	var _ Statement = stat
-	stat.statementNode()
-	var _ Declaration = stat
-	stat.declarationNode()
+	checkInterfaceCodeElement(stat)
+	checkInterfaceStatement(stat)
+	checkInterfaceDeclaration(stat)
 
 	builder, writer := makeTestWriter(testStyle1)
 	err := stat.Write(writer, 0)
@@ -139,6 +138,10 @@ func TestParameterListWrite(t *testing.T) {
 
 	paramList := NewParameterList(param1, param2)
 
+	checkInterfaceCodeElement(param1)
+	checkInterfaceCodeElement(param2)
+	checkInterfaceCodeElement(paramList)
+
 	builder, writer := makeTestWriter(testStyle1)
 	err := paramList.Write(writer, 0)
 	if err != nil {
@@ -162,8 +165,8 @@ func TestFunctionDeclarationWithEmptyBody(t *testing.T) {
 		nil,
 	)
 
-	var _ Declaration = f
-	f.declarationNode()
+	checkInterfaceCodeElement(f)
+	checkInterfaceDeclaration(f)
 
 	builder, writer := makeTestWriter(testStyle1)
 	err := f.Write(writer, 0)

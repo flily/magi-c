@@ -6,6 +6,9 @@ import (
 
 func TestTypeWriteOnConcreteType(t *testing.T) {
 	ty := NewConcreteType("int")
+
+	checkInterfaceCodeElement(ty)
+
 	b, writer := makeTestWriter(KRStyle)
 	err := ty.Write(writer, 0)
 	if err != nil {
@@ -21,6 +24,8 @@ func TestTypeWriteOnConcreteType(t *testing.T) {
 
 func TestTypeWriteOnPointerType1(t *testing.T) {
 	ty := NewPointerType("int")
+	checkInterfaceCodeElement(ty)
+
 	b, writer := makeTestWriter(KRStyle)
 	err := ty.Write(writer, 0)
 	if err != nil {
@@ -36,6 +41,7 @@ func TestTypeWriteOnPointerType1(t *testing.T) {
 
 func TestTypeWriteOnPointerType2(t *testing.T) {
 	ty := NewType("char", 2)
+	checkInterfaceCodeElement(ty)
 
 	style := KRStyle.Clone()
 	style.PointerSpacingBefore = true

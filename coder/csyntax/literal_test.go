@@ -22,8 +22,8 @@ func TestIntegerWrite(t *testing.T) {
 			t.Fatalf("Integer Write failed, '%d': %s", c.value, err)
 		}
 
-		var _ Expression = c.value
-		c.value.expressionNode()
+		checkInterfaceCodeElement(c.value)
+		checkInterfaceExpression(c.value)
 
 		result := builder.String()
 		if result != c.expected {

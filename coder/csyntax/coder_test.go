@@ -38,6 +38,26 @@ func makeTestWriter(sylte *CodeStyle) (*strings.Builder, *StyleWriter) {
 	return &b, writer
 }
 
+func checkInterfaceCodeElement(elem CodeElement) {
+	var _ CodeElement = elem
+	elem.codeElement()
+}
+
+func checkInterfaceDeclaration(elem Declaration) {
+	var _ Declaration = elem
+	elem.declarationNode()
+}
+
+func checkInterfaceStatement(elem Statement) {
+	var _ Statement = elem
+	elem.statementNode()
+}
+
+func checkInterfaceExpression(elem Expression) {
+	var _ Expression = elem
+	elem.expressionNode()
+}
+
 func TestCodeStyleClone(t *testing.T) {
 	newStyle := KRStyle.Clone()
 

@@ -30,11 +30,9 @@ func NewVariableDeclaration(typ string, declarators []VariableDeclarator) *Varia
 	return d
 }
 
-func (v *VariableDeclaration) codeElement() {}
-
+func (v *VariableDeclaration) codeElement()     {}
 func (v *VariableDeclaration) declarationNode() {}
-
-func (v *VariableDeclaration) statementNode() {}
+func (v *VariableDeclaration) statementNode()   {}
 
 func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
 	parts := make([]CodeElement, 0, 4+len(v.Declarator)*6)
@@ -129,8 +127,7 @@ func NewFunctionDeclaration(name string, returnType *Type, parameters *Parameter
 	return f
 }
 
-func (f *FunctionDeclaration) codeElement() {}
-
+func (f *FunctionDeclaration) codeElement()     {}
 func (f *FunctionDeclaration) declarationNode() {}
 
 func (f *FunctionDeclaration) AddStatement(stmt Statement) {
