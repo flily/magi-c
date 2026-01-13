@@ -82,7 +82,7 @@ func NewParameterListItem(typ *Type, name string) *ParameterListItem {
 func (i *ParameterListItem) codeElement() {}
 
 func (i *ParameterListItem) Write(out *StyleWriter, level int) error {
-	return out.Write(level, i.Type, out.style.PointerSpacingAfter.Select(DelimiterSpace), i.Name)
+	return out.Write(level, i.Type, i.Type.IsPointer().Not().Select(DelimiterSpace), i.Name)
 }
 
 type ParameterList struct {

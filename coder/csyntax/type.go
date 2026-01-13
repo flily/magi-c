@@ -36,3 +36,7 @@ func (t *Type) Write(out *StyleWriter, level int) error {
 
 	return out.Write(level, parts...)
 }
+
+func (t *Type) IsPointer() StyleBoolean {
+	return t.PointerLevel > 0
+}

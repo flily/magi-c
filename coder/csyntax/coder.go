@@ -21,6 +21,10 @@ const (
 
 type StyleBoolean bool
 
+func (b StyleBoolean) Not() StyleBoolean {
+	return !b
+}
+
 func (b StyleBoolean) Select(value CodeElement) CodeElement {
 	if b {
 		return value

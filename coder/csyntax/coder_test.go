@@ -108,3 +108,41 @@ func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
 		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
 	}
 }
+
+func TestCodeContext(t *testing.T) {
+	ctx := NewContext("file.c", 10)
+
+	checkInterfaceCodeElement(ctx)
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := ctx.Write(writer, 0)
+	if err != nil {
+		t.Fatalf("CodeContext Write failed: %s", err)
+	}
+
+	expected := "#line 10 \"file.c\"\n"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("CodeContext Write result wrong, expected '%s', got '%s'", expected, result)
+	}
+}
+
+func TestElementCollectionBasic(t *testing.T) {
+	collection := NewElementCollection(
+		StringElement("lorem"), NewIntegerLiteral(42),
+	)
+
+	checkInterfaceCodeElement(collection)
+
+	builder, writer := makeTestWriter(testStyle1)
+	err := collection.Write(writer, 0)
+	if err != nil {
+		t.Fatalf("ElementCollection Write failed: %s", err)
+	}
+
+	expected := "lorem42"
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("ElementCollection Write result wrong, expected '%s', got '%s'", expected, result)
+	}
+}
