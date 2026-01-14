@@ -54,6 +54,27 @@ func checkInterfaceExpression(elem Expression) {
 	elem.expressionNode()
 }
 
+func checkOutputResult(t *testing.T, builder *strings.Builder, expected string) {
+	t.Helper()
+
+	result := builder.String()
+	if result != expected {
+		t.Fatalf("Write result wrong:\nexpect:\n%s\ngot:\n%s", expected, result)
+	}
+}
+
+func checkOutputOnStyle(t *testing.T, style *CodeStyle, expected string, elems ...CodeElement) {
+	t.Helper()
+
+	builder, writer := makeTestWriter(style)
+	err := writer.Write(0, elems...)
+	if err != nil {
+		t.Fatalf("CodeElement write failed: %s", err)
+	}
+
+	checkOutputResult(t, builder, expected)
+}
+
 func TestCodeStyleClone(t *testing.T) {
 	newStyle := KRStyle.Clone()
 
@@ -65,66 +86,29 @@ func TestCodeStyleClone(t *testing.T) {
 }
 
 func TestStyleWriterWriteStrings(t *testing.T) {
-	builder, writer := makeTestWriter(testStyle1)
-
-	err := writer.Write(0, StringElement("hello"), StringElement("world"))
-	if err != nil {
-		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
-	}
-
 	expected := "helloworld"
-	result := builder.String()
-	if result != expected {
-		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected,
+		StringElement("hello"), StringElement("world"))
 }
 
 func TestStyleWriterWriteStringsWithDelimiter(t *testing.T) {
-	builder, writer := makeTestWriter(testStyle1)
-
-	err := writer.Write(0, StringElement("hello"), NewDelimiter(" "), StringElement("world"))
-	if err != nil {
-		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
-	}
-
 	expected := "hello world"
-	result := builder.String()
-	if result != expected {
-		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected,
+		StringElement("hello"), NewDelimiter(" "), StringElement("world"))
 }
 
 func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
-	builder, writer := makeTestWriter(testStyle1)
-
-	err := writer.Write(0, StringElement("hello"), NewDelimiter(" "), NewDelimiter(" "), StringElement("world"))
-	if err != nil {
-		t.Fatalf("StyleWriter WriteStringItem failed: %s", err)
-	}
-
 	expected := "hello world"
-	result := builder.String()
-	if result != expected {
-		t.Fatalf("StyleWriter WriteStringItem result wrong, expected '%s', got '%s'", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected,
+		StringElement("hello"), NewDelimiter(" "), NewDelimiter(" "), StringElement("world"))
 }
 
 func TestCodeContext(t *testing.T) {
 	ctx := NewContext("file.c", 10)
-
 	checkInterfaceCodeElement(ctx)
 
-	builder, writer := makeTestWriter(testStyle1)
-	err := ctx.Write(writer, 0)
-	if err != nil {
-		t.Fatalf("CodeContext Write failed: %s", err)
-	}
-
 	expected := "#line 10 \"file.c\"\n"
-	result := builder.String()
-	if result != expected {
-		t.Fatalf("CodeContext Write result wrong, expected '%s', got '%s'", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected, ctx)
 }
 
 func TestElementCollectionBasic(t *testing.T) {
@@ -134,15 +118,19 @@ func TestElementCollectionBasic(t *testing.T) {
 
 	checkInterfaceCodeElement(collection)
 
-	builder, writer := makeTestWriter(testStyle1)
-	err := collection.Write(writer, 0)
-	if err != nil {
-		t.Fatalf("ElementCollection Write failed: %s", err)
-	}
-
 	expected := "lorem42"
-	result := builder.String()
-	if result != expected {
-		t.Fatalf("ElementCollection Write result wrong, expected '%s', got '%s'", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected, collection)
+}
+
+func TestElementCollectionSelect(t *testing.T) {
+	c1 := NewElementCollection(StringElement("lorem"))
+	c2 := NewElementCollection(StringElement("ipsum"))
+
+	r1 := c1.Select(true, c2)
+	r2 := c1.Select(false, c2)
+
+	expected1 := "lorem"
+	expected2 := "ipsum"
+	checkOutputOnStyle(t, testStyle1, expected1, r1)
+	checkOutputOnStyle(t, testStyle1, expected2, r2)
 }

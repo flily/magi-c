@@ -9,51 +9,22 @@ func TestTypeWriteOnConcreteType(t *testing.T) {
 
 	checkInterfaceCodeElement(ty)
 
-	b, writer := makeTestWriter(KRStyle)
-	err := ty.Write(writer, 0)
-	if err != nil {
-		t.Fatalf("Type Write failed: %s", err)
-	}
-
 	expected := "int"
-	result := b.String()
-	if result != expected {
-		t.Fatalf("Type Write result wrong:\nexpected: %s\ngot: %s", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected, ty)
 }
 
 func TestTypeWriteOnPointerType1(t *testing.T) {
 	ty := NewPointerType("int")
 	checkInterfaceCodeElement(ty)
 
-	b, writer := makeTestWriter(KRStyle)
-	err := ty.Write(writer, 0)
-	if err != nil {
-		t.Fatalf("Type Write failed: %s", err)
-	}
-
 	expected := "int* "
-	result := b.String()
-	if result != expected {
-		t.Fatalf("Type Write result wrong:\nexpected: %s\ngot: %s", expected, result)
-	}
+	checkOutputOnStyle(t, testStyle1, expected, ty)
 }
 
 func TestTypeWriteOnPointerType2(t *testing.T) {
 	ty := NewType("char", 2)
 	checkInterfaceCodeElement(ty)
 
-	style := KRStyle.Clone()
-	style.PointerSpacingBefore = true
-	b, writer := makeTestWriter(style)
-	err := ty.Write(writer, 0)
-	if err != nil {
-		t.Fatalf("Type Write failed: %s", err)
-	}
-
-	expected := "char ** "
-	result := b.String()
-	if result != expected {
-		t.Fatalf("Type Write result wrong:\nexpected: %s\ngot: %s", expected, result)
-	}
+	expected := "char **"
+	checkOutputOnStyle(t, testStyle2, expected, ty)
 }

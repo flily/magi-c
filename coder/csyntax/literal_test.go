@@ -16,19 +16,8 @@ func TestIntegerWrite(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		builder, writer := makeTestWriter(KRStyle)
-		err := c.value.Write(writer, 0)
-		if err != nil {
-			t.Fatalf("Integer Write failed, '%d': %s", c.value, err)
-		}
-
 		checkInterfaceCodeElement(c.value)
 		checkInterfaceExpression(c.value)
-
-		result := builder.String()
-		if result != c.expected {
-			t.Fatalf("Integer Write result wrong for value %d, expected: %s, got: %s",
-				c.value, c.expected, result)
-		}
+		checkOutputOnStyle(t, testStyle1, c.expected, c.value)
 	}
 }
