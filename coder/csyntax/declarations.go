@@ -113,7 +113,7 @@ type FunctionDeclaration struct {
 	ReturnType *Type
 	Name       StringElement
 	Parameters *ParameterList
-	Body       []Statement
+	Body       *CodeBlock
 }
 
 func NewFunctionDeclaration(name string, returnType *Type, parameters *ParameterList, body []Statement) *FunctionDeclaration {
@@ -121,7 +121,7 @@ func NewFunctionDeclaration(name string, returnType *Type, parameters *Parameter
 		ReturnType: returnType,
 		Name:       StringElement(name),
 		Parameters: parameters,
-		Body:       body,
+		Body:       NewCodeBlock(body),
 	}
 
 	return f
@@ -131,7 +131,7 @@ func (f *FunctionDeclaration) codeElement()     {}
 func (f *FunctionDeclaration) declarationNode() {}
 
 func (f *FunctionDeclaration) AddStatement(stmt Statement) {
-	f.Body = append(f.Body, stmt)
+	f.Body.Add(stmt)
 }
 
 func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
@@ -141,21 +141,9 @@ func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
 
 	err := out.WriteIndentLine(level,
 		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
-		out.style.FunctionNewLine(), OperatorLeftBrace,
-	)
-	if err != nil {
-		return err
-	}
+		out.style.FunctionNewLine(), OperatorLeftBrace, out.style.EOL,
+		f.Body,
+		out.style.FunctionBraceIndent, OperatorRightBrace)
 
-	for _, stmt := range f.Body {
-		if err := stmt.Write(out, level+1); err != nil {
-			return err
-		}
-	}
-
-	if err := out.WriteIndentLine(level, out.style.FunctionBraceIndent, OperatorRightBrace); err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

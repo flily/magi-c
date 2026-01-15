@@ -29,11 +29,12 @@ func NewCodeBlock(statements []Statement) *CodeBlock {
 func (b *CodeBlock) codeElement()   {}
 func (b *CodeBlock) statementNode() {}
 
+func (b *CodeBlock) Add(stmt Statement) {
+	b.Statements = append(b.Statements, stmt)
+}
+
 func (b *CodeBlock) Write(out *StyleWriter, level int) error {
-	return out.WriteLine(level, OperatorLeftBrace, out.style.EOL,
-		FromCodeElements(b.Statements...),
-		out.MakeIndent(level), OperatorRightBrace,
-	)
+	return out.Write(level+1, FromCodeElements(b.Statements...))
 }
 
 type AssignmentStatement struct {

@@ -2,7 +2,25 @@ package csyntax
 
 import (
 	"testing"
+
+	"strings"
 )
+
+func TestCodeBlockWrite(t *testing.T) {
+	stat1 := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
+	stat2 := NewAssignmentStatement("b", 1, NewIntegerLiteral(20))
+
+	block := NewCodeBlock([]Statement{stat1, stat2})
+
+	checkInterfaceCodeElement(block)
+	checkInterfaceStatement(block)
+
+	expected := strings.Join([]string{
+		"    a = 10;\n",
+		"    *b = 20;\n",
+	}, "")
+	checkOutputOnStyle(t, testStyle1, expected, block)
+}
 
 func TestAssignmentStatementOnNormalVariable(t *testing.T) {
 	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))

@@ -7,39 +7,6 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-type EOLLiteral struct {
-	TerminalNodeBase
-	EOL string
-}
-
-func NewEOLLiteral(ctx *context.Context, eol string) *EOLLiteral {
-	l := &EOLLiteral{
-		TerminalNodeBase: NewTerminalNodeBase(ctx),
-		EOL:              eol,
-	}
-
-	return l
-}
-
-func (l *EOLLiteral) expressionNode() {}
-
-func (l *EOLLiteral) Type() TokenType {
-	return EOL
-}
-
-func (l *EOLLiteral) EqualTo(_ context.ContextProvider, other Comparable) error {
-	o, err := CheckNodeEqual(l, other)
-	if err != nil {
-		return err
-	}
-
-	if o.EOL != l.EOL {
-		return NewError(l.Context(), "wrong EOL value, expect %s, got %s", o.EOL, l.EOL)
-	}
-
-	return nil
-}
-
 type StringLiteral struct {
 	TerminalNodeBase
 	Value string
