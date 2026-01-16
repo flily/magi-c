@@ -28,18 +28,9 @@ func (c *Cache) Get(index string) (*ast.Document, bool) {
 	return doc, ok
 }
 
-func (c *Cache) NewCoderFromDocument(doc *ast.Document) *Coder {
-	return NewCoder(c, doc)
-}
-
-func (c *Cache) NewCoderFromBinary(data []byte, filename string) (*Coder, error) {
+func (c *Cache) ParseContent(data []byte, filename string) (*ast.Document, error) {
 	t := tokenizer.NewTokenizerFrom(data, filename)
 	parser := parser.NewLLParser(t)
 	preprocessor.RegisterPreprocessors(parser)
-	doc, err := parser.Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	return c.NewCoderFromDocument(doc), nil
+	return parser.Parse()
 }

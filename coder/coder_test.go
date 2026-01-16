@@ -17,10 +17,10 @@ func TestCoderFromBinary(t *testing.T) {
 		``,
 	}, "\n"))
 
-	c := NewCache()
+	coder := NewCoder(".", ".")
 
-	_, err := c.NewCoderFromBinary(source, "example.mc")
+	err := coder.ParseFileContent("example.mc", source)
 	if err != nil {
-		t.Fatalf("NewCoderFromBinary failed:\n%s", err)
+		t.Fatalf("ParseFileContent failed:\n%s", err)
 	}
 }
