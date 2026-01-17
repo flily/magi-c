@@ -2,7 +2,8 @@ package coder
 
 import (
 	"os"
-	"path/filepath"
+
+	"github.com/flily/magi-c/ast"
 )
 
 const (
@@ -25,27 +26,6 @@ func NewCoder(sourceBase string, outputBase string) *Coder {
 	return c
 }
 
-func (c *Coder) ParseAll() error {
-	err := filepath.Walk(c.SourceBase, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		e := c.ParseFile(path)
-		if e != nil {
-			return e
-		}
-
-		return nil
-	})
-
-	return err
-}
-
 func (c *Coder) ParseFileContent(filename string, content []byte) error {
 	doc, err := c.Refs.ParseContent(content, filename)
 	if err != nil {
@@ -64,4 +44,18 @@ func (c *Coder) ParseFile(filename string) error {
 	}
 
 	return c.ParseFileContent(filename, content)
+}
+
+func (c *Coder) FindMain() string {
+	for filename, doc := range c.Refs.Documents {
+		for _, decl := range doc.Declarations {
+			if fnDecl, ok := decl.(*ast.FunctionDeclaration); ok {
+				if fnDecl.Name.Name == "main" {
+					return filename
+				}
+			}
+		}
+	}
+
+	return ""
 }
