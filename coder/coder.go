@@ -4,11 +4,22 @@ import (
 	"os"
 
 	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/parser"
+	"github.com/flily/magi-c/preprocessor"
+	"github.com/flily/magi-c/tokenizer"
 )
 
 const (
-	DefaultOutputBase = "output"
+	DefaultOutputBase    = "output"
+	DefaultMainEntryName = "main"
 )
+
+func ParseDocument(data []byte, filename string) (*ast.Document, error) {
+	t := tokenizer.NewTokenizerFrom(data, filename)
+	parser := parser.NewLLParser(t)
+	preprocessor.RegisterPreprocessors(parser)
+	return parser.Parse()
+}
 
 type Coder struct {
 	SourceBase string
@@ -27,7 +38,7 @@ func NewCoder(sourceBase string, outputBase string) *Coder {
 }
 
 func (c *Coder) ParseFileContent(filename string, content []byte) error {
-	doc, err := c.Refs.ParseContent(content, filename)
+	doc, err := ParseDocument(content, filename)
 	if err != nil {
 		return err
 	}
@@ -50,7 +61,7 @@ func (c *Coder) FindMain() string {
 	for filename, doc := range c.Refs.Documents {
 		for _, decl := range doc.Declarations {
 			if fnDecl, ok := decl.(*ast.FunctionDeclaration); ok {
-				if fnDecl.Name.Name == "main" {
+				if fnDecl.Name.Name == DefaultMainEntryName {
 					return filename
 				}
 			}
