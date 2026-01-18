@@ -66,6 +66,8 @@ const (
 	PunctuatorHashAlt           // %:
 	PunctuatorDoubleHashAlt     // %:%:
 	PunctuatorSpace             // " "
+	PunctuatorCommentStart      // /*
+	PunctuatorCommentEnd        // */
 )
 
 var operatorString = map[Punctuator]string{
@@ -131,6 +133,8 @@ var operatorString = map[Punctuator]string{
 	PunctuatorHashAlt:           "%:",
 	PunctuatorDoubleHashAlt:     "%:%:",
 	PunctuatorSpace:             " ",
+	PunctuatorCommentStart:      "/*",
+	PunctuatorCommentEnd:        "*/",
 }
 
 func (p Punctuator) String() string {
