@@ -12,7 +12,9 @@ func NewComment(lines ...string) *Comment {
 	return c
 }
 
-func (c *Comment) codeElement() {}
+func (c *Comment) codeElement()     {}
+func (c *Comment) statementNode()   {}
+func (c *Comment) declarationNode() {}
 
 func (c *Comment) Write(out *StyleWriter, level int) error {
 	if len(c.Content) <= 0 {
