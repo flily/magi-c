@@ -288,6 +288,21 @@ func TestIdentifierNotEqual(t *testing.T) {
 	}
 }
 
+func TestIdentifierIsDummy(t *testing.T) {
+	text := "_ lorem"
+	ctxList := generateTestWords(text)
+
+	id1 := NewIdentifier(ctxList[0])
+	if !id1.IsDummy() {
+		t.Fatalf("identifier '_' expected to be dummy")
+	}
+
+	id2 := NewIdentifier(ctxList[1])
+	if id2.IsDummy() {
+		t.Fatalf("identifier 'lorem' expected NOT to be dummy")
+	}
+}
+
 func TestTerminalToken(t *testing.T) {
 	text := "+ if"
 	ctxList := generateTestWords(text)

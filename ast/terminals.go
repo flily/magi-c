@@ -170,6 +170,10 @@ func (i *Identifier) EqualTo(_ context.ContextProvider, other Comparable) error 
 	return nil
 }
 
+func (i *Identifier) IsDummy() bool {
+	return i.Name == DummyIdentifier
+}
+
 type TerminalToken struct {
 	TerminalNodeBase
 	Token TokenType

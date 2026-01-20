@@ -88,7 +88,7 @@ const (
 	RightBrace      // }
 	Comma           // ,
 	Period          // .
-	Colon           // :  
+	Colon           // :
 	Semicolon       // ;
 	DualColon       // ::
 	QuestionMark    // ?
@@ -185,6 +185,7 @@ const (
 	SHash               = "#"
 	SAt                 = "@"
 	SCommentStart       = "//"
+	DummyIdentifier     = "_"
 )
 
 var tokenStringMap = map[TokenType]string{
