@@ -15,7 +15,7 @@ func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) error {
 		name := arg.Name
 		if ctx, found := nameMaps[name.Name]; found {
 			ectx := context.Join(ctx, name.Context())
-			return ast.NewError(ectx, "duplicate function argument name: '%s'", name.Name)
+			return ectx.Error("duplicate function argument name: '%s'", name.Name)
 		}
 
 		nameMaps[name.Name] = name.Context()
@@ -39,13 +39,15 @@ func checkFunctionReturnValue(d *ast.FunctionDeclaration) error {
 			c1 := d.ReturnTypes.Context()
 			c2 := retStmt.Context()
 			ectx := context.Join(c1, c2)
-			return ast.NewError(ectx, "function return value count mismatch, expect %d, got %d", count, len(retStmt.Value.Expressions))
+			return ectx.Error("function return value count mismatch, expect %d, got %d", count, len(retStmt.Value.Expressions))
 		}
 	}
 
 	if !retFound {
-		ectx := d.RBrace.Context()
-		return ast.NewError(ectx, "function missing return statement")
+		c1 := d.ReturnTypes.Context()
+		c2 := d.RBrace.Context()
+		ectx := context.Join(c1, c2)
+		return ectx.Error("function missing return statement")
 	}
 
 	return nil

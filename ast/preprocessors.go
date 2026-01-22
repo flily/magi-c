@@ -99,12 +99,12 @@ func (p *PreprocessorInclude) EqualTo(_ context.ContextProvider, other Comparabl
 	}
 
 	if p.Content != o.Content {
-		return NewError(p.ContentCtx, "wrong include content, expect '%s', got '%s'", o.Content, p.Content)
+		return p.ContentCtx.Error("wrong include content, expect '%s', got '%s'", o.Content, p.Content)
 	}
 
 	if p.LBracket != o.LBracket {
 		ctx := context.Join(p.LBracketCtx, p.RBracketCtx)
-		return NewError(ctx, "wrong include bracket, expect '%s' and '%s', got '%s' and '%s'",
+		return ctx.Error("wrong include bracket, expect '%s' and '%s', got '%s' and '%s'",
 			o.LBracket, o.RBracket, p.LBracket, p.RBracket)
 	}
 
@@ -168,11 +168,11 @@ func (p *PreprocessorInline) EqualTo(_ context.ContextProvider, other Comparable
 	}
 
 	if p.CodeType != o.CodeType {
-		return NewError(p.CodeTypeCtx, "wrong inline code type, expect '%s', got '%s'", o.CodeType, p.CodeType)
+		return p.CodeTypeCtx.Error("wrong inline code type, expect '%s', got '%s'", o.CodeType, p.CodeType)
 	}
 
 	if p.Content != o.Content {
-		return NewError(p.ContentCtx, "wrong inline content, expect '%s', got '%s'", o.Content, p.Content)
+		return p.ContentCtx.Error("wrong inline content, expect '%s', got '%s'", o.Content, p.Content)
 	}
 
 	return nil

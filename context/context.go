@@ -192,6 +192,10 @@ func (c *Context) NextContext() *Context {
 	return result
 }
 
+func (c *Context) Error(format string, args ...any) error {
+	return NewError(c, format, args...)
+}
+
 func Join(ctxs ...*Context) *Context {
 	if len(ctxs) == 0 {
 		return nil

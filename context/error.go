@@ -1,17 +1,15 @@
-package ast
+package context
 
 import (
 	"fmt"
-
-	"github.com/flily/magi-c/context"
 )
 
 type Error struct {
 	Message string
-	Context *context.Context
+	Context *Context
 }
 
-func NewError(ctx *context.Context, message string, args ...any) *Error {
+func NewError(ctx *Context, message string, args ...any) *Error {
 	e := &Error{
 		Message: fmt.Sprintf(message, args...),
 		Context: ctx,

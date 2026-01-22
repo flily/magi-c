@@ -28,19 +28,19 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 	p.cursor.SkipWhitespaceInLine()
 	blockType, btCtx := cursorScanUntilInLine(p.cursor, ' ', '\t')
 	if len(blockType) <= 0 {
-		return nil, ast.NewError(btCtx, "expect block type")
+		return nil, btCtx.Error("expect block type")
 	}
 
 	p.cursor.SkipWhitespaceInLine()
 	if eol, _ := p.cursor.End(); !eol {
 		content, ctx := cursorScanUntilInLine(p.cursor)
-		return nil, ast.NewError(ctx, "expected EOL after inline block type, got '%s'", content)
+		return nil, ctx.Error("expected EOL after inline block type, got '%s'", content)
 	}
 
 	eof := p.cursor.NextLine()
 	if eof {
 		_, ctx := p.cursor.CurrentChar()
-		return nil, ast.NewError(ctx, "expect inline block content, got EOF")
+		return nil, ctx.Error("expect inline block content, got EOF")
 	}
 
 	var contentCtx *context.Context
@@ -69,7 +69,7 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 		eof := p.cursor.NextLine()
 		if eof {
 			_, ctx := p.cursor.CurrentChar()
-			return nil, ast.NewError(ctx, "expect '#%s %s' to close inline block, got EOF", PreprocessorCommandInlineClose, blockType)
+			return nil, ctx.Error("expect '#%s %s' to close inline block, got EOF", PreprocessorCommandInlineClose, blockType)
 		}
 	}
 }

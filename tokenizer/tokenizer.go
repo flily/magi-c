@@ -121,7 +121,7 @@ func (t *Tokenizer) ScanSymbol() (ast.TerminalNode, error) {
 	}
 
 	_, ctx := t.cursor.CurrentChar()
-	return nil, ast.NewError(ctx, "invalid symbol '%s'", ctx.Content())
+	return nil, ctx.Error("invalid symbol '%s'", ctx.Content())
 }
 
 func (t *Tokenizer) scanHexadecimalNumber() (ast.TerminalNode, error) {
@@ -163,13 +163,13 @@ func (t *Tokenizer) scanHexadecimalNumber() (ast.TerminalNode, error) {
 	if invalidFormat {
 		state := t.cursor.PeekState(i)
 		s, ctx := t.cursor.FinishWith(begin, state)
-		return nil, ast.NewError(ctx, "invalid hexadecimal number '%s'", s)
+		return nil, ctx.Error("invalid hexadecimal number '%s'", s)
 	}
 
 	if i > 2+16 {
 		state := t.cursor.PeekState(i)
 		s, ctx := t.cursor.FinishWith(begin, state)
-		return nil, ast.NewError(ctx, "hexadecimal number '%s' is too large", s)
+		return nil, ctx.Error("hexadecimal number '%s' is too large", s)
 	}
 
 	state := t.cursor.PeekState(i)
@@ -206,13 +206,13 @@ func (t *Tokenizer) scanOctalNumber() (ast.TerminalNode, error) {
 	if invalidFormat {
 		state := t.cursor.PeekState(i)
 		s, ctx := t.cursor.FinishWith(begin, state)
-		return nil, ast.NewError(ctx, "invalid octal number '%s'", s)
+		return nil, ctx.Error("invalid octal number '%s'", s)
 	}
 
 	if i > 1+21 {
 		state := t.cursor.PeekState(i)
 		s, ctx := t.cursor.FinishWith(begin, state)
-		return nil, ast.NewError(ctx, "octal number '%s' is too large", s)
+		return nil, ctx.Error("octal number '%s' is too large", s)
 	}
 
 	state := t.cursor.PeekState(i)
@@ -295,7 +295,7 @@ func (t *Tokenizer) scanDecimalNumber() (ast.TerminalNode, error) {
 	if invalidFormat {
 		state := t.cursor.PeekState(i)
 		s, ctx := t.cursor.FinishWith(begin, state)
-		return nil, ast.NewError(ctx, "invalid decimal number '%s'", s)
+		return nil, ctx.Error("invalid decimal number '%s'", s)
 	}
 
 	state := t.cursor.PeekState(i)
@@ -358,7 +358,7 @@ func (t *Tokenizer) scanPreprocessorDirective() (ast.TerminalNode, error) {
 
 	p, ok := t.Preprocessors[cmd]
 	if !ok {
-		return nil, ast.NewError(ctxCmd, "unknown preprocessor directive '%s'", cmd)
+		return nil, ctxCmd.Error("unknown preprocessor directive '%s'", cmd)
 	}
 
 	t.cursor.SkipWhitespaceInLine()
@@ -389,7 +389,7 @@ func (t *Tokenizer) ScanToken() (ast.TerminalNode, error) {
 	}
 
 	_, ctx := t.cursor.CurrentChar()
-	return nil, ast.NewError(ctx, "no token found")
+	return nil, ctx.Error("no token found")
 }
 
 func (t *Tokenizer) ScanAll() ([]ast.TerminalNode, error) {

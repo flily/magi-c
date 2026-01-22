@@ -27,7 +27,7 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 	case '"':
 		pos = '"'
 	default:
-		return nil, ast.NewError(lbCtx, "expected '<' or '\"' after '#include', got '%c'", lb)
+		return nil, lbCtx.Error("expected '<' or '\"' after '#include', got '%c'", lb)
 	}
 
 	p.cursor.NextInLine()
@@ -35,17 +35,17 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 	rb, rbCtx := p.cursor.CurrentChar()
 	if rb == 0 {
 		ctx := context.Join(lbCtx, rbCtx)
-		return nil, ast.NewError(ctx, "quote not closed")
+		return nil, ctx.Error("quote not closed")
 	}
 	p.cursor.SkipInLine(1)
 
 	if rb != pos {
 		ctx := context.Join(lbCtx, rbCtx)
-		return nil, ast.NewError(ctx, "quote mismatch, expected '%c', got '%c'", pos, rb)
+		return nil, ctx.Error("quote mismatch, expected '%c', got '%c'", pos, rb)
 	}
 
 	if len(content) <= 0 {
-		return nil, ast.NewError(lbCtx, "expected file name after '#include', got empty string")
+		return nil, lbCtx.Error("expected file name after '#include', got empty string")
 	}
 
 	directive := ast.NewPreprocessorInclude(hash, name, lbCtx, contentCtx, rbCtx)

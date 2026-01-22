@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/flily/magi-c/ast"
 	"github.com/flily/magi-c/coder"
+	"github.com/flily/magi-c/context"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	err := coder.ParseFile(filename)
 	if err != nil {
 		switch e := err.(type) {
-		case *ast.Error:
+		case *context.Error:
 			fmt.Printf("Syntax error:\n%s\n", e)
 
 		default:

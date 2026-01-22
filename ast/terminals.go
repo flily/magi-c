@@ -34,7 +34,7 @@ func (l *StringLiteral) EqualTo(_ context.ContextProvider, other Comparable) err
 	}
 
 	if o.Value != l.Value {
-		return NewError(l.Context(), "wrong string value, expect '%s', got '%s'", o.Value, l.Value)
+		return l.Context().Error("wrong string value, expect '%s', got '%s'", o.Value, l.Value)
 	}
 
 	return nil
@@ -67,7 +67,7 @@ func (l *IntegerLiteral) EqualTo(_ context.ContextProvider, other Comparable) er
 	}
 
 	if o.Value != l.Value {
-		return NewError(l.Context(), "wrong integer value, expect %v, got %v", o.Value, l.Value)
+		return l.Context().Error("wrong integer value, expect %v, got %v", o.Value, l.Value)
 	}
 
 	return nil
@@ -100,7 +100,7 @@ func (l *FloatLiteral) EqualTo(_ context.ContextProvider, other Comparable) erro
 	}
 
 	if o.Value != l.Value {
-		return NewError(l.Context(), "wrong float value, expect %v, got %v", o.Value, l.Value)
+		return l.Context().Error("wrong float value, expect %v, got %v", o.Value, l.Value)
 	}
 
 	return nil
@@ -164,7 +164,7 @@ func (i *Identifier) EqualTo(_ context.ContextProvider, other Comparable) error 
 	}
 
 	if o.Name != i.Name {
-		return NewError(i.Context(), "wrong identifier name, expect '%s', got '%s'", o.Name, i.Name)
+		return i.Context().Error("wrong identifier name, expect '%s', got '%s'", o.Name, i.Name)
 	}
 
 	return nil
@@ -207,7 +207,7 @@ func (t *TerminalToken) EqualTo(_ context.ContextProvider, other Comparable) err
 	}
 
 	if o.Token != t.Token {
-		return NewError(t.Context(), "wrong token type, expect '%v', got '%v'", o.Token, t.Token)
+		return t.Context().Error("wrong token type, expect '%v', got '%v'", o.Token, t.Token)
 	}
 
 	return nil

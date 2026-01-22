@@ -119,7 +119,7 @@ func (p *LLParser) expectTerminalToken(expectedTypes ...ast.TokenType) (*ast.Ter
 	node := p.currentToken()
 	if node == nil {
 		ctx := p.tokenizer.EOFContext()
-		return nil, ast.NewError(ctx, "unexpected EOF, expect token: %s",
+		return nil, ctx.Error("unexpected EOF, expect token: %s",
 			ast.TokenTypeListString(expectedTypes))
 	}
 
@@ -130,12 +130,12 @@ func (p *LLParser) expectTerminalToken(expectedTypes ...ast.TokenType) (*ast.Ter
 				return terminal, nil
 			}
 
-			return nil, ast.NewError(node.Context(),
+			return nil, node.Context().Error(
 				"unexpected token type %s, expect a terminal token", node.Type())
 		}
 	}
 
-	return nil, ast.NewError(node.Context(), "unexpected token %s, expect '%s'",
+	return nil, node.Context().Error("unexpected token %s, expect '%s'",
 		node.Type(), ast.TokenTypeListString(expectedTypes))
 }
 
@@ -143,7 +143,7 @@ func (p *LLParser) expectToken(expectedTypes ...ast.TokenType) (ast.TerminalNode
 	node := p.currentToken()
 	if node == nil {
 		ctx := p.tokenizer.EOFContext()
-		return nil, ast.NewError(ctx, "unexpected EOF, expect token: %s",
+		return nil, ctx.Error("unexpected EOF, expect token: %s",
 			ast.TokenTypeListString(expectedTypes))
 	}
 
@@ -154,7 +154,7 @@ func (p *LLParser) expectToken(expectedTypes ...ast.TokenType) (ast.TerminalNode
 		}
 	}
 
-	return nil, ast.NewError(node.Context(), "unexpected token %s, expect '%s'",
+	return nil, node.Context().Error("unexpected token %s, expect '%s'",
 		node.Type(), ast.TokenTypeListString(expectedTypes))
 }
 
@@ -193,7 +193,7 @@ func (p *LLParser) parseDeclaration(current ast.TerminalNode) (ast.Declaration, 
 		result, err = p.parseFunctionDeclaration()
 
 	default:
-		err = ast.NewError(current.Context(), "unexpected token: %s", current.Type().String())
+		err = current.Context().Error("unexpected token: %s", current.Type().String())
 	}
 
 	return result, err
@@ -290,7 +290,7 @@ func (p *LLParser) parseFunctionDeclaration() (ast.Declaration, error) {
 		current := p.currentToken()
 		if current == nil {
 			ctx := p.tokenizer.EOFContext()
-			return nil, ast.NewError(ctx, "unexpected end of input, expect '}' to close function body")
+			return nil, ctx.Error("unexpected end of input, expect '}' to close function body")
 		}
 
 		if current.Type() == ast.RightBrace {
@@ -323,7 +323,7 @@ func (p *LLParser) parseStatement(start ast.TerminalNode) (ast.Statement, error)
 		return start.(*ast.PreprocessorInline), nil
 
 	default:
-		return nil, ast.NewError(start.Context(), "unexpected token '%s' in statement", start.Type().String())
+		return nil, start.Context().Error("unexpected token '%s' in statement", start.Type().String())
 	}
 }
 
@@ -345,7 +345,7 @@ func (p *LLParser) parseArgument() (*ast.ArgumentDeclaration, error) {
 	typeLead := p.currentToken()
 	if typeLead == nil {
 		ctx := p.tokenizer.EOFContext()
-		return nil, ast.NewError(ctx, "unexpected EOF, expect argument type")
+		return nil, ctx.Error("unexpected EOF, expect argument type")
 	}
 
 	var err error
@@ -359,7 +359,7 @@ func (p *LLParser) parseArgument() (*ast.ArgumentDeclaration, error) {
 		typeNode, err = p.parseSimpleType()
 
 	default:
-		err = ast.NewError(typeLead.Context(), "unexpected token '%s', expect argument type", typeLead.Type().String())
+		err = typeLead.Context().Error("unexpected token '%s', expect argument type", typeLead.Type().String())
 	}
 
 	if err != nil {
@@ -384,7 +384,7 @@ func (p *LLParser) parseSimpleType() (*ast.SimpleType, error) {
 		current := p.currentToken()
 		if current == nil {
 			ctx := p.tokenizer.EOFContext()
-			return nil, ast.NewError(ctx, "unexpected EOF, expect type identifier")
+			return nil, ctx.Error("unexpected EOF, expect type identifier")
 		}
 
 		switch current.Type() {
@@ -398,7 +398,7 @@ func (p *LLParser) parseSimpleType() (*ast.SimpleType, error) {
 			return t, nil
 
 		default:
-			return nil, ast.NewError(current.Context(), "unexpected token %s, expect type identifier", current.Type().String())
+			return nil, current.Context().Error("unexpected token %s, expect type identifier", current.Type().String())
 		}
 	}
 }
@@ -424,7 +424,7 @@ func (p *LLParser) parseArgumentList() (*ast.ArgumentList, error) {
 			args.Arguments = append(args.Arguments, arg)
 
 		default:
-			return nil, ast.NewError(current.Context(), "unexpected token '%s' in argument list", current.Type().String())
+			return nil, current.Context().Error("unexpected token '%s' in argument list", current.Type().String())
 		}
 	}
 
@@ -453,7 +453,7 @@ func (p *LLParser) parseTypeList() (*ast.TypeList, error) {
 
 			comma := p.currentToken()
 			if comma == nil {
-				return nil, ast.NewError(p.tokenizer.EOFContext(), "unexpected EOF, expect ',' or ')'")
+				return nil, p.tokenizer.EOFContext().Error("unexpected EOF, expect ',' or ')'")
 			}
 
 			if comma.Type() == ast.Comma {
@@ -464,7 +464,7 @@ func (p *LLParser) parseTypeList() (*ast.TypeList, error) {
 			types.Types = append(types.Types, item)
 
 		default:
-			return nil, ast.NewError(current.Context(), "unexpected token '%s' in type list", current.Type().String())
+			return nil, current.Context().Error("unexpected token '%s' in type list", current.Type().String())
 		}
 	}
 
@@ -501,7 +501,7 @@ func (p *LLParser) parseExpression(precedence Precedence) (ast.Expression, error
 	currrent := p.currentToken()
 	if currrent == nil {
 		ctx := p.tokenizer.EOFContext()
-		return nil, ast.NewError(ctx, "unexpected EOF, expect expression")
+		return nil, ctx.Error("unexpected EOF, expect expression")
 	}
 
 	var err error
@@ -517,7 +517,7 @@ func (p *LLParser) parseExpression(precedence Precedence) (ast.Expression, error
 		result = literal
 
 	default:
-		err = ast.NewError(currrent.Context(), "unexpected token '%s' in expression", currrent.Type().String())
+		err = currrent.Context().Error("unexpected token '%s' in expression", currrent.Type().String())
 	}
 
 	if err != nil {

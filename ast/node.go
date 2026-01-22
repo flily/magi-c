@@ -80,7 +80,7 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 
 		cb, ok := vb.Interface().(T)
 		if !ok {
-			return *new(T), NewError(a.Context(), "expect a %T", b)
+			return *new(T), a.Context().Error("expect a %T", b)
 		}
 
 		if va.IsNil() {
@@ -92,7 +92,7 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 		}
 
 		if vb.IsNil() {
-			return *new(T), NewError(a.Context(), "unexpected syntax element")
+			return *new(T), a.Context().Error("unexpected syntax element")
 		}
 
 		return cb, nil
@@ -115,11 +115,11 @@ func CheckNilPointerEqual[T Comparable](archor context.ContextProvider, a T, b T
 	}
 
 	if va.IsNil() {
-		return NewError(archor.Context().NextInLineContext(), "expect %T", b)
+		return archor.Context().NextInLineContext().Error("expect %T", b)
 	}
 
 	if vb.IsNil() {
-		return NewError(a.Context(), "unexpected %T found", a)
+		return a.Context().Error("unexpected %T found", a)
 	}
 
 	return a.EqualTo(archor, b)
@@ -138,7 +138,7 @@ func CheckArrayEqual[T Comparable](message string, archor context.ContextProvide
 			}
 			ctx = context.JoinObjects(ctxList...)
 		}
-		return NewError(ctx, "wrong number of %s: expected %d, got %d", message, len(b), len(a))
+		return ctx.Error("wrong number of %s: expected %d, got %d", message, len(b), len(a))
 	}
 
 	for i, itemA := range a {

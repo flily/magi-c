@@ -34,7 +34,7 @@ func checkDeclaration(d ast.Declaration) error {
 		return checkFunctionDeclaration(decl)
 
 	default:
-		return ast.NewError(d.Context(), "unsupported declaration type %T", d)
+		return d.Context().Error("unsupported declaration type %T", d)
 	}
 }
 
