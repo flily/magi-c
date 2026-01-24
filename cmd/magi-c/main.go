@@ -23,7 +23,7 @@ func main() {
 	err := coder.ParseFile(filename)
 	if err != nil {
 		switch e := err.(type) {
-		case *context.Error:
+		case *context.Diagnostic:
 			fmt.Printf("Syntax error:\n%s\n", e)
 
 		default:

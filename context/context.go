@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+const (
+	DefaultNewLine = "\n"
+)
+
 type ByLineContextLine []*LineContext
 
 func (a ByLineContextLine) Len() int {
@@ -127,7 +131,7 @@ func (c *Context) HighlightTextWith(indicator string, format string, args ...any
 		parts = append(parts, line.String())
 	}
 
-	return strings.Join(parts, "\n")
+	return strings.Join(parts, DefaultNewLine)
 }
 
 func (c *Context) HighlightText(format string, args ...any) string {
@@ -192,7 +196,7 @@ func (c *Context) NextContext() *Context {
 	return result
 }
 
-func (c *Context) Error(format string, args ...any) *Error {
+func (c *Context) Error(format string, args ...any) *Diagnostic {
 	return NewError(c, format, args...)
 }
 
@@ -200,6 +204,11 @@ func (c *Context) Position() (string, int, int) {
 	filename := c.File.Filename
 	line, column := c.Lines[0].Position()
 	return filename, line, column
+}
+
+func (c *Context) PositionString() string {
+	filename, line, column := c.Position()
+	return fmt.Sprintf("%s:%d:%d", filename, line+1, column+1)
 }
 
 func Join(ctxs ...*Context) *Context {
