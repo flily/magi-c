@@ -87,40 +87,13 @@ func (l *LineContext) Line() int {
 	return l.Content.Line
 }
 
-func (l *LineContext) Rune(n int) (rune, bool) {
-	if n < 0 || n >= l.Length() {
-		return 0, true
-	}
-
-	r := l.Content.Content[n]
-	return r, false
+func (l *LineContext) Position() (int, int) {
+	return l.Line(), l.Highlights[0].Start
 }
 
-func (l *LineContext) Join(lctxs ...*LineContext) *LineContext {
-	hc := len(l.Highlights)
-	for _, lctx := range lctxs {
-		hc += len(lctx.Highlights)
-	}
-
-	result := &LineContext{
-		Content:    l.Content,
-		File:       l.File,
-		Highlights: make([]Highlight, 0, hc),
-	}
-
-	result.Highlights = append(result.Highlights, l.Highlights...)
-
-	for _, lctx := range lctxs {
-		if lctx.Content != l.Content {
-			err := fmt.Errorf("cannot join different line contexts: %s != %s", l.Content.String(), lctx.Content.String())
-			panic(err)
-		}
-
-		result.Highlights = append(result.Highlights, lctx.Highlights...)
-	}
-
+func (l *LineContext) MergeHighlights(other *LineContext) {
+	l.Highlights = append(l.Highlights, other.Highlights...)
 	sort.Sort(ByHighlight(l.Highlights))
-	return result
 }
 
 func (l *LineContext) IsSameLine(other *LineContext) bool {

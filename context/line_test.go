@@ -23,6 +23,10 @@ func TestLineContextHighlightText(t *testing.T) {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
 	}
 
+	if line, column := lctx.Position(); line != 42 || column != 4 {
+		t.Errorf("expected position to be (42, 4), got (%d, %d)", line, column)
+	}
+
 	expLast := 9
 	if lctx.Last() != expLast {
 		t.Errorf("expected last highlight to be %d, got %d", expLast, lctx.Last())

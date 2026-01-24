@@ -54,7 +54,7 @@ func (c *Context) Join(ctxs ...*Context) *Context {
 				lines = append(lines, l.Duplicate())
 
 			} else {
-				line.Highlights = append(line.Highlights, l.Highlights...)
+				line.MergeHighlights(l)
 			}
 		}
 	}
@@ -192,8 +192,14 @@ func (c *Context) NextContext() *Context {
 	return result
 }
 
-func (c *Context) Error(format string, args ...any) error {
+func (c *Context) Error(format string, args ...any) *Error {
 	return NewError(c, format, args...)
+}
+
+func (c *Context) Position() (string, int, int) {
+	filename := c.File.Filename
+	line, column := c.Lines[0].Position()
+	return filename, line, column
 }
 
 func Join(ctxs ...*Context) *Context {
