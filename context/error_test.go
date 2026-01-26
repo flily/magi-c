@@ -29,11 +29,12 @@ func TestErrorMessage(t *testing.T) {
 	line := fd.LineContext(3)
 	ctx := line.Mark(7, 14)
 
-	err := ctx.Error("the quick brown fox")
+	err := ctx.Error("the quick brown fox").With("jumps over the lazy dog")
 	expected := strings.Join([]string{
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^",
-		"               the quick brown fox",
+		"example.txt:4:8: error: the quick brown fox",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^",
+		"      |        jumps over the lazy dog",
 	}, "\n")
 
 	if err.Error() != expected {

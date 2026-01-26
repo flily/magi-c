@@ -9,8 +9,12 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
+const (
+	testPreprocessorFilename = "example.mc"
+)
+
 func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitializer) (ast.Node, *context.Context) {
-	cursor := context.NewCursorFromString("example.c", code)
+	cursor := context.NewCursorFromString(testPreprocessorFilename, code)
 	node, err := scanDirectiveOn(cursor, prep)
 	if err != nil {
 		t.Fatalf("unexpected error when scan directive:\n%v", err)
@@ -27,7 +31,7 @@ func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitia
 func checkScanDirectiveError(t *testing.T, code string, prep PreprocessorInitializer, expected string) {
 	t.Helper()
 
-	cursor := context.NewCursorFromString("example.c", code)
+	cursor := context.NewCursorFromString("example.mc", code)
 	_, err := scanDirectiveOn(cursor, prep)
 	if err == nil {
 		t.Fatalf("expect error when scan directive")
@@ -53,7 +57,7 @@ func TestScanDirective(t *testing.T) {
 		"#include <stdio.h>",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
+	cursor := context.NewCursorFromString(testPreprocessorFilename, code)
 	cmd, hashCtx, cmdCtx, err := ScanDirective(cursor)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -64,16 +68,16 @@ func TestScanDirective(t *testing.T) {
 	}
 
 	hashExp := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"        ^",
-		"        here",
+		"    1 | #include <stdio.h>",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, hashCtx, hashExp)
 
 	cmdExp := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"         ^^^^^^^",
-		"         here",
+		"    1 | #include <stdio.h>",
+		"      |  ^^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, cmdCtx, cmdExp)
 }
@@ -84,9 +88,10 @@ func TestScanDirectiveStartWithNoHash(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		"   1:   include <stdio.h>",
-		"        ^",
-		"        expect '#' at the beginning of preprocessor directive, got 'i'",
+		"example.mc:1:1: error: expect '#' at the beginning of preprocessor directive, got 'i'",
+		"    1 | include <stdio.h>",
+		"      | ^",
+		"      | #",
 	}, "\n")
 	checkScanDirectiveError(t, code, Include, exp)
 }
@@ -96,7 +101,7 @@ func TestScanDirectiveWithHashIsNotTheFirstChar(t *testing.T) {
 		"while #include <stdio.h>",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
+	cursor := context.NewCursorFromString(testPreprocessorFilename, code)
 	cursor.Skip(6)
 
 	hashChar, current := cursor.CurrentChar()
@@ -105,16 +110,16 @@ func TestScanDirectiveWithHashIsNotTheFirstChar(t *testing.T) {
 	}
 
 	expPosition := strings.Join([]string{
-		"   1:   while #include <stdio.h>",
-		"              ^",
-		"              here",
+		"    1 | while #include <stdio.h>",
+		"      |       ^",
+		"      |       here",
 	}, "\n")
 	checkElementContext(t, current, expPosition)
 
 	expError := strings.Join([]string{
-		"   1:   while #include <stdio.h>",
-		"              ^",
-		"              '#' must be the first non-whitespace character in the line",
+		"example.mc:1:7: error: '#' must be the first non-whitespace character in the line",
+		"    1 | while #include <stdio.h>",
+		"      |       ^",
 	}, "\n")
 	_, err := scanDirectiveOn(cursor, Include)
 	if err == nil {
@@ -132,9 +137,9 @@ func TestScanDirectiveWithNoName(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		"   1:   #  <stdio.h>",
-		"         ^",
-		"         expect preprocessor directive name after '#', got empty string",
+		"example.mc:1:2: error: expect preprocessor directive name after '#', got empty string",
+		"    1 | #  <stdio.h>",
+		"      |  ^",
 	}, "\n")
 	checkScanDirectiveError(t, code, Include, exp)
 }

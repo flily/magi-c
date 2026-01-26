@@ -70,13 +70,13 @@ func TestContextHighlightText(t *testing.T) {
 
 	got := ctx.HighlightText("the quick brown fox")
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^",
-		"               the quick brown fox",
-		"   5:   ut labore et dolore magna aliqua",
-		"   6:   ut enim ad minim veniam",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^",
+		"      |        the quick brown fox",
+		"    5 | ut labore et dolore magna aliqua",
+		"    6 | ut enim ad minim veniam",
 	}, "\n")
 
 	if got != expected {
@@ -101,25 +101,25 @@ func TestContextHighlightTextWithTestUtil(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected1 := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^",
-		"               the quick brown fox",
-		"   5:   ut labore et dolore magna aliqua",
-		"   6:   ut enim ad minim veniam",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^",
+		"      |        the quick brown fox",
+		"    5 | ut labore et dolore magna aliqua",
+		"    6 | ut enim ad minim veniam",
 	}, "\n")
 
 	checkContextWith(t, ctx, expected1, "the quick brown fox")
 
 	expected2 := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^",
-		"               here",
-		"   5:   ut labore et dolore magna aliqua",
-		"   6:   ut enim ad minim veniam",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^",
+		"      |        here",
+		"    5 | ut labore et dolore magna aliqua",
+		"    6 | ut enim ad minim veniam",
 	}, "\n")
 
 	checkContext(t, ctx, expected2)
@@ -164,13 +164,13 @@ func TestContextHighlightTextMultipleParts1(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^ ^^^^^^",
-		"               the quick brown fox",
-		"   5:   ut labore et dolore magna aliqua",
-		"   6:   ut enim ad minim veniam",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^ ^^^^^^",
+		"      |        the quick brown fox",
+		"    5 | ut labore et dolore magna aliqua",
+		"    6 | ut enim ad minim veniam",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -232,15 +232,15 @@ func TestContextHighlightTextMultipleParts2(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^ ^^^^^^",
-		"   5:   ut labore et dolore magna aliqua",
-		"                     ^^^^^^",
-		"                     the quick brown fox",
-		"   6:   ut enim ad minim veniam",
-		"   7:   ",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^ ^^^^^^",
+		"    5 | ut labore et dolore magna aliqua",
+		"      |              ^^^^^^",
+		"      |              the quick brown fox",
+		"    6 | ut enim ad minim veniam",
+		"    7 | ",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -273,15 +273,15 @@ func TestContextHighlightTextMultipleParts3(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^ ^^^^^^",
-		"   5:   ut labore et dolore magna aliqua",
-		"                     ^^^^^^",
-		"                     the quick brown fox",
-		"   6:   ut enim ad minim veniam",
-		"   7:   ",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^ ^^^^^^",
+		"    5 | ut labore et dolore magna aliqua",
+		"      |              ^^^^^^",
+		"      |              the quick brown fox",
+		"    6 | ut enim ad minim veniam",
+		"    7 | ",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -311,15 +311,15 @@ func TestContextHighlightTextMultipleLines1(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^",
-		"   5:   ut labore et dolore magna aliqua",
-		"                     ^^^^^^",
-		"                     the quick brown fox",
-		"   6:   ut enim ad minim veniam",
-		"   7:   ",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^",
+		"    5 | ut labore et dolore magna aliqua",
+		"      |              ^^^^^^",
+		"      |              the quick brown fox",
+		"    6 | ut enim ad minim veniam",
+		"    7 | ",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -341,9 +341,9 @@ func TestContextNextContext(t *testing.T) {
 		ctx := line1.Mark(7, 14)
 
 		expected := strings.Join([]string{
-			"   4:   sed do eiusmod tempor incididunt",
-			"               ^^^^^^^",
-			"               the quick brown fox",
+			"    4 | sed do eiusmod tempor incididunt",
+			"      |        ^^^^^^^",
+			"      |        the quick brown fox",
 		}, "\n")
 		checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -353,9 +353,9 @@ func TestContextNextContext(t *testing.T) {
 		}
 
 		expectedNext := strings.Join([]string{
-			"   4:   sed do eiusmod tempor incididunt",
-			"                      ^",
-			"                      here",
+			"    4 | sed do eiusmod tempor incididunt",
+			"      |               ^",
+			"      |               here",
 		}, "\n")
 		checkContextWith(t, nextCtx, expectedNext, "here")
 	}
@@ -368,9 +368,9 @@ func TestContextNextContext(t *testing.T) {
 		ctx := line2.Mark(22, 32)
 
 		expected := strings.Join([]string{
-			"   4:   sed do eiusmod tempor incididunt",
-			"                              ^^^^^^^^^^",
-			"                              the quick brown fox",
+			"    4 | sed do eiusmod tempor incididunt",
+			"      |                       ^^^^^^^^^^",
+			"      |                       the quick brown fox",
 		}, "\n")
 		checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -380,9 +380,9 @@ func TestContextNextContext(t *testing.T) {
 		}
 
 		expectedNext := strings.Join([]string{
-			"   5:   ut labore et dolore magna aliqua",
-			"        ^",
-			"        here",
+			"    5 | ut labore et dolore magna aliqua",
+			"      | ^",
+			"      | here",
 		}, "\n")
 		checkContextWith(t, nextCtx, expectedNext, "here")
 
@@ -392,9 +392,9 @@ func TestContextNextContext(t *testing.T) {
 		}
 
 		expectedNextInLine := strings.Join([]string{
-			"   4:   sed do eiusmod tempor incididunt<EOL LF>",
-			"                                        ^^^^^^^^",
-			"                                        here",
+			"    4 | sed do eiusmod tempor incididunt<EOL LF>",
+			"      |                                 ^^^^^^^^",
+			"      |                                 here",
 		}, "\n")
 		checkContextWith(t, nextInLine, expectedNextInLine, "here")
 	}
@@ -411,9 +411,9 @@ func TestContextNextContextAtEnd(t *testing.T) {
 		ctx := line.Mark(39, 47)
 
 		expected := strings.Join([]string{
-			"  10:   excepteur sint occaecat cupid atat non proident",
-			"                                               ^^^^^^^^",
-			"                                               the quick brown fox",
+			"   10 | excepteur sint occaecat cupid atat non proident",
+			"      |                                        ^^^^^^^^",
+			"      |                                        the quick brown fox",
 		}, "\n")
 		checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -423,9 +423,9 @@ func TestContextNextContextAtEnd(t *testing.T) {
 		}
 
 		expectedNext := strings.Join([]string{
-			"  11:   <EOF>",
-			"        ^^^^^",
-			"        here",
+			"   11 | <EOF>",
+			"      | ^^^^^",
+			"      | here",
 		}, "\n")
 		checkContextWith(t, nextCtx, expectedNext, "here")
 	}
@@ -451,13 +451,13 @@ func TestJoinContext(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^        ^^^^^^^^^^",
-		"               the quick brown fox",
-		"   5:   ut labore et dolore magna aliqua",
-		"   6:   ut enim ad minim veniam",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^        ^^^^^^^^^^",
+		"      |        the quick brown fox",
+		"    5 | ut labore et dolore magna aliqua",
+		"    6 | ut enim ad minim veniam",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -485,13 +485,13 @@ func TestJoinNilContext(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"               ^^^^^^^",
-		"               the quick brown fox",
-		"   5:   ut labore et dolore magna aliqua",
-		"   6:   ut enim ad minim veniam",
+		"    2 | consectetur adipiscing elit",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"      |        ^^^^^^^",
+		"      |        the quick brown fox",
+		"    5 | ut labore et dolore magna aliqua",
+		"    6 | ut enim ad minim veniam",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 
@@ -540,13 +540,13 @@ func TestJoinConextObject(t *testing.T) {
 	ctx.Load(2, 2)
 
 	expected := strings.Join([]string{
-		"   3:   ",
-		"   4:   sed do eiusmod tempor incididunt",
-		"   5:   ut labore et dolore magna aliqua",
-		"           ^^^^^^    ^^^^^^       ^^^^^^",
-		"           the quick brown fox",
-		"   6:   ut enim ad minim veniam",
-		"   7:   ",
+		"    3 | ",
+		"    4 | sed do eiusmod tempor incididunt",
+		"    5 | ut labore et dolore magna aliqua",
+		"      |    ^^^^^^    ^^^^^^       ^^^^^^",
+		"      |    the quick brown fox",
+		"    6 | ut enim ad minim veniam",
+		"    7 | ",
 	}, "\n")
 	checkContextWith(t, ctx, expected, "the quick brown fox")
 }

@@ -116,9 +116,9 @@ func TestTokenizerScanEOF(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   4:   }<EOF>",
-		"         ^^^^^",
-		"         here",
+		"    4 | }<EOF>",
+		"      |  ^^^^^",
+		"      |  here",
 	}, "\n")
 	checkContext(t, tokenizer.EOFContext(), exp)
 }
@@ -132,18 +132,18 @@ func TestTokenizerSkipWhitespace(t *testing.T) {
 
 	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
-		"   1:                   lorem ipsum",
-		"        ^",
-		"        here",
+		"    1 |                 lorem ipsum",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkContext(t, p1, exp1)
 
 	tokenizer.SkipWhitespace()
 	_, p2 := tokenizer.CurrentChar()
 	exp2 := strings.Join([]string{
-		"   1:                   lorem ipsum",
-		"                        ^",
-		"                        here",
+		"    1 |                 lorem ipsum",
+		"      |                 ^",
+		"      |                 here",
 	}, "\n")
 	checkContext(t, p2, exp2)
 }
@@ -160,9 +160,9 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
-		"   1:           lorem        ",
-		"        ^",
-		"        here",
+		"    1 |         lorem        ",
+		"      | ^",
+		"      | here",
 	}, "\n")
 
 	got1 := p1.HighlightText("here")
@@ -174,9 +174,9 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	_, p2 := tokenizer.CurrentChar()
 	exp2 := strings.Join([]string{
-		"   1:           lorem        ",
-		"                ^",
-		"                here",
+		"    1 |         lorem        ",
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 
 	got2 := p2.HighlightText("here")
@@ -190,9 +190,9 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 	}
 
 	expWord := strings.Join([]string{
-		"   1:           lorem        ",
-		"                ^^^^^",
-		"                here",
+		"    1 |         lorem        ",
+		"      |         ^^^^^",
+		"      |         here",
 	}, "\n")
 
 	gotWord := word.HighlightText("here")
@@ -202,9 +202,9 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	_, p3 := tokenizer.CurrentChar()
 	exp3 := strings.Join([]string{
-		"   1:           lorem        ",
-		"                     ^",
-		"                     here",
+		"    1 |         lorem        ",
+		"      |              ^",
+		"      |              here",
 	}, "\n")
 
 	got3 := p3.HighlightText("here")
@@ -216,9 +216,9 @@ func TestTokenizerSkipWhitespaceToNextLine(t *testing.T) {
 
 	_, p4 := tokenizer.CurrentChar()
 	exp4 := strings.Join([]string{
-		"   4:         ipsum dolor sit amet",
-		"              ^",
-		"              here",
+		"    4 |       ipsum dolor sit amet",
+		"      |       ^",
+		"      |       here",
 	}, "\n")
 
 	got4 := p4.HighlightText("here")
@@ -236,9 +236,9 @@ func TestTokenizerScanFixedString(t *testing.T) {
 
 	_, p1 := tokenizer.CurrentChar()
 	exp1 := strings.Join([]string{
-		"   1:   ====================",
-		"        ^",
-		"        here",
+		"    1 | ====================",
+		"      | ^",
+		"      | here",
 	}, "\n")
 
 	got1 := p1.HighlightText("here")
@@ -249,9 +249,9 @@ func TestTokenizerScanFixedString(t *testing.T) {
 	t2 := tokenizer.ScanFixedString("=")
 	_, p2 := tokenizer.CurrentChar()
 	expt2 := strings.Join([]string{
-		"   1:   ====================",
-		"        ^",
-		"        here",
+		"    1 | ====================",
+		"      | ^",
+		"      | here",
 	}, "\n")
 
 	gott2 := t2.HighlightText("here")
@@ -260,9 +260,9 @@ func TestTokenizerScanFixedString(t *testing.T) {
 	}
 
 	expp2 := strings.Join([]string{
-		"   1:   ====================",
-		"         ^",
-		"         here",
+		"    1 | ====================",
+		"      |  ^",
+		"      |  here",
 	}, "\n")
 	gotp2 := p2.HighlightText("here")
 	if gotp2 != expp2 {
@@ -272,9 +272,9 @@ func TestTokenizerScanFixedString(t *testing.T) {
 	t3 := tokenizer.ScanFixedString("==")
 	_, p3 := tokenizer.CurrentChar()
 	expt3 := strings.Join([]string{
-		"   1:   ====================",
-		"         ^^",
-		"         here",
+		"    1 | ====================",
+		"      |  ^^",
+		"      |  here",
 	}, "\n")
 
 	gott3 := t3.HighlightText("here")
@@ -283,9 +283,9 @@ func TestTokenizerScanFixedString(t *testing.T) {
 	}
 
 	expp3 := strings.Join([]string{
-		"   1:   ====================",
-		"           ^",
-		"           here",
+		"    1 | ====================",
+		"      |    ^",
+		"      |    here",
 	}, "\n")
 	gotp3 := p3.HighlightText("here")
 	if gotp3 != expp3 {
@@ -302,9 +302,9 @@ func TestTokenizerScanSymbol(t *testing.T) {
 		tokenizer := NewTokenizerFromString(code, "test.txt")
 		p1, err := tokenizer.ScanSymbol()
 		exp1 := strings.Join([]string{
-			"   1:   ====================",
-			"        ^^^",
-			"        here",
+			"    1 | ====================",
+			"      | ^^^",
+			"      | here",
 		}, "\n")
 
 		if err != nil {
@@ -324,9 +324,9 @@ func TestTokenizerScanSymbol(t *testing.T) {
 
 		tokenizer := NewTokenizerFromString(code, "test.txt")
 		exp := strings.Join([]string{
-			"   1:   0123456789",
-			"        ^",
-			"        invalid symbol '0'",
+			"test.txt:1:1: error: invalid symbol '0'",
+			"    1 | 0123456789",
+			"      | ^",
 		}, "\n")
 
 		p1, err := tokenizer.ScanSymbol()
@@ -364,9 +364,9 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     a + b",
-		"          ^",
-		"          here",
+		"    1 |   a + b",
+		"      |   ^",
+		"      |   here",
 	}, "\n")
 	got1 := ctxList[0].HighlightText("here")
 	if got1 != exp1 {
@@ -374,9 +374,9 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 	}
 
 	exp2 := strings.Join([]string{
-		"   1:     a + b",
-		"            ^",
-		"            here",
+		"    1 |   a + b",
+		"      |     ^",
+		"      |     here",
 	}, "\n")
 	got2 := ctxList[1].HighlightText("here")
 	if got2 != exp2 {
@@ -384,9 +384,9 @@ func TestTokenizerScanTokenOneSimpleLine(t *testing.T) {
 	}
 
 	exp3 := strings.Join([]string{
-		"   1:     a + b",
-		"              ^",
-		"              here",
+		"    1 |   a + b",
+		"      |       ^",
+		"      |       here",
 	}, "\n")
 	got3 := ctxList[2].HighlightText("here")
 	if got3 != exp3 {
@@ -418,30 +418,30 @@ func TestTokenizerScanTokenTwoSimpleLines(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     aaaa + bbb",
-		"          ^^^^",
-		"          here",
+		"    1 |   aaaa + bbb",
+		"      |   ^^^^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[0], ast.IdentifierName, exp1)
 
 	exp2 := strings.Join([]string{
-		"   1:     aaaa + bbb",
-		"               ^",
-		"               here",
+		"    1 |   aaaa + bbb",
+		"      |        ^",
+		"      |        here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
-		"   1:     aaaa + bbb",
-		"                 ^^^",
-		"                 here",
+		"    1 |   aaaa + bbb",
+		"      |          ^^^",
+		"      |          here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[2], ast.IdentifierName, exp3)
 
 	exp4 := strings.Join([]string{
-		"   2:   ccc",
-		"        ^^^",
-		"        here",
+		"    2 | ccc",
+		"      | ^^^",
+		"      | here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[3], ast.IdentifierName, exp4)
 }
@@ -469,9 +469,9 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF + 0xc0de",
-		"          ^^^^^^",
-		"          here",
+		"    1 |   0x1234 + 0xBEEF + 0xc0de",
+		"      |   ^^^^^^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[0], ast.Integer, exp1)
 
@@ -485,16 +485,16 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	}
 
 	exp2 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF + 0xc0de",
-		"                 ^",
-		"                 here",
+		"    1 |   0x1234 + 0xBEEF + 0xc0de",
+		"      |          ^",
+		"      |          here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF + 0xc0de",
-		"                   ^^^^^^",
-		"                   here",
+		"    1 |   0x1234 + 0xBEEF + 0xc0de",
+		"      |            ^^^^^^",
+		"      |            here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[2], ast.Integer, exp3)
 
@@ -508,16 +508,16 @@ func TestTokenizerScanTokenHexadecimalNumber(t *testing.T) {
 	}
 
 	exp4 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF + 0xc0de",
-		"                          ^",
-		"                          here",
+		"    1 |   0x1234 + 0xBEEF + 0xc0de",
+		"      |                   ^",
+		"      |                   here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[3], ast.Plus, exp4)
 
 	exp5 := strings.Join([]string{
-		"   1:     0x1234 + 0xBEEF + 0xc0de",
-		"                            ^^^^^^",
-		"                            here",
+		"    1 |   0x1234 + 0xBEEF + 0xc0de",
+		"      |                     ^^^^^^",
+		"      |                     here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[4], ast.Integer, exp5)
 
@@ -549,9 +549,9 @@ func TestTokenizerScanTokenHexadecimalNumberErrorNoNumberEOL(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   1:     0x",
-		"          ^^",
-		"          invalid hexadecimal number '0x'",
+		"test.txt:1:3: error: invalid hexadecimal number '0x'",
+		"    1 |   0x",
+		"      |   ^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -573,9 +573,9 @@ func TestTokenizerScanTokenHexadecimalNumberErrorInvalidFormat(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   1:     0xGHIJ+0xghij",
-		"          ^^^^^^",
-		"          invalid hexadecimal number '0xGHIJ'",
+		"test.txt:1:3: error: invalid hexadecimal number '0xGHIJ'",
+		"    1 |   0xGHIJ+0xghij",
+		"      |   ^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -597,9 +597,9 @@ func TestTokenizerScanTokenHexadecimalNumberErrorTooLargeNumber(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   1:     0x01234567890ABCDEF1234 + 0xbeef",
-		"          ^^^^^^^^^^^^^^^^^^^^^^^",
-		"          hexadecimal number '0x01234567890ABCDEF1234' is too large",
+		"test.txt:1:3: error: hexadecimal number '0x01234567890ABCDEF1234' is too large",
+		"    1 |   0x01234567890ABCDEF1234 + 0xbeef",
+		"      |   ^^^^^^^^^^^^^^^^^^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -627,9 +627,9 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     01234 + 0777",
-		"          ^^^^^",
-		"          here",
+		"    1 |   01234 + 0777",
+		"      |   ^^^^^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[0], ast.Integer, exp1)
 
@@ -643,16 +643,16 @@ func TestTokenizerScanTokenOctalNumber(t *testing.T) {
 	}
 
 	exp2 := strings.Join([]string{
-		"   1:     01234 + 0777",
-		"                ^",
-		"                here",
+		"    1 |   01234 + 0777",
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
-		"   1:     01234 + 0777",
-		"                  ^^^^",
-		"                  here",
+		"    1 |   01234 + 0777",
+		"      |           ^^^^",
+		"      |           here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[2], ast.Integer, exp3)
 
@@ -684,9 +684,9 @@ func TestTokenizerScanTokenOctalNumberErrorInvalidFormat(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   1:     0123456789",
-		"          ^^^^^^^^^^",
-		"          invalid octal number '0123456789'",
+		"test.txt:1:3: error: invalid octal number '0123456789'",
+		"    1 |   0123456789",
+		"      |   ^^^^^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -709,9 +709,9 @@ func TestTokenizerScanTokenOctalNumberErrorTooLargeNumber(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   1:     01234567012345670123456701234567",
-		"          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-		"          octal number '01234567012345670123456701234567' is too large",
+		"test.txt:1:3: error: octal number '01234567012345670123456701234567' is too large",
+		"    1 |   01234567012345670123456701234567",
+		"      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -739,9 +739,9 @@ func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     1234 + 5678",
-		"          ^^^^",
-		"          here",
+		"    1 |   1234 + 5678",
+		"      |   ^^^^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[0], ast.Integer, exp1)
 
@@ -755,16 +755,16 @@ func TestTokenizerScanTokenDecimalInteger(t *testing.T) {
 	}
 
 	exp2 := strings.Join([]string{
-		"   1:     1234 + 5678",
-		"               ^",
-		"               here",
+		"    1 |   1234 + 5678",
+		"      |        ^",
+		"      |        here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[1], ast.Plus, exp2)
 
 	exp3 := strings.Join([]string{
-		"   1:     1234 + 5678",
-		"                 ^^^^",
-		"                 here",
+		"    1 |   1234 + 5678",
+		"      |          ^^^^",
+		"      |          here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[2], ast.Integer, exp3)
 
@@ -791,9 +791,9 @@ func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     0",
-		"          ^",
-		"          here",
+		"    1 |   0",
+		"      |   ^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, tok, ast.Integer, exp1)
 
@@ -808,9 +808,9 @@ func TestTokenizerScanTokenDecimalSingleZero(t *testing.T) {
 
 	_, afterPos := tokenizer.CurrentChar()
 	exp2 := strings.Join([]string{
-		"   1:     0<EOF>",
-		"           ^^^^^",
-		"           here",
+		"    1 |   0<EOF>",
+		"      |    ^^^^^",
+		"      |    here",
 	}, "\n")
 	got := afterPos.HighlightText("here")
 	if got != exp2 {
@@ -841,9 +841,9 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
-		"          ^^^^^^^^^",
-		"          here",
+		"    1 |   1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
+		"      |   ^^^^^^^^^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[0], ast.Float, exp1)
 
@@ -857,9 +857,9 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp3 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
-		"                      ^^^^^",
-		"                      here",
+		"    1 |   1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
+		"      |               ^^^^^",
+		"      |               here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[2], ast.Float, exp3)
 
@@ -873,9 +873,9 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp5 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
-		"                              ^^^^^^",
-		"                              here",
+		"    1 |   1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
+		"      |                       ^^^^^^",
+		"      |                       here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[4], ast.Float, exp5)
 
@@ -889,9 +889,9 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp7 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
-		"                                       ^^^^^^",
-		"                                       here",
+		"    1 |   1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
+		"      |                                ^^^^^^",
+		"      |                                here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[6], ast.Float, exp7)
 
@@ -905,9 +905,9 @@ func TestTokenizerScanTokenDecimalNumberFloat(t *testing.T) {
 	}
 
 	exp9 := strings.Join([]string{
-		"   1:     1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
-		"                                                ^^^^",
-		"                                                here",
+		"    1 |   1234.5678 + 0.001 + 1.5e10 + 2.5E-3 + 3e+2",
+		"      |                                         ^^^^",
+		"      |                                         here",
 	}, "\n")
 	checkTerminalNode(t, ctxList[8], ast.Float, exp9)
 
@@ -939,9 +939,9 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInIntegerPart(t *
 	}
 
 	exp := strings.Join([]string{
-		"   1:     123dfg + 3.14",
-		"          ^^^^^^",
-		"          invalid decimal number '123dfg'",
+		"test.txt:1:3: error: invalid decimal number '123dfg'",
+		"    1 |   123dfg + 3.14",
+		"      |   ^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -964,9 +964,9 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInFractionPart(t 
 	}
 
 	exp := strings.Join([]string{
-		"   1:     3.14xyz + 123",
-		"          ^^^^^^^",
-		"          invalid decimal number '3.14xyz'",
+		"test.txt:1:3: error: invalid decimal number '3.14xyz'",
+		"    1 |   3.14xyz + 123",
+		"      |   ^^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -989,9 +989,9 @@ func TestTokenizerScanTokenDecimalNumberFloatErrorInvalidFormatInExponentPart(t 
 	}
 
 	exp := strings.Join([]string{
-		"   1:     1.5e10xyz + 123",
-		"          ^^^^^^^^^",
-		"          invalid decimal number '1.5e10xyz'",
+		"test.txt:1:3: error: invalid decimal number '1.5e10xyz'",
+		"    1 |   1.5e10xyz + 123",
+		"      |   ^^^^^^^^^",
 	}, "\n")
 	checkError(t, err, exp)
 }
@@ -1015,9 +1015,9 @@ func TestTokenizerScanTokenPreprocessorDirective(t *testing.T) {
 	}
 
 	exp := strings.Join([]string{
-		"   1:     #include <stdio.h>",
-		"          ^^^^^^^^ ^^^^^^^^^",
-		"          here",
+		"    1 |   #include <stdio.h>",
+		"      |   ^^^^^^^^ ^^^^^^^^^",
+		"      |   here",
 	}, "\n")
 	checkTerminalNode(t, tok, ast.NodePreprocessorInclude, exp)
 }

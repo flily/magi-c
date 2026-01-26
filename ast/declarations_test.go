@@ -119,13 +119,14 @@ func TestFunctionDeclarationNotEqualOnNodeType(t *testing.T) {
 	funcDecl := makeFunctionDeclarationTokens1(ctxList)
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   func add ( a int , b int ) ( int ) {",
-		"        ^^^^ ^^^ ^ ^ ^^^ ^ ^ ^^^ ^ ^ ^^^ ^ ^",
-		"   2:       return a + b",
-		"            ^^^^^^ ^ ^ ^",
-		"   3:   }",
-		"        ^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.FunctionDeclaration",
+		"    1 | func add ( a int , b int ) ( int ) {",
+		"      | ^^^^ ^^^ ^ ^ ^^^ ^ ^ ^^^ ^ ^ ^^^ ^ ^",
+		"    2 |     return a + b",
+		"      |     ^^^^^^ ^ ^ ^",
+		"    3 | }",
+		"      | ^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 	err := funcDecl.EqualTo(nil, expected)
 	if err == nil {
@@ -173,9 +174,10 @@ func TestFunctionDeclarationNotEqualOnFunctionName(t *testing.T) {
 	)
 
 	message := strings.Join([]string{
-		"   1:   func add ( a int , b int ) ( int ) {",
-		"             ^^^",
-		"             wrong identifier name, expect 'foobar', got 'add'",
+		"test.txt:1:6: error: wrong identifier name, expect 'foobar', got 'add'",
+		"    1 | func add ( a int , b int ) ( int ) {",
+		"      |      ^^^",
+		"      |      foobar",
 	}, "\n")
 	err := funcDecl.EqualTo(nil, expected)
 	if err == nil {
@@ -223,9 +225,10 @@ func TestFunctionDeclarationNotEquaOnArgumentList(t *testing.T) {
 	)
 
 	message := strings.Join([]string{
-		"   1:   func add ( a int , b int ) ( int ) {",
-		"                   ^",
-		"                   wrong identifier name, expect 'x', got 'a'",
+		"test.txt:1:12: error: wrong identifier name, expect 'x', got 'a'",
+		"    1 | func add ( a int , b int ) ( int ) {",
+		"      |            ^",
+		"      |            x",
 	}, "\n")
 	err := funcDecl.EqualTo(nil, expected)
 	if err == nil {
@@ -273,9 +276,10 @@ func TestFunctionDeclarationNotEquaOnReturnTypeList(t *testing.T) {
 	)
 
 	message := strings.Join([]string{
-		"   1:   func add ( a int , b int ) ( int ) {",
-		"                                     ^^^",
-		"                                     wrong identifier name, expect 'float', got 'int'",
+		"test.txt:1:30: error: wrong identifier name, expect 'float', got 'int'",
+		"    1 | func add ( a int , b int ) ( int ) {",
+		"      |                              ^^^",
+		"      |                              float",
 	}, "\n")
 	err := funcDecl.EqualTo(nil, expected)
 	if err == nil {
@@ -323,9 +327,10 @@ func TestFunctionDeclarationNotEquaOnExpressionList(t *testing.T) {
 	)
 
 	message := strings.Join([]string{
-		"   2:       return b + a",
-		"                   ^",
-		"                   wrong identifier name, expect 'a', got 'b'",
+		"test.txt:2:12: error: wrong identifier name, expect 'a', got 'b'",
+		"    2 |     return b + a",
+		"      |            ^",
+		"      |            a",
 	}, "\n")
 	err := funcDecl.EqualTo(nil, expected)
 	if err == nil {

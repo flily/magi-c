@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	FixedLeadingSpace  = "        "
+	//                    xxxxx |
+	FixedLeadingSpace  = "      | "
 	DefaultIndicator   = "^"
 	NoHighlightMessage = ""
 )
@@ -133,7 +134,7 @@ func (l *LineContext) Mark(start int, end int) *Context {
 }
 
 func (l *LineContext) LineNumber() string {
-	return fmt.Sprintf("%4d:   ", l.Content.Line+1)
+	return fmt.Sprintf("%5d | ", l.Content.Line+1)
 }
 
 func (l *LineContext) String() string {
@@ -191,17 +192,15 @@ func (l *LineContext) HighlighTextWith(indicator string, format string, args ...
 	}
 
 	content := l.String()
-	highlight := fmt.Sprintf("%s\n%s%s",
-		content+eol,
+	highlight := fmt.Sprintf("%s%s%s%s",
+		content+eol, DefaultNewLine,
 		FixedLeadingSpace, strings.Join(parts, ""),
 	)
 
 	message := ""
 
 	if len(format) > 0 {
-		message += "\n" +
-			FixedLeadingSpace +
-			strings.Repeat(" ", len(lead)) +
+		message += DefaultNewLine + FixedLeadingSpace + lead +
 			fmt.Sprintf(format, args...)
 	}
 
@@ -230,7 +229,7 @@ func (l *LineContext) HighlightColour(colour color.Color, format string, args ..
 
 	parts := make([]string, 0, 8+2*len(l.Highlights))
 	last, lead := 0, ""
-	parts = append(parts, FixedLeadingSpace, l.StringContent(), "\n")
+	parts = append(parts, FixedLeadingSpace, l.StringContent(), DefaultNewLine)
 
 	for i, highlight := range l.Highlights {
 		// highlight will store in order
@@ -255,9 +254,9 @@ func (l *LineContext) HighlightColour(colour color.Color, format string, args ..
 		last = highlight.End
 	}
 
-	return fmt.Sprintf("%s%s\n%s%s%s",
-		FixedLeadingSpace, strings.Join(parts, ""),
-		FixedLeadingSpace, strings.Repeat(" ", len(lead)), message,
+	return fmt.Sprintf("%s%s%s%s%s%s",
+		FixedLeadingSpace, strings.Join(parts, ""), DefaultNewLine,
+		FixedLeadingSpace, lead, message,
 	)
 }
 

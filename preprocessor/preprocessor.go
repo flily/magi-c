@@ -97,7 +97,7 @@ func ScanDirective(cursor *context.Cursor) (string, *context.Context, *context.C
 	cursor.SkipWhitespaceInLine()
 	hash, hashCtx := cursor.CurrentChar()
 	if hash != '#' {
-		return "", nil, nil, hashCtx.Error("expect '#' at the beginning of preprocessor directive, got '%c'", hash)
+		return "", nil, nil, hashCtx.Error("expect '#' at the beginning of preprocessor directive, got '%c'", hash).With("#")
 	}
 
 	if !cursor.IsFirstNonWhiteChar() {

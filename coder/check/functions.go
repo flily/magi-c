@@ -15,7 +15,7 @@ func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) error {
 		name := arg.Name
 		if ctx, found := nameMaps[name.Name]; found {
 			ectx := context.Join(ctx, name.Context())
-			return ectx.Error("duplicate function argument name: '%s'", name.Name)
+			return ectx.Error("duplicate function argument name: '%s'", name.Name).With("duplicate function argument name")
 		}
 
 		nameMaps[name.Name] = name.Context()

@@ -2,7 +2,7 @@ package ast
 
 import (
 	"testing"
-	
+
 	"strings"
 )
 
@@ -77,9 +77,9 @@ func TestCheckNodeEqualBIsTypedNil(t *testing.T) {
 	var b *StringLiteral = nil
 
 	expA := strings.Join([]string{
-		"   1:   lorem ipsum",
-		"        ^^^^^",
-		"        unexpected syntax element",
+		"test.txt:1:1: error: unexpected syntax element",
+		"    1 | lorem ipsum",
+		"      | ^^^^^",
 	}, "\n")
 	_, err := CheckNodeEqual(a, b)
 	if err == nil {

@@ -74,9 +74,9 @@ func TestCursorCurrentChar(t *testing.T) {
 
 	r, c1 := cursor.CurrentChar()
 	exp1 := strings.Join([]string{
-		"   1:   lorem",
-		"        ^",
-		"        here",
+		"    1 | lorem",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	got1 := c1.HighlightText("here")
 	if got1 != exp1 {
@@ -90,9 +90,9 @@ func TestCursorCurrentChar(t *testing.T) {
 	_, _, _ = cursor.Next()
 	r, c2 := cursor.CurrentChar()
 	exp2 := strings.Join([]string{
-		"   1:   lorem",
-		"         ^",
-		"         here",
+		"    1 | lorem",
+		"      |  ^",
+		"      |  here",
 	}, "\n")
 	got2 := c2.HighlightText("here")
 	if got2 != exp2 {
@@ -106,9 +106,9 @@ func TestCursorCurrentChar(t *testing.T) {
 	_ = cursor.NextNonEmptyLine()
 	r, c3 := cursor.CurrentChar()
 	exp3 := strings.Join([]string{
-		"   2:   ipsum",
-		"        ^",
-		"        here",
+		"    2 | ipsum",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	got3 := c3.HighlightText("here")
 	if got3 != exp3 {
@@ -127,9 +127,9 @@ func TestCursorCurrentCharAtEmptyLine(t *testing.T) {
 
 	r, ctx := cursor.CurrentChar()
 	exp := strings.Join([]string{
-		"   1:   <EOL LF>",
-		"        ^^^^^^^^",
-		"        here",
+		"    1 | <EOL LF>",
+		"      | ^^^^^^^^",
+		"      | here",
 	}, "\n")
 	got := ctx.HighlightText("here")
 	if got != exp {
@@ -349,9 +349,9 @@ func TestCursorMark(t *testing.T) {
 	content, ctx := cursor.Finish(s)
 	got := ctx.HighlightText("here")
 	expected := strings.Join([]string{
-		"   1:   lorem ipsum dolor sit amet",
-		"        ^^^^^",
-		"        here",
+		"    1 | lorem ipsum dolor sit amet",
+		"      | ^^^^^",
+		"      | here",
 	}, "\n")
 
 	if got != expected {
@@ -377,9 +377,9 @@ func TestCursorPeekString(t *testing.T) {
 	}
 
 	expected1 := strings.Join([]string{
-		"   1:   lorem ipsum dolor sit amet",
-		"        ^^^^^",
-		"        here",
+		"    1 | lorem ipsum dolor sit amet",
+		"      | ^^^^^",
+		"      | here",
 	}, "\n")
 	if expected1 != ctx1.HighlightText("here") {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
@@ -404,9 +404,9 @@ func TestCursorNextLiteral(t *testing.T) {
 	}
 
 	expected1 := strings.Join([]string{
-		"   1:   lorem",
-		"        ^^^^^",
-		"        here",
+		"    1 | lorem",
+		"      | ^^^^^",
+		"      | here",
 	}, "\n")
 	if expected1 != ctx1.HighlightText("here") {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
@@ -442,9 +442,9 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 	}
 
 	expected1 := strings.Join([]string{
-		"   1:   lorem",
-		"        ^^^^^",
-		"        here",
+		"    1 | lorem",
+		"      | ^^^^^",
+		"      | here",
 	}, "\n")
 	if expected1 != ctx1.HighlightText("here") {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected1, ctx1.HighlightText("here"))
@@ -457,9 +457,9 @@ func TestCursorNextLiteralInEndOfLine(t *testing.T) {
 		t.Fatalf("expected to find 'ipsum' at %s", cursor.PositionString())
 	}
 	expected2 := strings.Join([]string{
-		"   2:   ipsum",
-		"        ^^^^^",
-		"        here",
+		"    2 | ipsum",
+		"      | ^^^^^",
+		"      | here",
 	}, "\n")
 	if expected2 != ctx2.HighlightText("here") {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected2, ctx2.HighlightText("here"))
@@ -553,9 +553,9 @@ func TestCursorSkipWhitespace(t *testing.T) {
 	_, ctx1 := cursor.CurrentChar()
 	got1 := ctx1.HighlightText("here")
 	exp1 := strings.Join([]string{
-		"   1:                   lorem ipsum",
-		"        ^",
-		"        here",
+		"    1 |                 lorem ipsum",
+		"      | ^",
+		"      | here",
 	}, "\n")
 
 	if got1 != exp1 {
@@ -567,9 +567,9 @@ func TestCursorSkipWhitespace(t *testing.T) {
 	_, ctx2 := cursor.CurrentChar()
 	got2 := ctx2.HighlightText("here")
 	exp2 := strings.Join([]string{
-		"   1:                   lorem ipsum",
-		"                        ^",
-		"                        here",
+		"    1 |                 lorem ipsum",
+		"      |                 ^",
+		"      |                 here",
 	}, "\n")
 
 	if got2 != exp2 {
@@ -590,9 +590,9 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 	_, ctx1 := cursor.CurrentChar()
 	got1 := ctx1.HighlightText("here")
 	exp1 := strings.Join([]string{
-		"   1:           lorem        ",
-		"        ^",
-		"        here",
+		"    1 |         lorem        ",
+		"      | ^",
+		"      | here",
 	}, "\n")
 
 	if got1 != exp1 {
@@ -604,9 +604,9 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 	_, ctx2 := cursor.CurrentChar()
 	got2 := ctx2.HighlightText("here")
 	exp2 := strings.Join([]string{
-		"   1:           lorem        ",
-		"                ^",
-		"                here",
+		"    1 |         lorem        ",
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 
 	if got2 != exp2 {
@@ -619,9 +619,9 @@ func TestCursorSkipWhitespaceToNextLine(t *testing.T) {
 	_, ctx3 := cursor.CurrentChar()
 	got3 := ctx3.HighlightText("here")
 	exp3 := strings.Join([]string{
-		"   4:         ipsum dolor sit amet",
-		"              ^",
-		"              here",
+		"    4 |       ipsum dolor sit amet",
+		"      |       ^",
+		"      |       here",
 	}, "\n")
 
 	if got3 != exp3 {
@@ -642,9 +642,9 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 	_, ctx1 := cursor.CurrentChar()
 	got1 := ctx1.HighlightText("here")
 	exp1 := strings.Join([]string{
-		"   1:           lorem        ",
-		"        ^",
-		"        here",
+		"    1 |         lorem        ",
+		"      | ^",
+		"      | here",
 	}, "\n")
 
 	if got1 != exp1 {
@@ -655,9 +655,9 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 	_, ctx2 := cursor.CurrentChar()
 	got2 := ctx2.HighlightText("here")
 	exp2 := strings.Join([]string{
-		"   1:           lorem        ",
-		"                ^",
-		"                here",
+		"    1 |         lorem        ",
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 
 	if got2 != exp2 {
@@ -670,9 +670,9 @@ func TestCursorSkipWhitespaceInLine(t *testing.T) {
 	_, ctx3 := cursor.CurrentChar()
 	got3 := ctx3.HighlightText("here")
 	exp3 := strings.Join([]string{
-		"   1:           lorem        <EOL LF>",
-		"                             ^^^^^^^^",
-		"                             here",
+		"    1 |         lorem        <EOL LF>",
+		"      |                      ^^^^^^^^",
+		"      |                      here",
 	}, "\n")
 
 	if got3 != exp3 {
@@ -748,9 +748,9 @@ func TestCursorCurrentLineAndEOL(t *testing.T) {
 	}
 
 	exp1 := strings.Join([]string{
-		"   1:   lorem ipsum dolor sit amet",
-		"        ^^^^^^^^^^^^^^^^^^^^^^^^^^",
-		"        here",
+		"    1 | lorem ipsum dolor sit amet",
+		"      | ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"      | here",
 	}, "\n")
 	got1 := ctx1.HighlightText("here")
 	if got1 != exp1 {
@@ -771,9 +771,9 @@ func TestCursorCurrentLineAndEOL(t *testing.T) {
 	}
 
 	exp2 := strings.Join([]string{
-		"   2:   consectetur adipiscing elit",
-		"        ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-		"        here",
+		"    2 | consectetur adipiscing elit",
+		"      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"      | here",
 	}, "\n")
 	got2 := ctx2.HighlightText("here")
 	if got2 != exp2 {
@@ -797,9 +797,9 @@ func TestCursorCurrentLineAndEOL(t *testing.T) {
 	}
 
 	exp6 := strings.Join([]string{
-		"   6:   ut enim ad minim veniam",
-		"        ^^^^^^^^^^^^^^^^^^^^^^^",
-		"        here",
+		"    6 | ut enim ad minim veniam",
+		"      | ^^^^^^^^^^^^^^^^^^^^^^^",
+		"      | here",
 	}, "\n")
 	got6 := ctx6.HighlightText("here")
 	if got6 != exp6 {
