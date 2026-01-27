@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/flily/magi-c/ast"
-	"github.com/flily/magi-c/context"
 )
 
 func TestIncludeDirectiveAngleQuote(t *testing.T) {
@@ -204,22 +203,13 @@ func TestIncludeDirectiveWithUnclosedQuote(t *testing.T) {
 		"",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Include)
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-
 	exp := strings.Join([]string{
-		"example.c:1:18: error: quote not closed",
+		"example.mc:1:18: error: quote not closed",
 		`    1 | #include <stdio.h<EOL LF>`,
 		"      |                  ^^^^^^^^",
 		"      |                  >",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Include, exp)
 }
 
 func TestIncludeDirectiveWithQuoteNotMatched(t *testing.T) {
@@ -227,20 +217,11 @@ func TestIncludeDirectiveWithQuoteNotMatched(t *testing.T) {
 		`#include "stdio.h>`,
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Include)
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-
 	exp := strings.Join([]string{
-		"example.c:1:18: error: quote mismatch, expected '\"', got '>'",
+		"example.mc:1:18: error: quote mismatch, expected '\"', got '>'",
 		`    1 | #include "stdio.h>`,
 		"      |                  ^",
 		"      |                  \"",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Include, exp)
 }

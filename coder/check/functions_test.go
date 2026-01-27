@@ -24,10 +24,13 @@ func TestCheckFunctionDeclarationNameDuplicated(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
-		"test.mc:1:9: error: duplicate function argument name: 'a'",
+		"test.mc:1:23: error: duplicated function argument name: 'a'",
 		"    1 | fun add(a int, b int, a int) (int) {",
-		"      |         ^             ^",
-		"      |         duplicate function argument name",
+		"      |                       ^",
+		"      |                       duplicated name",
+		"test.mc:1:9: note: first declared here",
+		"    1 | fun add(a int, b int, a int) (int) {",
+		"      |         ^",
 	}, "\n")
 
 	checkCodeError(t, code, expected)
@@ -51,11 +54,13 @@ func TestCheckFunctionReturnValueCountMismatched(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
-		"test.mc:1:30: error: function return value count mismatch, expect 2, got 1",
+		"test.mc:2:12: error: function return value count mismatch, expect 2, got 1",
+		"    2 |     return a + b",
+		"      |            ^ ^ ^",
+		"      |            SHALL return 2 values",
+		"test.mc:1:30: note: return value types is declared here",
 		"    1 | fun addAndSub(a int, b int) (int, int) {",
 		"      |                              ^^^^ ^^^",
-		"    2 |     return a + b",
-		"      |     ^^^^^^ ^ ^ ^",
 	}, "\n")
 
 	checkCodeError(t, code, expected)
@@ -68,11 +73,12 @@ func TestCheckFunctionMissingReturnStatement(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
-		"test.mc:1:30: error: function missing return statement",
-		"    1 | fun addAndSub(a int, b int) (int, int) {",
-		"      |                              ^^^^ ^^^",
+		"test.mc:2:1: error: function missing return statement and reach the end of function",
 		"    2 | }",
 		"      | ^",
+		"test.mc:1:30: note: function return value types is declared here",
+		"    1 | fun addAndSub(a int, b int) (int, int) {",
+		"      |                              ^^^^ ^^^",
 	}, "\n")
 
 	checkCodeError(t, code, expected)

@@ -31,7 +31,7 @@ func testScanDirectiveCorrect(t *testing.T, code string, prep PreprocessorInitia
 func checkScanDirectiveError(t *testing.T, code string, prep PreprocessorInitializer, expected string) {
 	t.Helper()
 
-	cursor := context.NewCursorFromString("example.mc", code)
+	cursor := context.NewCursorFromString(testPreprocessorFilename, code)
 	_, err := scanDirectiveOn(cursor, prep)
 	if err == nil {
 		t.Fatalf("expect error when scan directive")
