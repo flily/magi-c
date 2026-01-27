@@ -40,9 +40,10 @@ func TestSimpleTypeNotEqualOnType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   * * lorem",
-		"        ^ ^ ^^^^^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.SimpleType",
+		"    1 | * * lorem",
+		"      | ^ ^ ^^^^^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := simpleType.EqualTo(nil, expected)
@@ -68,9 +69,9 @@ func TestSimpleTypeNotEqualOnAsterisks(t *testing.T) {
 
 	expected := ASTBuildSimpleType("*lorem")
 	message := strings.Join([]string{
-		"   1:   * * lorem",
-		"        ^ ^",
-		"        wrong number of POINTER ASTERISK: expected 1, got 2",
+		"test.txt:1:1: error: wrong number of POINTER ASTERISK: expected 1, got 2",
+		"    1 | * * lorem",
+		"      | ^ ^",
 	}, "\n")
 
 	err := simpleType.EqualTo(nil, expected)
@@ -96,9 +97,10 @@ func TestSimpleTypeNotEqualOnIdentifier(t *testing.T) {
 
 	expected := ASTBuildSimpleType("**ipsum")
 	message := strings.Join([]string{
-		"   1:   * * lorem",
-		"            ^^^^^",
-		"            wrong identifier name, expect 'ipsum', got 'lorem'",
+		"test.txt:1:5: error: wrong identifier name, expect 'ipsum', got 'lorem'",
+		"    1 | * * lorem",
+		"      |     ^^^^^",
+		"      |     ipsum",
 	}, "\n")
 
 	err := simpleType.EqualTo(nil, expected)
@@ -138,9 +140,10 @@ func TestArgumentDeclarationNotEqualOnNodeType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   lorem * int ,",
-		"        ^^^^^ ^ ^^^ ^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.ArgumentDeclaration",
+		"    1 | lorem * int ,",
+		"      | ^^^^^ ^ ^^^ ^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := argDecl.EqualTo(nil, expected)
@@ -164,9 +167,10 @@ func TestArgumentDeclarationNotEqualOnName(t *testing.T) {
 
 	expected := ASTBuildArgumentWithComma("ipsum", "*int")
 	message := strings.Join([]string{
-		"   1:   lorem * int ,",
-		"        ^^^^^",
-		"        wrong identifier name, expect 'ipsum', got 'lorem'",
+		"test.txt:1:1: error: wrong identifier name, expect 'ipsum', got 'lorem'",
+		"    1 | lorem * int ,",
+		"      | ^^^^^",
+		"      | ipsum",
 	}, "\n")
 
 	err := argDecl.EqualTo(nil, expected)
@@ -190,9 +194,9 @@ func TestArgumentDeclarationNotEqualOnType(t *testing.T) {
 
 	expected := ASTBuildArgumentWithComma("lorem", "int")
 	message := strings.Join([]string{
-		"   1:   lorem * int ,",
-		"              ^",
-		"              wrong number of POINTER ASTERISK: expected 0, got 1",
+		"test.txt:1:7: error: wrong number of POINTER ASTERISK: expected 0, got 1",
+		"    1 | lorem * int ,",
+		"      |       ^",
 	}, "\n")
 
 	err := argDecl.EqualTo(nil, expected)
@@ -216,9 +220,10 @@ func TestArgumentDeclarationNotEqualOnComma(t *testing.T) {
 
 	expected := ASTBuildArgumentWithoutComma("lorem", "*int")
 	message := strings.Join([]string{
-		"   1:   lorem * int ,",
-		"                    ^",
-		"                    unexpected *ast.TerminalToken found",
+		"test.txt:1:13: error: unexpected *ast.TerminalToken found",
+		"    1 | lorem * int ,",
+		"      |             ^",
+		"      |             unexpected token",
 	}, "\n")
 
 	err := argDecl.EqualTo(nil, expected)
@@ -262,9 +267,10 @@ func TestArgumentListNotEqualOnNodeType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   a int , b float , c string",
-		"        ^ ^^^ ^ ^ ^^^^^ ^ ^ ^^^^^^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.ArgumentList",
+		"    1 | a int , b float , c string",
+		"      | ^ ^^^ ^ ^ ^^^^^ ^ ^ ^^^^^^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := args.EqualTo(nil, expected)
@@ -316,9 +322,10 @@ func TestTypeListItemNotEqualOnNodeType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   * * int ,",
-		"        ^ ^ ^^^ ^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.TypeListItem",
+		"    1 | * * int ,",
+		"      | ^ ^ ^^^ ^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := typeItem.EqualTo(nil, expected)
@@ -348,9 +355,9 @@ func TestTypeListItemNotEqualOnType(t *testing.T) {
 
 	expected := ASTBuildTypeListItemWithComma("*int")
 	message := strings.Join([]string{
-		"   1:   * * int ,",
-		"        ^ ^",
-		"        wrong number of POINTER ASTERISK: expected 1, got 2",
+		"test.txt:1:1: error: wrong number of POINTER ASTERISK: expected 1, got 2",
+		"    1 | * * int ,",
+		"      | ^ ^",
 	}, "\n")
 
 	err := typeItem.EqualTo(nil, expected)
@@ -380,9 +387,10 @@ func TestTypeListItemNotEqualOnComma(t *testing.T) {
 
 	expected := ASTBuildTypeListItemWithoutComma("**int")
 	message := strings.Join([]string{
-		"   1:   * * int ,",
-		"                ^",
-		"                unexpected *ast.TerminalToken found",
+		"test.txt:1:9: error: unexpected *ast.TerminalToken found",
+		"    1 | * * int ,",
+		"      |         ^",
+		"      |         unexpected token",
 	}, "\n")
 
 	err := typeItem.EqualTo(nil, expected)
@@ -426,9 +434,10 @@ func TestTypeListNotEqualOnNodeType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   * int , * * float , string",
-		"        ^ ^^^ ^ ^ ^ ^^^^^ ^ ^^^^^^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.TypeList",
+		"    1 | * int , * * float , string",
+		"      | ^ ^^^ ^ ^ ^ ^^^^^ ^ ^^^^^^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := types.EqualTo(nil, expected)
@@ -455,9 +464,9 @@ func TestTypeListNotEqualOnSize(t *testing.T) {
 		ASTBuildTypeListItemWithComma("**float"),
 	)
 	message := strings.Join([]string{
-		"   1:   * int , * * float , string",
-		"        ^ ^^^ ^ ^ ^ ^^^^^ ^ ^^^^^^",
-		"        wrong number of TYPE LIST: expected 2, got 3",
+		"test.txt:1:1: error: wrong number of TYPE LIST: expected 2, got 3",
+		"    1 | * int , * * float , string",
+		"      | ^ ^^^ ^ ^ ^ ^^^^^ ^ ^^^^^^",
 	}, "\n")
 
 	err := types.EqualTo(nil, expected)

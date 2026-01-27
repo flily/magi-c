@@ -80,7 +80,7 @@ func CheckNodeEqual[T Comparable](a T, b Comparable) (T, error) {
 
 		cb, ok := vb.Interface().(T)
 		if !ok {
-			return *new(T), a.Context().Error("expect a %T", b)
+			return *new(T), a.Context().Error("expect a %T, got a %T", b, a).With("%T", b)
 		}
 
 		if va.IsNil() {
@@ -115,11 +115,11 @@ func CheckNilPointerEqual[T Comparable](archor context.ContextProvider, a T, b T
 	}
 
 	if va.IsNil() {
-		return archor.Context().NextInLineContext().Error("expect %T", b)
+		return archor.Context().NextInLineContext().Error("expect %T, got %T", b, a).With("%T", a)
 	}
 
 	if vb.IsNil() {
-		return a.Context().Error("unexpected %T found", a)
+		return a.Context().Error("unexpected %T found", a).With("unexpected token")
 	}
 
 	return a.EqualTo(archor, b)
