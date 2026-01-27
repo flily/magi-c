@@ -196,6 +196,14 @@ func (c *Context) NextContext() *Context {
 	return result
 }
 
+func (c *Context) Note(format string, args ...any) *Diagnostic {
+	return NewNote(c, format, args...)
+}
+
+func (c *Context) Warning(format string, args ...any) *Diagnostic {
+	return NewWarning(c, format, args...)
+}
+
 func (c *Context) Error(format string, args ...any) *Diagnostic {
 	return NewError(c, format, args...)
 }
