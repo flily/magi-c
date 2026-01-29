@@ -5,7 +5,7 @@ import (
 	"github.com/flily/magi-c/context"
 )
 
-func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) error {
+func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) context.DiagnosticInfo {
 	nameMaps := make(map[string]*context.Context)
 	for _, arg := range d.Arguments.Arguments {
 		if arg.Name.IsDummy() {
@@ -27,7 +27,7 @@ func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) error {
 	return nil
 }
 
-func checkFunctionReturnValue(d *ast.FunctionDeclaration) error {
+func checkFunctionReturnValue(d *ast.FunctionDeclaration) context.DiagnosticInfo {
 	count := len(d.ReturnTypes.Types)
 
 	retFound := false
@@ -59,11 +59,11 @@ func checkFunctionReturnValue(d *ast.FunctionDeclaration) error {
 	return nil
 }
 
-func checkFunctionDeclaration(d *ast.FunctionDeclaration) error {
+func checkFunctionDeclaration(conf *CheckConfigure, d *ast.FunctionDeclaration) *context.DiagnosticContainer {
 	l := NewCheckList(
 		checkFunctionDeclarationNameDuplicate,
 		checkFunctionReturnValue,
 	)
 
-	return l.Check(d)
+	return l.Check(conf, d)
 }
