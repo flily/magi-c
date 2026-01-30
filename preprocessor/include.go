@@ -39,7 +39,9 @@ func (p *preprocessorInclude) Process(hash *context.Context, name *context.Conte
 	p.cursor.SkipInLine(1)
 
 	if rb != pos {
-		return nil, rbCtx.Error("quote mismatch, expected '%c', got '%c'", pos, rb).With("%c", pos)
+		err := rbCtx.Error("quote mismatch, expected '%c', got '%c'", pos, rb).With("%c", pos).
+			For(lbCtx.Note("previous quote is '%c'", pos))
+		return nil, err
 	}
 
 	if len(content) <= 0 {

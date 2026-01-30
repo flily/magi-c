@@ -143,3 +143,21 @@ func TestScanDirectiveWithNoName(t *testing.T) {
 	}, "\n")
 	checkScanDirectiveError(t, code, Include, exp)
 }
+
+type testReqistry struct {
+	count int
+}
+
+func (t *testReqistry) RegisterPreprocessor(command string, initializer PreprocessorInitializer) {
+	t.count++
+}
+
+func TestRegisterPreprocessor(t *testing.T) {
+	registry := &testReqistry{}
+	RegisterPreprocessors(registry)
+
+	expectedCount := 2 // inline, include
+	if registry.count != expectedCount {
+		t.Errorf("expect %d preprocessors registered, got %d", expectedCount, registry.count)
+	}
+}

@@ -222,6 +222,9 @@ func TestIncludeDirectiveWithQuoteNotMatched(t *testing.T) {
 		`    1 | #include "stdio.h>`,
 		"      |                  ^",
 		"      |                  \"",
+		"example.mc:1:10: note: previous quote is '\"'",
+		`    1 | #include "stdio.h>`,
+		"      |          ^",
 	}, "\n")
 	checkScanDirectiveError(t, code, Include, exp)
 }

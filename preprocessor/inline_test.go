@@ -286,3 +286,23 @@ func TestInlineDirectiveWithUnclosedBlock(t *testing.T) {
 	}, "\n")
 	checkScanDirectiveError(t, code, Inline, exp)
 }
+
+func TestInlineDirectiveWithlockTypeUnmatched(t *testing.T) {
+	code := strings.Join([]string{
+		"#inline c",
+		"#include <stdio.h>",
+		"#end-inline asm",
+		"other-code",
+	}, "\n")
+
+	exp := strings.Join([]string{
+		"example.mc:4:11: error: expect '#end-inline c' to close inline block, got EOF",
+		"    4 | other-code<EOF>",
+		"      |           ^^^^^",
+		"example.mc:3:13: note: previous possible close here",
+		"    3 | #end-inline asm",
+		"      |             ^^^",
+		"      |             c",
+	}, "\n")
+	checkScanDirectiveError(t, code, Inline, exp)
+}
