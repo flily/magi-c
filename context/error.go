@@ -96,7 +96,7 @@ func (d *Diagnostic) For(reason *Diagnostic) *DiagnosticCombo {
 
 func (d *Diagnostic) ToContainer() *DiagnosticContainer {
 	c := NewDiagnosticContainer(d.level)
-	c.Add(d)
+	_ = c.Add(d)
 	return c
 }
 
@@ -122,7 +122,7 @@ func (c *DiagnosticCombo) Error() string {
 
 func (c *DiagnosticCombo) ToContainer() *DiagnosticContainer {
 	container := NewDiagnosticContainer(c.info.level)
-	container.Add(c)
+	_ = container.Add(c)
 	return container
 }
 

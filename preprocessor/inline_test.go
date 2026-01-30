@@ -24,6 +24,7 @@ func TestInlineDirectiveBasic(t *testing.T) {
 
 	if result == nil {
 		t.Fatalf("expect non-nil PreprocessorInline node")
+		return // unreachable return, reduce lint error
 	}
 
 	expHash := strings.Join([]string{

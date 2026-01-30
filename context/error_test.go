@@ -207,10 +207,10 @@ func TestDiagnosticContaineMerge(t *testing.T) {
 	c1 := err1.For(err2).ToContainer()
 	c2 := err3.ToContainer()
 
-	container.Merge(c1)
-	container.Merge(c2)
+	_ = container.Merge(c1)
+	_ = container.Merge(c2)
 
-	if 2 != container.Count(Ignored) {
+	if container.Count(Ignored) != 2 {
 		t.Fatalf("diagnostic count mismatch for Ignored, expected 2, got %d", container.Count(Ignored))
 	}
 
