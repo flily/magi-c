@@ -40,9 +40,9 @@ func TestExpressionListNotEqualInSize(t *testing.T) {
 		ASTBuildExpressionListItemWithComma(ASTBuildValue(3.14)),
 	)
 	message := strings.Join([]string{
-		"   1:   42 , 3.14 , PI",
-		"        ^^ ^ ^^^^ ^ ^^",
-		"        wrong number of EXPRESSION LIST: expected 2, got 3",
+		"test.txt:1:1: error: wrong number of EXPRESSION LIST: expected 2, got 3",
+		"    1 | 42 , 3.14 , PI",
+		"      | ^^ ^ ^^^^ ^ ^^",
 	}, "\n")
 
 	err := list.EqualTo(nil, expected)
@@ -70,9 +70,10 @@ func TestExpressionListNotEqualInValueType(t *testing.T) {
 		ASTBuildExpressionListItemWithoutComma(ASTBuildIdentifier("PI")),
 	)
 	message := strings.Join([]string{
-		"   1:   42 , 3.14 , PI",
-		"             ^^^^",
-		"             expect a *ast.IntegerLiteral",
+		"test.txt:1:6: error: expect a *ast.IntegerLiteral, got a *ast.FloatLiteral",
+		"    1 | 42 , 3.14 , PI",
+		"      |      ^^^^",
+		"      |      *ast.IntegerLiteral",
 	}, "\n")
 
 	err := list.EqualTo(nil, expected)
@@ -100,9 +101,10 @@ func TestExpressionListNotEqualInValue(t *testing.T) {
 		ASTBuildExpressionListItemWithoutComma(ASTBuildIdentifier("pi")),
 	)
 	message := strings.Join([]string{
-		"   1:   42 , 3.14 , PI",
-		"                    ^^",
-		"                    wrong identifier name, expect 'pi', got 'PI'",
+		"test.txt:1:13: error: wrong identifier name, expect 'pi', got 'PI'",
+		"    1 | 42 , 3.14 , PI",
+		"      |             ^^",
+		"      |             pi",
 	}, "\n")
 
 	err := list.EqualTo(nil, expected)
@@ -130,9 +132,10 @@ func TestExpressionListNotEqualInComma(t *testing.T) {
 		ASTBuildExpressionListItemWithComma(ASTBuildIdentifier("PI")),
 	)
 	message := strings.Join([]string{
-		"   1:   42 , 3.14 , PI<EOF>",
-		"                      ^^^^^",
-		"                      expect *ast.TerminalToken",
+		"test.txt:1:15: error: expect *ast.TerminalToken, got *ast.TerminalToken",
+		"    1 | 42 , 3.14 , PI<EOF>",
+		"      |               ^^^^^",
+		"      |               *ast.TerminalToken",
 	}, "\n")
 
 	err := list.EqualTo(nil, expected)
@@ -156,9 +159,10 @@ func TestExpressionListItemNotEqualInType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   42 , 3.14 , PI",
-		"        ^^ ^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.ExpressionListItem",
+		"    1 | 42 , 3.14 , PI",
+		"      | ^^ ^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := item.EqualTo(nil, expected)
@@ -206,9 +210,10 @@ func TestExpressionInfixNotEqualInType(t *testing.T) {
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   a + b",
-		"        ^ ^ ^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.InfixExpression",
+		"    1 | a + b",
+		"      | ^ ^ ^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 
 	err := expr.EqualTo(nil, expected)
@@ -237,9 +242,10 @@ func TestExpressionInfixNotEqualInLeft(t *testing.T) {
 		ASTBuildIdentifier("b"),
 	)
 	message := strings.Join([]string{
-		"   1:   a + b",
-		"        ^",
-		"        wrong identifier name, expect 'x', got 'a'",
+		"test.txt:1:1: error: wrong identifier name, expect 'x', got 'a'",
+		"    1 | a + b",
+		"      | ^",
+		"      | x",
 	}, "\n")
 
 	err := expr.EqualTo(nil, expected)
@@ -268,9 +274,10 @@ func TestExpressionInfixNotEqualInOperator(t *testing.T) {
 		ASTBuildIdentifier("b"),
 	)
 	message := strings.Join([]string{
-		"   1:   a + b",
-		"          ^",
-		"          expect operator '-', got '+'",
+		"test.txt:1:3: error: expect operator '-', got '+'",
+		"    1 | a + b",
+		"      |   ^",
+		"      |   -",
 	}, "\n")
 
 	err := expr.EqualTo(nil, expected)
@@ -299,9 +306,10 @@ func TestExpressionInfixNotEqualInRight(t *testing.T) {
 		ASTBuildIdentifier("y"),
 	)
 	message := strings.Join([]string{
-		"   1:   a + b",
-		"            ^",
-		"            wrong identifier name, expect 'y', got 'b'",
+		"test.txt:1:5: error: wrong identifier name, expect 'y', got 'b'",
+		"    1 | a + b",
+		"      |     ^",
+		"      |     y",
 	}, "\n")
 
 	err := expr.EqualTo(nil, expected)

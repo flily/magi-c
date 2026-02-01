@@ -28,6 +28,56 @@ func TestPreprocessorInclude(t *testing.T) {
 	}
 }
 
+func TestPreprocessorIncludeNotEqualInContent(t *testing.T) {
+	text := "# include < stdio.h >"
+	ctxList := generateTestWords(text)
+
+	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
+		ctxList[2], ctxList[3], ctxList[4])
+
+	expected := ASTBuildIncludeAngle("stdlib.h")
+	message := strings.Join([]string{
+		"test.txt:1:13: error: wrong include content, expect 'stdlib.h', got 'stdio.h'",
+		"    1 | # include < stdio.h >",
+		"      |             ^^^^^^^",
+		"      |             stdlib.h",
+	}, "\n")
+
+	err := includeSegment.EqualTo(nil, expected)
+	if err == nil {
+		t.Errorf("PreprocessorInclude expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
+func TestPreprocessorIncludeNotEqualInQuote(t *testing.T) {
+	text := "# include < stdio.h >"
+	ctxList := generateTestWords(text)
+
+	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
+		ctxList[2], ctxList[3], ctxList[4])
+
+	expected := ASTBuildIncludeQuote("stdio.h")
+	message := strings.Join([]string{
+		"test.txt:1:11: error: wrong include bracket, expect '\"' and '\"', got '<' and '>'",
+		"    1 | # include < stdio.h >",
+		"      |           ^         ^",
+		`      |           "         "`,
+	}, "\n")
+
+	err := includeSegment.EqualTo(nil, expected)
+	if err == nil {
+		t.Errorf("PreprocessorInclude expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
 func TestPreprocessorIncludeNotEqual(t *testing.T) {
 	text := "# include < stdio.h >"
 	ctxList := generateTestWords(text)
@@ -35,58 +85,21 @@ func TestPreprocessorIncludeNotEqual(t *testing.T) {
 	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
 		ctxList[2], ctxList[3], ctxList[4])
 
-	{
-		expected := ASTBuildIncludeAngle("stdlib.h")
-		message := strings.Join([]string{
-			"   1:   # include < stdio.h >",
-			"                    ^^^^^^^",
-			"                    wrong include content, expect 'stdlib.h', got 'stdio.h'",
-		}, "\n")
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.PreprocessorInclude",
+		"    1 | # include < stdio.h >",
+		"      | ^ ^^^^^^^ ^ ^^^^^^^ ^",
+		"      | *ast.IntegerLiteral",
+	}, "\n")
 
-		err := includeSegment.EqualTo(nil, expected)
-		if err == nil {
-			t.Errorf("PreprocessorInclude expected not equal, but equal")
-		}
-
-		if err.Error() != message {
-			t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
-		}
+	err := includeSegment.EqualTo(nil, expected)
+	if err == nil {
+		t.Errorf("PreprocessorInclude expected not equal, but equal")
 	}
 
-	{
-		expected := ASTBuildIncludeQuote("stdio.h")
-		message := strings.Join([]string{
-			"   1:   # include < stdio.h >",
-			"                  ^         ^",
-			"                  wrong include bracket, expect '\"' and '\"', got '<' and '>'",
-		}, "\n")
-
-		err := includeSegment.EqualTo(nil, expected)
-		if err == nil {
-			t.Errorf("PreprocessorInclude expected not equal, but equal")
-		}
-
-		if err.Error() != message {
-			t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
-		}
-	}
-
-	{
-		expected := ASTBuildValue(42)
-		message := strings.Join([]string{
-			"   1:   # include < stdio.h >",
-			"        ^ ^^^^^^^ ^ ^^^^^^^ ^",
-			"        expect a *ast.IntegerLiteral",
-		}, "\n")
-
-		err := includeSegment.EqualTo(nil, expected)
-		if err == nil {
-			t.Errorf("PreprocessorInclude expected not equal, but equal")
-		}
-
-		if err.Error() != message {
-			t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
-		}
+	if err.Error() != message {
+		t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
 	}
 }
 
@@ -137,6 +150,74 @@ func TestProprocessorInlineIsEmpty(t *testing.T) {
 	}
 }
 
+func TestPreprocessorInlineNotEqualInType(t *testing.T) {
+	codeType := "asm"
+	content := "inline-content"
+	text := strings.Join([]string{
+		"# inline asm",
+		content,
+		"# end-inline asm",
+	}, "\n")
+	ctxList := generateTestWords(text)
+
+	inlineSegment := NewPreprocessorInline(ctxList[0], ctxList[1], codeType, ctxList[2],
+		content, ctxList[3],
+		ctxList[4], ctxList[5], ctxList[6])
+
+	expected := ASTBuildInline("c",
+		"inline-content",
+	)
+	message := strings.Join([]string{
+		"test.txt:1:10: error: wrong inline code type, expect 'c', got 'asm'",
+		"    1 | # inline asm",
+		"      |          ^^^",
+		"      |          c",
+	}, "\n")
+
+	err := inlineSegment.EqualTo(nil, expected)
+	if err == nil {
+		t.Errorf("PreprocessorInline expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
+func TestPreprocessorInlineNotEqualInContent(t *testing.T) {
+	codeType := "asm"
+	content := "inline-content"
+	text := strings.Join([]string{
+		"# inline asm",
+		content,
+		"# end-inline asm",
+	}, "\n")
+	ctxList := generateTestWords(text)
+
+	inlineSegment := NewPreprocessorInline(ctxList[0], ctxList[1], codeType, ctxList[2],
+		content, ctxList[3],
+		ctxList[4], ctxList[5], ctxList[6])
+
+	expected := ASTBuildInline("asm",
+		"different-content",
+	)
+	message := strings.Join([]string{
+		"test.txt:2:1: error: wrong inline content",
+		"    2 | inline-content",
+		"      | ^^^^^^^^^^^^^^",
+		"      | different-content",
+	}, "\n")
+
+	err := inlineSegment.EqualTo(nil, expected)
+	if err == nil {
+		t.Errorf("PreprocessorInline expected not equal, but equal")
+	}
+
+	if err.Error() != message {
+		t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
+	}
+}
+
 func TestPreprocessorInlineNotEqual(t *testing.T) {
 	codeType := "asm"
 	content := "inline-content"
@@ -151,65 +232,24 @@ func TestPreprocessorInlineNotEqual(t *testing.T) {
 		content, ctxList[3],
 		ctxList[4], ctxList[5], ctxList[6])
 
-	{
-		expected := ASTBuildInline("c",
-			"inline-content",
-		)
-		message := strings.Join([]string{
-			"   1:   # inline asm",
-			"                 ^^^",
-			"                 wrong inline code type, expect 'c', got 'asm'",
-		}, "\n")
+	expected := ASTBuildValue(42)
+	message := strings.Join([]string{
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.PreprocessorInline",
+		"    1 | # inline asm",
+		"      | ^ ^^^^^^ ^^^",
+		"    2 | inline-content",
+		"      | ^^^^^^^^^^^^^^",
+		"    3 | # end-inline asm",
+		"      | ^ ^^^^^^^^^^ ^^^",
+		"      | *ast.IntegerLiteral",
+	}, "\n")
 
-		err := inlineSegment.EqualTo(nil, expected)
-		if err == nil {
-			t.Errorf("PreprocessorInline expected not equal, but equal")
-		}
-
-		if err.Error() != message {
-			t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
-		}
+	err := inlineSegment.EqualTo(nil, expected)
+	if err == nil {
+		t.Errorf("PreprocessorInline expected not equal, but equal")
 	}
 
-	{
-		expected := ASTBuildInline("asm",
-			"different-content",
-		)
-		message := strings.Join([]string{
-			"   2:   inline-content",
-			"        ^^^^^^^^^^^^^^",
-			"        wrong inline content, expect 'different-content', got 'inline-content'",
-		}, "\n")
-
-		err := inlineSegment.EqualTo(nil, expected)
-		if err == nil {
-			t.Errorf("PreprocessorInline expected not equal, but equal")
-		}
-
-		if err.Error() != message {
-			t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
-		}
-	}
-
-	{
-		expected := ASTBuildValue(42)
-		message := strings.Join([]string{
-			"   1:   # inline asm",
-			"        ^ ^^^^^^ ^^^",
-			"   2:   inline-content",
-			"        ^^^^^^^^^^^^^^",
-			"   3:   # end-inline asm",
-			"        ^ ^^^^^^^^^^ ^^^",
-			"        expect a *ast.IntegerLiteral",
-		}, "\n")
-
-		err := inlineSegment.EqualTo(nil, expected)
-		if err == nil {
-			t.Errorf("PreprocessorInline expected not equal, but equal")
-		}
-
-		if err.Error() != message {
-			t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
-		}
+	if err.Error() != message {
+		t.Errorf("wrong error message:\nexpected:\n%s\ngot:\n%s", message, err.Error())
 	}
 }

@@ -43,6 +43,7 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 		return nil, ctx.Error("expect inline block content, got EOF")
 	}
 
+	var lastPossibleClose *context.Context
 	var contentCtx *context.Context
 	content := make([]string, 0, 64)
 
@@ -54,6 +55,8 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 			if endBlockType == blockType {
 				directive := ast.NewPreprocessorInline(hash, name, blockType, btCtx, strings.Join(content, "\n"), contentCtx, endHashCtx, endNameCtx, endBtCtx)
 				return directive, nil
+			} else {
+				lastPossibleClose = endBtCtx
 			}
 		}
 
@@ -69,7 +72,13 @@ func (p *preprocessorInline) Process(hash *context.Context, name *context.Contex
 		eof := p.cursor.NextLine()
 		if eof {
 			_, ctx := p.cursor.CurrentChar()
-			return nil, ctx.Error("expect '#%s %s' to close inline block, got EOF", PreprocessorCommandInlineClose, blockType)
+			err := ctx.Error("expect '#%s %s' to close inline block, got EOF", PreprocessorCommandInlineClose, blockType)
+			if lastPossibleClose == nil {
+				return nil, err
+			}
+
+			reason := lastPossibleClose.Note("previous possible close here").With(blockType)
+			return nil, err.For(reason)
 		}
 	}
 }

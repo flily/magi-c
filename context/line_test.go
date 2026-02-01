@@ -15,9 +15,9 @@ func TestLineContextHighlightText(t *testing.T) {
 
 	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
-		"  43:   the quick brown fox jumps over the lazy dog",
-		"            ^^^^^",
-		"            lorem ipsum",
+		"   43 | the quick brown fox jumps over the lazy dog",
+		"      |     ^^^^^",
+		"      |     lorem ipsum",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
@@ -42,8 +42,8 @@ func TestLineContextHighlightTextWithoutMessage(t *testing.T) {
 
 	got := lctx.HighlighText(NoHighlightMessage)
 	expected := strings.Join([]string{
-		"  43:   the quick brown fox jumps over the lazy dog",
-		"            ^^^^^",
+		"   43 | the quick brown fox jumps over the lazy dog",
+		"      |     ^^^^^",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
@@ -60,9 +60,9 @@ func TestLineContextHighlightTextMultiParts(t *testing.T) {
 
 	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
-		"  43:   the quick brown fox jumps over the lazy dog",
-		"            ^^^^^       ^^^",
-		"            lorem ipsum",
+		"   43 | the quick brown fox jumps over the lazy dog",
+		"      |     ^^^^^       ^^^",
+		"      |     lorem ipsum",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
@@ -78,10 +78,10 @@ func TestLineContextHighlightTextWithTabCharacters(t *testing.T) {
 
 	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
-		"  43:   the quick\tbrown fox jumps over the lazy dog",
-		// 43:   the quick       brown fox jumps over the lazy dog
-		"                        ^^^^^",
-		"                        lorem ipsum",
+		"   43 | the quick\tbrown fox jumps over the lazy dog",
+		//  43 | the quick       brown fox jumps over the lazy dog
+		"      |                 ^^^^^",
+		"      |                 lorem ipsum",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
@@ -98,10 +98,10 @@ func TestLineContextHighlightTextWithTabCharactersMultiParts(t *testing.T) {
 
 	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
-		"  43:   the quick\tbrown fox jumps over the lazy dog",
-		// 43:   the quick       brown fox jumps over the lazy dog
-		"            ^^^^^       ^^^^^",
-		"            lorem ipsum",
+		"   43 | the quick\tbrown fox jumps over the lazy dog",
+		//  43 | the quick       brown fox jumps over the lazy dog
+		"      |     ^^^^^       ^^^^^",
+		"      |     lorem ipsum",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
@@ -117,9 +117,9 @@ func TestLineContextHighlightTextWithMixedLanguages1(t *testing.T) {
 
 	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
-		"  43:   the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog",
-		"                            ^^^^^^^^",
-		"                            lorem ipsum",
+		"   43 | the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog",
+		"      |                     ^^^^^^^^",
+		"      |                     lorem ipsum",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)
@@ -135,9 +135,9 @@ func TestLineContextHighlightTextWithMixedLanguages2(t *testing.T) {
 
 	got := lctx.HighlighText("lorem ipsum")
 	expected := strings.Join([]string{
-		"  43:   the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog",
-		"                                                   ^^^^^",
-		"                                                   lorem ipsum",
+		"   43 | the quick brown fox 我能吞下玻璃而不伤身体 jumps over the lazy dog",
+		"      |                                            ^^^^^",
+		"      |                                            lorem ipsum",
 	}, "\n")
 	if got != expected {
 		t.Errorf("expected:\n%s\ngot:\n%s", expected, got)

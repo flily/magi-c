@@ -31,39 +31,45 @@ func TestStringLiteralNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	s := NewStringLiteral(ctxList[0], "lorem")
-	{
-		a := ASTBuildValue(3)
-		exp := strings.Join([]string{
-			"   1:   lorem ipsum",
-			"        ^^^^^",
-			"        expect a *ast.IntegerLiteral",
-		}, "\n")
 
-		err := s.EqualTo(s, a)
-		if err == nil {
-			t.Fatalf("expected string literal not equal to actual")
-		}
+	a := ASTBuildValue(3)
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.StringLiteral",
+		"    1 | lorem ipsum",
+		"      | ^^^^^",
+		"      | *ast.IntegerLiteral",
+	}, "\n")
 
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+	err := s.EqualTo(s, a)
+	if err == nil {
+		t.Fatalf("expected string literal not equal to actual")
 	}
 
-	{
-		a := ASTBuildValue("ipsum")
-		err := s.EqualTo(s, a)
-		if err == nil {
-			t.Fatalf("expected string literal not equal to actual")
-		}
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+	}
+}
 
-		exp := strings.Join([]string{
-			"   1:   lorem ipsum",
-			"        ^^^^^",
-			"        wrong string value, expect 'ipsum', got 'lorem'",
-		}, "\n")
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+func TestStringLiteralNotEqualInValue(t *testing.T) {
+	text := "lorem ipsum"
+	ctxList := generateTestWords(text)
+
+	s := NewStringLiteral(ctxList[0], "lorem")
+
+	a := ASTBuildValue("ipsum")
+	err := s.EqualTo(s, a)
+	if err == nil {
+		t.Fatalf("expected string literal not equal to actual")
+	}
+
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: wrong string value, expect 'ipsum', got 'lorem'",
+		"    1 | lorem ipsum",
+		"      | ^^^^^",
+		"      | ipsum",
+	}, "\n")
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
 	}
 }
 
@@ -112,39 +118,43 @@ func TestIntegerLiteralNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	i := NewIntegerLiteral(ctxList[0], 1234)
-	{
-		a := ASTBuildValue("1234")
-		exp := strings.Join([]string{
-			"   1:   1234 5678",
-			"        ^^^^",
-			"        expect a *ast.StringLiteral",
-		}, "\n")
+	a := ASTBuildValue("1234")
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: expect a *ast.StringLiteral, got a *ast.IntegerLiteral",
+		"    1 | 1234 5678",
+		"      | ^^^^",
+		"      | *ast.StringLiteral",
+	}, "\n")
 
-		err := i.EqualTo(i, a)
-		if err == nil {
-			t.Fatalf("expected integer literal not equal to actual")
-		}
-
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+	err := i.EqualTo(i, a)
+	if err == nil {
+		t.Fatalf("expected integer literal not equal to actual")
 	}
 
-	{
-		a := ASTBuildValue(5678)
-		err := i.EqualTo(i, a)
-		if err == nil {
-			t.Fatalf("expected integer literal not equal to actual")
-		}
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+	}
+}
 
-		exp := strings.Join([]string{
-			"   1:   1234 5678",
-			"        ^^^^",
-			"        wrong integer value, expect 5678, got 1234",
-		}, "\n")
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+func TestIntegerLiteralNotEqualInValue(t *testing.T) {
+	text := "1234 5678"
+	ctxList := generateTestWords(text)
+
+	i := NewIntegerLiteral(ctxList[0], 1234)
+	a := ASTBuildValue(5678)
+	err := i.EqualTo(i, a)
+	if err == nil {
+		t.Fatalf("expected integer literal not equal to actual")
+	}
+
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: wrong integer value, expect 5678, got 1234",
+		"    1 | 1234 5678",
+		"      | ^^^^",
+		"      | 5678",
+	}, "\n")
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
 	}
 }
 
@@ -173,39 +183,43 @@ func TestFloatLiteralNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	f := NewFloatLiteral(ctxList[0], 3.14)
-	{
-		a := ASTBuildValue("3.14")
-		exp := strings.Join([]string{
-			"   1:   3.14 2.71",
-			"        ^^^^",
-			"        expect a *ast.StringLiteral",
-		}, "\n")
+	a := ASTBuildValue("3.14")
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: expect a *ast.StringLiteral, got a *ast.FloatLiteral",
+		"    1 | 3.14 2.71",
+		"      | ^^^^",
+		"      | *ast.StringLiteral",
+	}, "\n")
 
-		err := f.EqualTo(f, a)
-		if err == nil {
-			t.Fatalf("expected float literal not equal to actual")
-		}
-
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+	err := f.EqualTo(f, a)
+	if err == nil {
+		t.Fatalf("expected float literal not equal to actual")
 	}
 
-	{
-		a := ASTBuildValue(2.71)
-		err := f.EqualTo(f, a)
-		if err == nil {
-			t.Fatalf("expected float literal not equal to actual")
-		}
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+	}
+}
 
-		exp := strings.Join([]string{
-			"   1:   3.14 2.71",
-			"        ^^^^",
-			"        wrong float value, expect 2.71, got 3.14",
-		}, "\n")
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+func TestFloatLiteralNotEqualInValue(t *testing.T) {
+	text := "3.14 2.71"
+	ctxList := generateTestWords(text)
+
+	f := NewFloatLiteral(ctxList[0], 3.14)
+	a := ASTBuildValue(2.71)
+	err := f.EqualTo(f, a)
+	if err == nil {
+		t.Fatalf("expected float literal not equal to actual")
+	}
+
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: wrong float value, expect 2.71, got 3.14",
+		"    1 | 3.14 2.71",
+		"      | ^^^^",
+		"      | 2.71",
+	}, "\n")
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
 	}
 }
 
@@ -252,39 +266,43 @@ func TestIdentifierNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	id := NewIdentifier(ctxList[0])
-	{
-		a := ASTBuildValue(1234)
-		exp := strings.Join([]string{
-			"   1:   lorem ipsum",
-			"        ^^^^^",
-			"        expect a *ast.IntegerLiteral",
-		}, "\n")
+	a := ASTBuildValue(1234)
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.Identifier",
+		"    1 | lorem ipsum",
+		"      | ^^^^^",
+		"      | *ast.IntegerLiteral",
+	}, "\n")
 
-		err := id.EqualTo(id, a)
-		if err == nil {
-			t.Fatalf("expected identifier not equal to actual")
-		}
-
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+	err := id.EqualTo(id, a)
+	if err == nil {
+		t.Fatalf("expected identifier not equal to actual")
 	}
 
-	{
-		a := ASTBuildIdentifier("ipsum")
-		err := id.EqualTo(id, a)
-		if err == nil {
-			t.Fatalf("expected identifier not equal to actual")
-		}
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
+	}
+}
 
-		exp := strings.Join([]string{
-			"   1:   lorem ipsum",
-			"        ^^^^^",
-			"        wrong identifier name, expect 'ipsum', got 'lorem'",
-		}, "\n")
-		if err.Error() != exp {
-			t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
-		}
+func TestIdentifierNotEqualInName(t *testing.T) {
+	text := "lorem ipsum"
+	ctxList := generateTestWords(text)
+
+	id := NewIdentifier(ctxList[0])
+	a := ASTBuildIdentifier("ipsum")
+	err := id.EqualTo(id, a)
+	if err == nil {
+		t.Fatalf("expected identifier not equal to actual")
+	}
+
+	exp := strings.Join([]string{
+		"test.txt:1:1: error: wrong identifier name, expect 'ipsum', got 'lorem'",
+		"    1 | lorem ipsum",
+		"      | ^^^^^",
+		"      | ipsum",
+	}, "\n")
+	if err.Error() != exp {
+		t.Fatalf("wrong error message:\nexpected:\n%s\ngot:\n%s", exp, err.Error())
 	}
 }
 
@@ -342,9 +360,10 @@ func TestTerminalTokenNotEqual(t *testing.T) {
 	{
 		a := ASTBuildSymbol(Sub)
 		exp := strings.Join([]string{
-			"   1:   + if",
-			"        ^",
-			"        wrong token type, expect '-', got '+'",
+			"test.txt:1:1: error: wrong token type, expect '-', got '+'",
+			"    1 | + if",
+			"      | ^",
+			"      | -",
 		}, "\n")
 
 		err := symbol.EqualTo(symbol, a)
@@ -361,9 +380,10 @@ func TestTerminalTokenNotEqual(t *testing.T) {
 	{
 		b := ASTBuildKeyword(Else)
 		exp := strings.Join([]string{
-			"   1:   + if",
-			"          ^^",
-			"          wrong token type, expect 'else', got 'if'",
+			"test.txt:1:3: error: wrong token type, expect 'else', got 'if'",
+			"    1 | + if",
+			"      |   ^^",
+			"      |   else",
 		}, "\n")
 
 		err := keyword.EqualTo(keyword, b)
@@ -379,9 +399,10 @@ func TestTerminalTokenNotEqual(t *testing.T) {
 	{
 		c := ASTBuildValue(42)
 		exp := strings.Join([]string{
-			"   1:   + if",
-			"        ^",
-			"        expect a *ast.IntegerLiteral",
+			"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.TerminalToken",
+			"    1 | + if",
+			"      | ^",
+			"      | *ast.IntegerLiteral",
 		}, "\n")
 
 		err := symbol.EqualTo(symbol, c)

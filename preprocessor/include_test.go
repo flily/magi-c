@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/flily/magi-c/ast"
-	"github.com/flily/magi-c/context"
 )
 
 func TestIncludeDirectiveAngleQuote(t *testing.T) {
@@ -21,44 +20,44 @@ func TestIncludeDirectiveAngleQuote(t *testing.T) {
 	}
 
 	expHash := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"        ^",
-		"        here",
+		"    1 | #include <stdio.h>",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.Hash, expHash)
 
 	expCmd := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"         ^^^^^^^",
-		"         here",
+		"    1 | #include <stdio.h>",
+		"      |  ^^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.Command, expCmd)
 
 	expLBracket := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"                 ^",
-		"                 here",
+		"    1 | #include <stdio.h>",
+		"      |          ^",
+		"      |          here",
 	}, "\n")
 	checkElementContext(t, result.LBracketCtx, expLBracket)
 
 	expContent := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"                  ^^^^^^^",
-		"                  here",
+		"    1 | #include <stdio.h>",
+		"      |           ^^^^^^^",
+		"      |           here",
 	}, "\n")
 	checkElementContext(t, result.ContentCtx, expContent)
 
 	expRBracket := strings.Join([]string{
-		"   1:   #include <stdio.h>",
-		"                         ^",
-		"                         here",
+		"    1 | #include <stdio.h>",
+		"      |                  ^",
+		"      |                  here",
 	}, "\n")
 	checkElementContext(t, result.RBracketCtx, expRBracket)
 
 	finalExp := strings.Join([]string{
-		"   1:   #include <stdio.h><EOF>",
-		"                          ^^^^^",
-		"                          here",
+		"    1 | #include <stdio.h><EOF>",
+		"      |                   ^^^^^",
+		"      |                   here",
 	}, "\n")
 	checkElementContext(t, final, finalExp)
 }
@@ -75,44 +74,44 @@ func TestIncludeDirectiveDoubleQuote(t *testing.T) {
 	}
 
 	expHash := strings.Join([]string{
-		`   1:   #include "stdio.h"`,
-		"        ^",
-		"        here",
+		`    1 | #include "stdio.h"`,
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.Hash, expHash)
 
 	expCmd := strings.Join([]string{
-		`   1:   #include "stdio.h"`,
-		"         ^^^^^^^",
-		"         here",
+		`    1 | #include "stdio.h"`,
+		"      |  ^^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.Command, expCmd)
 
 	expLBracket := strings.Join([]string{
-		`   1:   #include "stdio.h"`,
-		"                 ^",
-		"                 here",
+		`    1 | #include "stdio.h"`,
+		"      |          ^",
+		"      |          here",
 	}, "\n")
 	checkElementContext(t, result.LBracketCtx, expLBracket)
 
 	expContent := strings.Join([]string{
-		`   1:   #include "stdio.h"`,
-		"                  ^^^^^^^",
-		"                  here",
+		`    1 | #include "stdio.h"`,
+		"      |           ^^^^^^^",
+		"      |           here",
 	}, "\n")
 	checkElementContext(t, result.ContentCtx, expContent)
 
 	expRBracket := strings.Join([]string{
-		`   1:   #include "stdio.h"`,
-		"                         ^",
-		"                         here",
+		`    1 | #include "stdio.h"`,
+		"      |                  ^",
+		"      |                  here",
 	}, "\n")
 	checkElementContext(t, result.RBracketCtx, expRBracket)
 
 	finalExp := strings.Join([]string{
-		`   1:   #include "stdio.h"<EOF>`,
-		"                          ^^^^^",
-		"                          here",
+		`    1 | #include "stdio.h"<EOF>`,
+		"      |                   ^^^^^",
+		"      |                   here",
 	}, "\n")
 	checkElementContext(t, final, finalExp)
 }
@@ -129,44 +128,44 @@ func TestIncludeDirectiveWithoutSpace(t *testing.T) {
 	}
 
 	expHash := strings.Join([]string{
-		`   1:   #include<stdio.h>`,
-		"        ^",
-		"        here",
+		`    1 | #include<stdio.h>`,
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.Hash, expHash)
 
 	expCmd := strings.Join([]string{
-		`   1:   #include<stdio.h>`,
-		"         ^^^^^^^",
-		"         here",
+		`    1 | #include<stdio.h>`,
+		"      |  ^^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.Command, expCmd)
 
 	expLBracket := strings.Join([]string{
-		`   1:   #include<stdio.h>`,
-		"                ^",
-		"                here",
+		`    1 | #include<stdio.h>`,
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 	checkElementContext(t, result.LBracketCtx, expLBracket)
 
 	expContent := strings.Join([]string{
-		`   1:   #include<stdio.h>`,
-		"                 ^^^^^^^",
-		"                 here",
+		`    1 | #include<stdio.h>`,
+		"      |          ^^^^^^^",
+		"      |          here",
 	}, "\n")
 	checkElementContext(t, result.ContentCtx, expContent)
 
 	expRBracket := strings.Join([]string{
-		`   1:   #include<stdio.h>`,
-		"                        ^",
-		"                        here",
+		`    1 | #include<stdio.h>`,
+		"      |                 ^",
+		"      |                 here",
 	}, "\n")
 	checkElementContext(t, result.RBracketCtx, expRBracket)
 
 	finalExp := strings.Join([]string{
-		`   1:   #include<stdio.h><EOF>`,
-		"                         ^^^^^",
-		"                         here",
+		`    1 | #include<stdio.h><EOF>`,
+		"      |                  ^^^^^",
+		"      |                  here",
 	}, "\n")
 	checkElementContext(t, final, finalExp)
 }
@@ -177,9 +176,10 @@ func TestIncludeDirectiveWithWrongQuote(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		`   1:   #include stdio.h`,
-		"                 ^",
-		"                 expected '<' or '\"' after '#include', got 's'",
+		"example.mc:1:10: error: expected '<' or '\"' after '#include', got 's'",
+		`    1 | #include stdio.h`,
+		"      |          ^",
+		"      |          < or \"",
 	}, "\n")
 	checkScanDirectiveError(t, code, Include, exp)
 }
@@ -190,9 +190,9 @@ func TestIncludeDirectiveWithNoName(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		`   1:   #include <>`,
-		"                 ^",
-		"                 expected file name after '#include', got empty string",
+		"example.mc:1:11: error: expected file name after '#include', got empty string",
+		`    1 | #include <>`,
+		"      |           ^",
 	}, "\n")
 	checkScanDirectiveError(t, code, Include, exp)
 }
@@ -203,21 +203,13 @@ func TestIncludeDirectiveWithUnclosedQuote(t *testing.T) {
 		"",
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Include)
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-
 	exp := strings.Join([]string{
-		`   1:   #include <stdio.h<EOL LF>`,
-		"                 ^       ^^^^^^^^",
-		"                 quote not closed",
+		"example.mc:1:18: error: quote not closed",
+		`    1 | #include <stdio.h<EOL LF>`,
+		"      |                  ^^^^^^^^",
+		"      |                  >",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Include, exp)
 }
 
 func TestIncludeDirectiveWithQuoteNotMatched(t *testing.T) {
@@ -225,19 +217,14 @@ func TestIncludeDirectiveWithQuoteNotMatched(t *testing.T) {
 		`#include "stdio.h>`,
 	}, "\n")
 
-	cursor := context.NewCursorFromString("example.c", code)
-	_, err := scanDirectiveOn(cursor, Include)
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-
 	exp := strings.Join([]string{
-		`   1:   #include "stdio.h>`,
-		"                 ^       ^",
-		"                 quote mismatch, expected '\"', got '>'",
+		"example.mc:1:18: error: quote mismatch, expected '\"', got '>'",
+		`    1 | #include "stdio.h>`,
+		"      |                  ^",
+		"      |                  \"",
+		"example.mc:1:10: note: previous quote is '\"'",
+		`    1 | #include "stdio.h>`,
+		"      |          ^",
 	}, "\n")
-	got := err.Error()
-	if got != exp {
-		t.Errorf("expected error message:\n%s\ngot:\n%s", exp, got)
-	}
+	checkScanDirectiveError(t, code, Include, exp)
 }

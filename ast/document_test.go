@@ -113,9 +113,10 @@ func TestDocumentNotEqualOnType(t *testing.T) {
 	doc := NewDocument([]Declaration{decl})
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
-		"   1:   # include < stdio.h >",
-		"        ^ ^^^^^^^ ^ ^^^^^^^ ^",
-		"        expect a *ast.IntegerLiteral",
+		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.Document",
+		"    1 | # include < stdio.h >",
+		"      | ^ ^^^^^^^ ^ ^^^^^^^ ^",
+		"      | *ast.IntegerLiteral",
 	}, "\n")
 	err := doc.EqualTo(nil, expected)
 	if err == nil {
