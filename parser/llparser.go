@@ -193,7 +193,7 @@ func (p *LLParser) parseDeclaration(current ast.TerminalNode) (ast.Declaration, 
 		result, err = p.parseFunctionDeclaration()
 
 	default:
-		err = current.Context().Error("unexpected token: %s", current.Type().String())
+		err = current.Context().Error("unexpected token: %s, expect a fun keyword or a preprocessor directive", current.Type().String())
 	}
 
 	return result, err

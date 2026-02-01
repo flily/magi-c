@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"strings"
+
 	"github.com/flily/magi-c/context"
 )
 
@@ -99,13 +101,17 @@ func (p *PreprocessorInclude) EqualTo(_ context.ContextProvider, other Comparabl
 	}
 
 	if p.Content != o.Content {
-		return p.ContentCtx.Error("wrong include content, expect '%s', got '%s'", o.Content, p.Content)
+		return p.ContentCtx.Error("wrong include content, expect '%s', got '%s'", o.Content, p.Content).With(o.Content)
 	}
 
 	if p.LBracket != o.LBracket {
 		ctx := context.Join(p.LBracketCtx, p.RBracketCtx)
+		_, _, col1 := p.LBracketCtx.Position()
+		_, _, col2 := p.RBracketCtx.Position()
+		spaces := strings.Repeat(" ", col2-col1-1)
+
 		return ctx.Error("wrong include bracket, expect '%s' and '%s', got '%s' and '%s'",
-			o.LBracket, o.RBracket, p.LBracket, p.RBracket)
+			o.LBracket, o.RBracket, p.LBracket, p.RBracket).With("%s%s%s", o.LBracket, spaces, o.RBracket)
 	}
 
 	return nil
@@ -168,11 +174,11 @@ func (p *PreprocessorInline) EqualTo(_ context.ContextProvider, other Comparable
 	}
 
 	if p.CodeType != o.CodeType {
-		return p.CodeTypeCtx.Error("wrong inline code type, expect '%s', got '%s'", o.CodeType, p.CodeType)
+		return p.CodeTypeCtx.Error("wrong inline code type, expect '%s', got '%s'", o.CodeType, p.CodeType).With("%s", o.CodeType)
 	}
 
 	if p.Content != o.Content {
-		return p.ContentCtx.Error("wrong inline content, expect '%s', got '%s'", o.Content, p.Content)
+		return p.ContentCtx.Error("wrong inline content").With(o.Content)
 	}
 
 	return nil

@@ -24,56 +24,57 @@ func TestInlineDirectiveBasic(t *testing.T) {
 
 	if result == nil {
 		t.Fatalf("expect non-nil PreprocessorInline node")
+		return // unreachable return, reduce lint error
 	}
 
 	expHash := strings.Join([]string{
-		"   1:   #inline c",
-		"        ^",
-		"        here",
+		"    1 | #inline c",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.Hash, expHash)
 
 	expCmd := strings.Join([]string{
-		"   1:   #inline c",
-		"         ^^^^^^",
-		"         here",
+		"    1 | #inline c",
+		"      |  ^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.Command, expCmd)
 
 	expType := strings.Join([]string{
-		"   1:   #inline c",
-		"                ^",
-		"                here",
+		"    1 | #inline c",
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeCtx, expType)
 
 	expContent := strings.Join([]string{
-		"   2:   #include <stdio.h>",
-		"        ^^^^^^^^^^^^^^^^^^",
-		"   3:   #inline asm",
-		"        ^^^^^^^^^^^",
-		"        here",
+		"    2 | #include <stdio.h>",
+		"      | ^^^^^^^^^^^^^^^^^^",
+		"    3 | #inline asm",
+		"      | ^^^^^^^^^^^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.ContentCtx, expContent)
 
 	expEndHash := strings.Join([]string{
-		"   4:   #end-inline c",
-		"        ^",
-		"        here",
+		"    4 | #end-inline c",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.HashEnd, expEndHash)
 
 	expEndCmd := strings.Join([]string{
-		"   4:   #end-inline c",
-		"         ^^^^^^^^^^",
-		"         here",
+		"    4 | #end-inline c",
+		"      |  ^^^^^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.CommandEnd, expEndCmd)
 
 	expEndType := strings.Join([]string{
-		"   4:   #end-inline c",
-		"                    ^",
-		"                    here",
+		"    4 | #end-inline c",
+		"      |             ^",
+		"      |             here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeEnd, expEndType)
 
@@ -82,9 +83,9 @@ func TestInlineDirectiveBasic(t *testing.T) {
 	}
 
 	finalExp := strings.Join([]string{
-		"   4:   #end-inline c<EOF>",
-		"                     ^^^^^",
-		"                     here",
+		"    4 | #end-inline c<EOF>",
+		"      |              ^^^^^",
+		"      |              here",
 	}, "\n")
 	checkElementContext(t, final, finalExp)
 }
@@ -102,23 +103,23 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 	}
 
 	expHash := strings.Join([]string{
-		"   1:   #inline c",
-		"        ^",
-		"        here",
+		"    1 | #inline c",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.Hash, expHash)
 
 	expCmd := strings.Join([]string{
-		"   1:   #inline c",
-		"         ^^^^^^",
-		"         here",
+		"    1 | #inline c",
+		"      |  ^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.Command, expCmd)
 
 	expType := strings.Join([]string{
-		"   1:   #inline c",
-		"                ^",
-		"                here",
+		"    1 | #inline c",
+		"      |         ^",
+		"      |         here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeCtx, expType)
 
@@ -131,30 +132,30 @@ func TestInlineDirectiveWithEmptyBlock(t *testing.T) {
 	}
 
 	expEndHash := strings.Join([]string{
-		"   2:   #end-inline c",
-		"        ^",
-		"        here",
+		"    2 | #end-inline c",
+		"      | ^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.HashEnd, expEndHash)
 
 	expEndCmd := strings.Join([]string{
-		"   2:   #end-inline c",
-		"         ^^^^^^^^^^",
-		"         here",
+		"    2 | #end-inline c",
+		"      |  ^^^^^^^^^^",
+		"      |  here",
 	}, "\n")
 	checkElementContext(t, result.CommandEnd, expEndCmd)
 
 	expEndType := strings.Join([]string{
-		"   2:   #end-inline c",
-		"                    ^",
-		"                    here",
+		"    2 | #end-inline c",
+		"      |             ^",
+		"      |             here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeEnd, expEndType)
 
 	finalExp := strings.Join([]string{
-		"   2:   #end-inline c<EOF>",
-		"                     ^^^^^",
-		"                     here",
+		"    2 | #end-inline c<EOF>",
+		"      |              ^^^^^",
+		"      |              here",
 	}, "\n")
 	checkElementContext(t, final, finalExp)
 }
@@ -173,58 +174,58 @@ func TestInlineDirectiveWithIndent(t *testing.T) {
 	}
 
 	expHash := strings.Join([]string{
-		"   1:       #inline c",
-		"            ^",
-		"            here",
+		"    1 |     #inline c",
+		"      |     ^",
+		"      |     here",
 	}, "\n")
 	checkElementContext(t, result.Hash, expHash)
 
 	expCmd := strings.Join([]string{
-		"   1:       #inline c",
-		"             ^^^^^^",
-		"             here",
+		"    1 |     #inline c",
+		"      |      ^^^^^^",
+		"      |      here",
 	}, "\n")
 	checkElementContext(t, result.Command, expCmd)
 
 	expType := strings.Join([]string{
-		"   1:       #inline c",
-		"                    ^",
-		"                    here",
+		"    1 |     #inline c",
+		"      |             ^",
+		"      |             here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeCtx, expType)
 
 	expContent := strings.Join([]string{
-		`   2:       printf("hello, world\n");`,
-		"        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-		"        here",
+		`    2 |     printf("hello, world\n");`,
+		"      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+		"      | here",
 	}, "\n")
 	checkElementContext(t, result.ContentCtx, expContent)
 
 	expEndHash := strings.Join([]string{
-		"   3:       #end-inline c",
-		"            ^",
-		"            here",
+		"    3 |     #end-inline c",
+		"      |     ^",
+		"      |     here",
 	}, "\n")
 	checkElementContext(t, result.HashEnd, expEndHash)
 
 	expEndCmd := strings.Join([]string{
-		"   3:       #end-inline c",
-		"             ^^^^^^^^^^",
-		"             here",
+		"    3 |     #end-inline c",
+		"      |      ^^^^^^^^^^",
+		"      |      here",
 	}, "\n")
 	checkElementContext(t, result.CommandEnd, expEndCmd)
 
 	expEndType := strings.Join([]string{
-		"   3:       #end-inline c",
-		"                        ^",
-		"                        here",
+		"    3 |     #end-inline c",
+		"      |                 ^",
+		"      |                 here",
 	}, "\n")
 	checkElementContext(t, result.CodeTypeEnd, expEndType)
 
 	finalExp := strings.Join([]string{
-		"   3:       #end-inline c<EOF>",
-		"                         ^^^^^",
-		"                         here",
+		"    3 |     #end-inline c<EOF>",
+		"      |                  ^^^^^",
+		"      |                  here",
 	}, "\n")
 	checkElementContext(t, final, finalExp)
 }
@@ -237,9 +238,9 @@ func TestInlineDirectiveWithoutBlockType(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		"   1:   #inline<EOL LF>",
-		"               ^^^^^^^^",
-		"               expect block type",
+		"example.mc:1:8: error: expect block type",
+		"    1 | #inline<EOL LF>",
+		"      |        ^^^^^^^^",
 	}, "\n")
 	checkScanDirectiveError(t, code, Inline, exp)
 }
@@ -252,9 +253,9 @@ func TestInlineDirectiveWithWrongBlockType(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		"   1:   #inline c asm",
-		"                  ^^^",
-		"                  expected EOL after inline block type, got 'asm'",
+		"example.mc:1:11: error: expected EOL after inline block type, got 'asm'",
+		"    1 | #inline c asm",
+		"      |           ^^^",
 	}, "\n")
 	checkScanDirectiveError(t, code, Inline, exp)
 }
@@ -265,9 +266,9 @@ func TestInlineDirectiveWithNoContentAndNoClosing(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		"   1:   #inline c<EOF>",
-		"                 ^^^^^",
-		"                 expect inline block content, got EOF",
+		"example.mc:1:10: error: expect inline block content, got EOF",
+		"    1 | #inline c<EOF>",
+		"      |          ^^^^^",
 	}, "\n")
 	checkScanDirectiveError(t, code, Inline, exp)
 }
@@ -279,9 +280,29 @@ func TestInlineDirectiveWithUnclosedBlock(t *testing.T) {
 	}, "\n")
 
 	exp := strings.Join([]string{
-		"   2:   #include <stdio.h><EOF>",
-		"                          ^^^^^",
-		"                          expect '#end-inline c' to close inline block, got EOF",
+		"example.mc:2:19: error: expect '#end-inline c' to close inline block, got EOF",
+		"    2 | #include <stdio.h><EOF>",
+		"      |                   ^^^^^",
+	}, "\n")
+	checkScanDirectiveError(t, code, Inline, exp)
+}
+
+func TestInlineDirectiveWithlockTypeUnmatched(t *testing.T) {
+	code := strings.Join([]string{
+		"#inline c",
+		"#include <stdio.h>",
+		"#end-inline asm",
+		"other-code",
+	}, "\n")
+
+	exp := strings.Join([]string{
+		"example.mc:4:11: error: expect '#end-inline c' to close inline block, got EOF",
+		"    4 | other-code<EOF>",
+		"      |           ^^^^^",
+		"example.mc:3:13: note: previous possible close here",
+		"    3 | #end-inline asm",
+		"      |             ^^^",
+		"      |             c",
 	}, "\n")
 	checkScanDirectiveError(t, code, Inline, exp)
 }

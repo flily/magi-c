@@ -4,13 +4,28 @@ import (
 	"slices"
 
 	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/context"
 )
 
-type CheckList[T func(B) error, B any] struct {
+type CheckConfigure struct {
+	Level context.ErrorLevel
+}
+
+func NewDefaultCheckConfigure() *CheckConfigure {
+	c := &CheckConfigure{
+		Level: context.Error,
+	}
+
+	return c
+}
+
+type CheckFunc[B any] func(*CheckConfigure, B) context.DiagnosticInfo
+
+type CheckList[T func(B) context.DiagnosticInfo, B any] struct {
 	items []T
 }
 
-func NewCheckList[T func(B) error, B any](items ...T) *CheckList[T, B] {
+func NewCheckList[T func(B) context.DiagnosticInfo, B any](items ...T) *CheckList[T, B] {
 	list := &CheckList[T, B]{
 		items: slices.Clone(items),
 	}
@@ -18,56 +33,97 @@ func NewCheckList[T func(B) error, B any](items ...T) *CheckList[T, B] {
 	return list
 }
 
-func (l *CheckList[T, B]) Check(node B) error {
+func (l *CheckList[T, B]) Check(conf *CheckConfigure, node B) *context.DiagnosticContainer {
+	c := context.NewDiagnosticContainer(conf.Level)
+
 	for _, check := range l.items {
-		if err := check(node); err != nil {
-			return err
+		err := check(node)
+		if err != nil {
+			e := c.Add(err)
+			if e != nil {
+				return c
+			}
 		}
 	}
 
-	return nil
+	return c
 }
 
-func checkDeclaration(d ast.Declaration) error {
+type CheckRunner[T func(*CheckConfigure, B) *context.DiagnosticContainer, B any] struct {
+	items []T
+}
+
+func NewCheckRunner[T func(*CheckConfigure, B) *context.DiagnosticContainer, B any](items ...T) *CheckRunner[T, B] {
+	runner := &CheckRunner[T, B]{
+		items: slices.Clone(items),
+	}
+
+	return runner
+}
+
+func (r *CheckRunner[T, B]) Run(conf *CheckConfigure, node B) *context.DiagnosticContainer {
+	c := context.NewDiagnosticContainer(conf.Level)
+
+	for _, check := range r.items {
+		err := check(conf, node)
+		if err != nil {
+			e := c.Merge(err)
+			if e != nil {
+				return c
+			}
+		}
+	}
+
+	return c
+}
+
+func checkDeclaration(conf *CheckConfigure, d ast.Declaration) *context.DiagnosticContainer {
 	switch decl := d.(type) {
 	case *ast.FunctionDeclaration:
-		return checkFunctionDeclaration(decl)
+		return checkFunctionDeclaration(conf, decl)
 
 	default:
-		return d.Context().Error("unsupported declaration type %T", d)
+		return d.Context().Error("unsupported declaration type %T", d).ToContainer()
 	}
 }
 
-func checkDocument(doc *ast.Document) error {
-	l := NewCheckList(
+func checkDocument(conf *CheckConfigure, doc *ast.Document) *context.DiagnosticContainer {
+	l := NewCheckRunner(
 		checkDeclaration,
 	)
 
+	c := context.NewDiagnosticContainer(conf.Level)
 	for _, decl := range doc.Declarations {
-		if err := l.Check(decl); err != nil {
-			return err
+		err := l.Run(conf, decl)
+		if err != nil {
+			e := c.Merge(err)
+			if e != nil {
+				return c
+			}
 		}
 	}
 
-	return nil
+	return c
 }
 
 type CodeChecker struct {
+	config   *CheckConfigure
 	document *ast.Document
 }
 
-func NewCodeChecker(document *ast.Document) *CodeChecker {
+func NewCodeChecker(conf *CheckConfigure, document *ast.Document) *CodeChecker {
 	c := &CodeChecker{
+		config:   conf,
 		document: document,
 	}
 
 	return c
 }
 
-func (c *CodeChecker) Check() error {
-	l := NewCheckList(
+func (c *CodeChecker) Check() *context.DiagnosticContainer {
+	l := NewCheckRunner(
 		checkDocument,
 	)
 
-	return l.Check(c.document)
+	return l.Run(c.config, c.document)
 }

@@ -136,7 +136,7 @@ func (e *InfixExpression) EqualTo(_ context.ContextProvider, other Comparable) e
 	}
 
 	if e.Operator.Token != o.Operator.Token {
-		return e.Operator.Context().Error("expect operator '%s', got '%s'", o.Operator.Token, e.Operator.Token)
+		return e.Operator.Context().Error("expect operator '%s', got '%s'", o.Operator.Token, e.Operator.Token).With("%s", o.Operator.Token)
 	}
 
 	if err := e.RightOperand.EqualTo(e, o.RightOperand); err != nil {

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/context"
 	"github.com/flily/magi-c/parser"
 	"github.com/flily/magi-c/preprocessor"
 )
@@ -30,10 +31,15 @@ func checkCodeCorrect(t *testing.T, source string) {
 
 	doc := parseCode(t, source)
 
-	checker := NewCodeChecker(doc)
-	err := checker.Check()
-	if err != nil {
-		t.Fatalf("code check failed:\n%s", err.Error())
+	conf := NewDefaultCheckConfigure()
+	checker := NewCodeChecker(conf, doc)
+	container := checker.Check()
+	if container == nil {
+		t.Fatalf("a DiagnosticContainer expected, but got nil")
+	}
+
+	if container.Count(context.Error) > 0 {
+		t.Fatalf("code check expected to succeed, but got errors:\n%s", container.Error())
 	}
 }
 
@@ -42,13 +48,14 @@ func checkCodeError(t *testing.T, source string, expected string) {
 
 	doc := parseCode(t, source)
 
-	checker := NewCodeChecker(doc)
-	err := checker.Check()
-	if err == nil {
+	conf := NewDefaultCheckConfigure()
+	checker := NewCodeChecker(conf, doc)
+	container := checker.Check()
+	if container == nil {
 		t.Fatalf("code check expected to fail, but succeeded")
 	}
 
-	if err.Error() != expected {
-		t.Fatalf("code check error mismatch, expected:\n%s\ngot:\n%s", expected, err.Error())
+	if container.Error() != expected {
+		t.Fatalf("code check error mismatch, expected:\n%s\ngot:\n%s", expected, container.Error())
 	}
 }
