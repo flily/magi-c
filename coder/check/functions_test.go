@@ -83,3 +83,40 @@ func TestCheckFunctionMissingReturnStatement(t *testing.T) {
 
 	checkCodeError(t, code, expected)
 }
+
+func TestCheckFunctionMainDeclarationWithVoidReturnType(t *testing.T) {
+	code := strings.Join([]string{
+		"fun main() {",
+		"    return 0",
+		"}",
+	}, "\n")
+
+	checkCodeCorrect(t, code)
+}
+
+func TestCheckFunctionMainDeclarationWithSingleIntReturnType(t *testing.T) {
+	code := strings.Join([]string{
+		"fun main() (int) {",
+		"    return 0",
+		"}",
+	}, "\n")
+
+	checkCodeCorrect(t, code)
+}
+
+func TestCheckFunctionMainDeclarationWithMultipleReturnTypes(t *testing.T) {
+	code := strings.Join([]string{
+		"fun main() (int, int) {",
+		"    return 0, 0",
+		"}",
+	}, "\n")
+
+	expected := strings.Join([]string{
+		"test.mc:1:13: error: function 'main' must have return type 'int' or no return type, got 2 return types",
+		"    1 | fun main() (int, int) {",
+		"      |             ^^^^ ^^^",
+		"      |             int or no return type",
+	}, "\n")
+
+	checkCodeError(t, code, expected)
+}

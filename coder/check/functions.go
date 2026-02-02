@@ -6,6 +6,10 @@ import (
 )
 
 func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) context.DiagnosticInfo {
+	if d.Arguments == nil {
+		return nil
+	}
+
 	nameMaps := make(map[string]*context.Context)
 	for _, arg := range d.Arguments.Arguments {
 		if arg.Name.IsDummy() {
@@ -28,7 +32,11 @@ func checkFunctionDeclarationNameDuplicate(d *ast.FunctionDeclaration) context.D
 }
 
 func checkFunctionReturnValue(d *ast.FunctionDeclaration) context.DiagnosticInfo {
-	count := len(d.ReturnTypes.Types)
+	if d.ReturnTypes == nil {
+		return nil
+	}
+
+	count := d.ReturnTypes.Length()
 
 	retFound := false
 	for _, stmt := range d.Statements {
@@ -59,10 +67,32 @@ func checkFunctionReturnValue(d *ast.FunctionDeclaration) context.DiagnosticInfo
 	return nil
 }
 
+func checkFunctionMainDeclaration(d *ast.FunctionDeclaration) context.DiagnosticInfo {
+	if d.Name.Name != "main" {
+		return nil
+	}
+
+	if d.ReturnTypes == nil || d.ReturnTypes.Length() == 0 {
+		// fun main() { ... }
+		return nil
+	}
+
+	if d.ReturnTypes.Length() != 1 {
+		ctx := d.ReturnTypes.Context()
+		err := ctx.Error("function 'main' must have return type 'int' or no return type, got %d return types", d.ReturnTypes.Length()).
+			With("int or no return type")
+		return err
+	}
+
+	// TODO: return type check
+	return nil
+}
+
 func checkFunctionDeclaration(conf *CheckConfigure, d *ast.FunctionDeclaration) *context.DiagnosticContainer {
 	l := NewCheckList(
 		checkFunctionDeclarationNameDuplicate,
 		checkFunctionReturnValue,
+		checkFunctionMainDeclaration,
 	)
 
 	return l.Check(conf, d)

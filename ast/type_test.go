@@ -254,6 +254,10 @@ func TestArgumentList(t *testing.T) {
 	if err := args.EqualTo(nil, expected); err != nil {
 		t.Fatalf("ArgumentList not equal: %s", err)
 	}
+
+	if args.Length() != 3 {
+		t.Fatalf("ArgumentList length expect 3, got %d", args.Length())
+	}
 }
 
 func TestArgumentListNotEqualOnNodeType(t *testing.T) {
@@ -420,6 +424,10 @@ func TestTypeList(t *testing.T) {
 
 	if err := types.EqualTo(nil, expected); err != nil {
 		t.Fatalf("TypeList not equal: %s", err)
+	}
+
+	if types.Length() != 3 {
+		t.Fatalf("TypeList length expect 3, got %d", types.Length())
 	}
 }
 
