@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/flily/magi-c/context"
 )
 
 type CStandard int
@@ -131,14 +133,12 @@ func (s *CodeStyle) FunctionNewLine() ElementCollection {
 }
 
 type Context struct {
-	Filename string
-	Line     int
+	Context *context.Context
 }
 
-func NewContext(filename string, line int) *Context {
+func NewContext(ctx *context.Context) *Context {
 	c := &Context{
-		Filename: filename,
-		Line:     line,
+		Context: ctx,
 	}
 
 	return c
@@ -147,9 +147,10 @@ func NewContext(filename string, line int) *Context {
 func (c *Context) codeElement() {}
 
 func (c *Context) Write(out *StyleWriter, level int) error {
+	filename, line, _ := c.Context.Position()
 	return out.Write(level,
-		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(c.Line),
-		DelimiterSpace, StringElement("\""+c.Filename+"\""), out.style.EOL,
+		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(line),
+		DelimiterSpace, StringElement("\""+filename+"\""), out.style.EOL,
 	)
 }
 

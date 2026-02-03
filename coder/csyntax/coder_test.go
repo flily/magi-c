@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"strings"
+
+	"github.com/flily/magi-c/context"
 )
 
 var (
@@ -36,6 +38,20 @@ func makeTestWriter(sylte *CodeStyle) (*strings.Builder, *StyleWriter) {
 	var b strings.Builder
 	writer := sylte.MakeWriter(&b)
 	return &b, writer
+}
+
+func makeLineContext(filename string, line int) *context.Context {
+	fileContext := &context.FileContext{
+		Filename: filename,
+	}
+	l := context.NewLineFromString(line, "lorem ipsum", "\n")
+
+	lineContext := &context.LineContext{
+		File:    fileContext,
+		Content: &l,
+	}
+
+	return lineContext.Mark(0, 10)
 }
 
 func checkInterfaceCodeElement(elem CodeElement) {
@@ -104,11 +120,13 @@ func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
 }
 
 func TestCodeContext(t *testing.T) {
-	ctx := NewContext("file.c", 10)
-	checkInterfaceCodeElement(ctx)
+	ctx := makeLineContext("file.c", 10)
+
+	cctx := NewContext(ctx)
+	checkInterfaceCodeElement(cctx)
 
 	expected := "#line 10 \"file.c\"\n"
-	checkOutputOnStyle(t, testStyle1, expected, ctx)
+	checkOutputOnStyle(t, testStyle1, expected, cctx)
 }
 
 func TestElementCollectionBasic(t *testing.T) {

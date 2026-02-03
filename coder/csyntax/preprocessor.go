@@ -1,13 +1,17 @@
 package csyntax
 
+import (
+	"github.com/flily/magi-c/context"
+)
+
 type IncludeDirective struct {
-	Context  *Context
+	Context  *context.Context
 	Filename StringElement
 	quoteL   StringElement
 	quoteR   StringElement
 }
 
-func NewIncludeAngle(ctx *Context, filename string) *IncludeDirective {
+func NewIncludeAngle(ctx *context.Context, filename string) *IncludeDirective {
 	d := &IncludeDirective{
 		Context:  ctx,
 		Filename: StringElement(filename),
@@ -18,7 +22,7 @@ func NewIncludeAngle(ctx *Context, filename string) *IncludeDirective {
 	return d
 }
 
-func NewIncludeQuote(ctx *Context, filename string) *IncludeDirective {
+func NewIncludeQuote(ctx *context.Context, filename string) *IncludeDirective {
 	d := &IncludeDirective{
 		Context:  ctx,
 		Filename: StringElement(filename),
@@ -34,6 +38,6 @@ func (d *IncludeDirective) declarationNode() {}
 func (d *IncludeDirective) statementNode()   {}
 
 func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
-	return out.WriteLine(level, d.Context,
+	return out.WriteLine(level, NewContext(d.Context),
 		PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR)
 }
