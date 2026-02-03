@@ -149,7 +149,7 @@ func (c *Context) codeElement() {}
 func (c *Context) Write(out *StyleWriter, level int) error {
 	filename, line, _ := c.Context.Position()
 	return out.Write(level,
-		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(line),
+		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(line+1),
 		DelimiterSpace, StringElement("\""+filename+"\""), out.style.EOL,
 	)
 }

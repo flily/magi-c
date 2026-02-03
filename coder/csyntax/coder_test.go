@@ -120,7 +120,7 @@ func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
 }
 
 func TestCodeContext(t *testing.T) {
-	ctx := makeLineContext("file.c", 10)
+	ctx := makeLineContext("file.c", 9)
 
 	cctx := NewContext(ctx)
 	checkInterfaceCodeElement(cctx)

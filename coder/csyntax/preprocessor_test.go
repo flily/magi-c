@@ -7,7 +7,7 @@ import (
 )
 
 func TestPreprocessorIncludeWrite(t *testing.T) {
-	ctx := makeLineContext("test.mc", 42)
+	ctx := makeLineContext("test.mc", 41)
 	include := NewIncludeAngle(ctx, "stdio.h")
 
 	checkInterfaceCodeElement(include)
@@ -22,7 +22,7 @@ func TestPreprocessorIncludeWrite(t *testing.T) {
 }
 
 func TestPreprocessorIncludeQuoteWrite(t *testing.T) {
-	ctx := makeLineContext("test.mc", 100)
+	ctx := makeLineContext("test.mc", 99)
 	include := NewIncludeQuote(ctx, "myheader.h")
 
 	expected := strings.Join([]string{
