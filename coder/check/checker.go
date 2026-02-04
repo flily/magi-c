@@ -82,6 +82,12 @@ func checkDeclaration(conf *CheckConfigure, d ast.Declaration) *context.Diagnost
 	case *ast.FunctionDeclaration:
 		return checkFunctionDeclaration(conf, decl)
 
+	case *ast.PreprocessorInclude:
+		return nil
+
+	case *ast.PreprocessorInline:
+		return nil
+
 	default:
 		return d.Context().Error("unsupported declaration type %T", d).ToContainer()
 	}
