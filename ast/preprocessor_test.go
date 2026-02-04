@@ -13,10 +13,8 @@ func TestPreprocessorInclude(t *testing.T) {
 	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
 		ctxList[2], ctxList[3], ctxList[4])
 
-	var _ Declaration = includeSegment
-	includeSegment.declarationNode()
-	var _ Statement = includeSegment
-	includeSegment.statementNode()
+	checkDeclarationNodeInterface(includeSegment)
+	checkStatementNodeInterface(includeSegment)
 
 	if includeSegment.Type() != NodePreprocessorInclude {
 		t.Fatalf("include segment type expected %d, got %d", NodePreprocessorInclude, includeSegment.Type())
@@ -34,6 +32,9 @@ func TestPreprocessorIncludeNotEqualInContent(t *testing.T) {
 
 	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
 		ctxList[2], ctxList[3], ctxList[4])
+
+	checkDeclarationNodeInterface(includeSegment)
+	checkStatementNodeInterface(includeSegment)
 
 	expected := ASTBuildIncludeAngle("stdlib.h")
 	message := strings.Join([]string{
@@ -60,6 +61,9 @@ func TestPreprocessorIncludeNotEqualInQuote(t *testing.T) {
 	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
 		ctxList[2], ctxList[3], ctxList[4])
 
+	checkDeclarationNodeInterface(includeSegment)
+	checkStatementNodeInterface(includeSegment)
+
 	expected := ASTBuildIncludeQuote("stdio.h")
 	message := strings.Join([]string{
 		"test.txt:1:11: error: wrong include bracket, expect '\"' and '\"', got '<' and '>'",
@@ -84,6 +88,9 @@ func TestPreprocessorIncludeNotEqual(t *testing.T) {
 
 	includeSegment := NewPreprocessorInclude(ctxList[0], ctxList[1],
 		ctxList[2], ctxList[3], ctxList[4])
+
+	checkDeclarationNodeInterface(includeSegment)
+	checkStatementNodeInterface(includeSegment)
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
@@ -117,10 +124,8 @@ func TestPreprocessorInlineEqual(t *testing.T) {
 		content, ctxList[3],
 		ctxList[4], ctxList[5], ctxList[6])
 
-	var _ Declaration = inlineSegment
-	inlineSegment.declarationNode()
-	var _ Statement = inlineSegment
-	inlineSegment.statementNode()
+	checkDeclarationNodeInterface(inlineSegment)
+	checkStatementNodeInterface(inlineSegment)
 
 	if inlineSegment.Type() != NodePreprocessorInline {
 		t.Fatalf("inline segment type expected %d, got %d", NodePreprocessorInline, inlineSegment.Type())
@@ -145,6 +150,9 @@ func TestProprocessorInlineIsEmpty(t *testing.T) {
 		"", nil,
 		ctxList[3], ctxList[4], ctxList[5])
 
+	checkDeclarationNodeInterface(inlineSegment)
+	checkStatementNodeInterface(inlineSegment)
+
 	if !inlineSegment.Empty() {
 		t.Fatalf("expect inline segment is empty")
 	}
@@ -163,6 +171,9 @@ func TestPreprocessorInlineNotEqualInType(t *testing.T) {
 	inlineSegment := NewPreprocessorInline(ctxList[0], ctxList[1], codeType, ctxList[2],
 		content, ctxList[3],
 		ctxList[4], ctxList[5], ctxList[6])
+
+	checkDeclarationNodeInterface(inlineSegment)
+	checkStatementNodeInterface(inlineSegment)
 
 	expected := ASTBuildInline("c",
 		"inline-content",
@@ -198,6 +209,9 @@ func TestPreprocessorInlineNotEqualInContent(t *testing.T) {
 		content, ctxList[3],
 		ctxList[4], ctxList[5], ctxList[6])
 
+	checkDeclarationNodeInterface(inlineSegment)
+	checkStatementNodeInterface(inlineSegment)
+
 	expected := ASTBuildInline("asm",
 		"different-content",
 	)
@@ -231,6 +245,9 @@ func TestPreprocessorInlineNotEqual(t *testing.T) {
 	inlineSegment := NewPreprocessorInline(ctxList[0], ctxList[1], codeType, ctxList[2],
 		content, ctxList[3],
 		ctxList[4], ctxList[5], ctxList[6])
+
+	checkDeclarationNodeInterface(inlineSegment)
+	checkStatementNodeInterface(inlineSegment)
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{

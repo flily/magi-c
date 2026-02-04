@@ -44,6 +44,17 @@ func generateTestWords(s string) []*context.Context {
 	return result
 }
 
+func checkNodeInterface(node Node) {
+}
+
+func checkDeclarationNodeInterface(node Declaration) {
+	node.declarationNode()
+}
+
+func checkStatementNodeInterface(node Statement) {
+	node.statementNode()
+}
+
 func TestBasicWordGenerate(t *testing.T) {
 	text := strings.Join([]string{
 		"aaa bbb ccc",
@@ -83,9 +94,8 @@ func TestDocument(t *testing.T) {
 	doc := NewDocument(nil)
 	doc.Add(decl)
 
-	var _ Node = doc
-	var _ Statement = doc
-	doc.statementNode()
+	checkNodeInterface(doc)
+	checkStatementNodeInterface(doc)
 
 	if doc.Terminal() {
 		t.Errorf("Document should not be terminal")

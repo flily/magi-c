@@ -12,6 +12,8 @@ func makeFunctionDeclarationTokens1(ctxList []*context.Context) *FunctionDeclara
 	funcToken := NewTerminalToken(ctxList[0], Function)
 	funcDecl := NewFunctionDeclaration(funcToken)
 
+	checkDeclarationNodeInterface(funcDecl)
+
 	funcDecl.Name = NewIdentifier(ctxList[1])
 	funcDecl.LParenArgs = NewTerminalToken(ctxList[2], LeftParen)
 
@@ -73,9 +75,7 @@ func TestFunctionDeclaration(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	funcDecl := makeFunctionDeclarationTokens1(ctxList)
-
-	var _ Declaration = funcDecl
-	funcDecl.declarationNode()
+	checkDeclarationNodeInterface(funcDecl)
 
 	expected := ASTBuildFunction(
 		"add",

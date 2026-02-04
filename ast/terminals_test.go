@@ -6,18 +6,21 @@ import (
 	"strings"
 )
 
+func checkTerminalNodeInterface(node TerminalNode) {
+	node.Type()
+}
+
 func TestStringLiteral(t *testing.T) {
 	text := "lorem ipsum"
 	ctxList := generateTestWords(text)
 
 	s := NewStringLiteral(ctxList[0], "lorem")
+	checkTerminalNodeInterface(s)
+	checkExpressionNodeInterface(s)
+
 	if s.Type() != String {
 		t.Fatalf("string literal type expected %d, got %d", String, s.Type())
 	}
-
-	var _ TerminalNode = s
-	var _ Expression = s
-	s.expressionNode()
 
 	a := ASTBuildValue("lorem")
 
@@ -31,6 +34,8 @@ func TestStringLiteralNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	s := NewStringLiteral(ctxList[0], "lorem")
+	checkTerminalNodeInterface(s)
+	checkExpressionNodeInterface(s)
 
 	a := ASTBuildValue(3)
 	exp := strings.Join([]string{
@@ -55,6 +60,8 @@ func TestStringLiteralNotEqualInValue(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	s := NewStringLiteral(ctxList[0], "lorem")
+	checkTerminalNodeInterface(s)
+	checkExpressionNodeInterface(s)
 
 	a := ASTBuildValue("ipsum")
 	err := s.EqualTo(s, a)
@@ -78,13 +85,12 @@ func TestIntegerLiteral(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	i := NewIntegerLiteral(ctxList[0], 1234)
+	checkTerminalNodeInterface(i)
+	checkExpressionNodeInterface(i)
+
 	if i.Type() != Integer {
 		t.Fatalf("integer literal type expected %d, got %d", Integer, i.Type())
 	}
-
-	var _ TerminalNode = i
-	var _ Expression = i
-	i.expressionNode()
 
 	a := ASTBuildValue(1234)
 
@@ -98,13 +104,12 @@ func TestIntegerLiteralUnsigned(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	u := NewIntegerLiteral(ctxList[0], 1234)
+	checkTerminalNodeInterface(u)
+	checkExpressionNodeInterface(u)
+
 	if u.Type() != Integer {
 		t.Fatalf("integer literal type expected %d, got %d", Integer, u.Type())
 	}
-
-	var _ TerminalNode = u
-	var _ Expression = u
-	u.expressionNode()
 
 	a := ASTBuildValue(uint64(1234))
 
@@ -118,6 +123,9 @@ func TestIntegerLiteralNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	i := NewIntegerLiteral(ctxList[0], 1234)
+	checkTerminalNodeInterface(i)
+	checkExpressionNodeInterface(i)
+
 	a := ASTBuildValue("1234")
 	exp := strings.Join([]string{
 		"test.txt:1:1: error: expect a *ast.StringLiteral, got a *ast.IntegerLiteral",
@@ -141,6 +149,9 @@ func TestIntegerLiteralNotEqualInValue(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	i := NewIntegerLiteral(ctxList[0], 1234)
+	checkTerminalNodeInterface(i)
+	checkExpressionNodeInterface(i)
+
 	a := ASTBuildValue(5678)
 	err := i.EqualTo(i, a)
 	if err == nil {
@@ -163,13 +174,12 @@ func TestFloatLiteral(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	f := NewFloatLiteral(ctxList[0], 3.14)
+	checkTerminalNodeInterface(f)
+	checkExpressionNodeInterface(f)
+
 	if f.Type() != Float {
 		t.Fatalf("float literal type expected %d, got %d", Float, f.Type())
 	}
-
-	var _ TerminalNode = f
-	var _ Expression = f
-	f.expressionNode()
 
 	a := ASTBuildValue(3.14)
 
@@ -183,6 +193,9 @@ func TestFloatLiteralNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	f := NewFloatLiteral(ctxList[0], 3.14)
+	checkTerminalNodeInterface(f)
+	checkExpressionNodeInterface(f)
+
 	a := ASTBuildValue("3.14")
 	exp := strings.Join([]string{
 		"test.txt:1:1: error: expect a *ast.StringLiteral, got a *ast.FloatLiteral",
@@ -206,6 +219,9 @@ func TestFloatLiteralNotEqualInValue(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	f := NewFloatLiteral(ctxList[0], 3.14)
+	checkTerminalNodeInterface(f)
+	checkExpressionNodeInterface(f)
+
 	a := ASTBuildValue(2.71)
 	err := f.EqualTo(f, a)
 	if err == nil {
@@ -246,13 +262,12 @@ func TestIdentifier(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	id := NewIdentifier(ctxList[0])
+	checkTerminalNodeInterface(id)
+	checkExpressionNodeInterface(id)
+
 	if id.Type() != IdentifierName {
 		t.Fatalf("identifier type expected %d, got %d", IdentifierName, id.Type())
 	}
-
-	var _ TerminalNode = id
-	var _ Expression = id
-	id.expressionNode()
 
 	a := ASTBuildIdentifier("lorem")
 
@@ -266,6 +281,9 @@ func TestIdentifierNotEqual(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	id := NewIdentifier(ctxList[0])
+	checkTerminalNodeInterface(id)
+	checkExpressionNodeInterface(id)
+
 	a := ASTBuildValue(1234)
 	exp := strings.Join([]string{
 		"test.txt:1:1: error: expect a *ast.IntegerLiteral, got a *ast.Identifier",
@@ -289,6 +307,9 @@ func TestIdentifierNotEqualInName(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	id := NewIdentifier(ctxList[0])
+	checkTerminalNodeInterface(id)
+	checkExpressionNodeInterface(id)
+
 	a := ASTBuildIdentifier("ipsum")
 	err := id.EqualTo(id, a)
 	if err == nil {
@@ -311,6 +332,9 @@ func TestIdentifierIsDummy(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	id1 := NewIdentifier(ctxList[0])
+	checkTerminalNodeInterface(id1)
+	checkExpressionNodeInterface(id1)
+
 	if !id1.IsDummy() {
 		t.Fatalf("identifier '_' expected to be dummy")
 	}
@@ -326,11 +350,11 @@ func TestTerminalToken(t *testing.T) {
 	ctxList := generateTestWords(text)
 
 	symbol := NewTerminalToken(ctxList[0], Plus)
+	checkTerminalNodeInterface(symbol)
+
 	if symbol.Type() != Plus {
 		t.Fatalf("terminal token type expected %d, got %d", Plus, symbol.Type())
 	}
-
-	var _ TerminalNode = symbol
 
 	a := ASTBuildSymbol(Plus)
 
@@ -339,11 +363,11 @@ func TestTerminalToken(t *testing.T) {
 	}
 
 	keyword := NewTerminalToken(ctxList[1], If)
+	checkTerminalNodeInterface(keyword)
+
 	if keyword.Type() != If {
 		t.Fatalf("terminal token type expected %d, got %d", If, keyword.Type())
 	}
-
-	var _ TerminalNode = keyword
 
 	b := ASTBuildKeyword(If)
 

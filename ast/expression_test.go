@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+func checkExpressionNodeInterface(node Expression) {
+	node.expressionNode()
+}
+
 func TestSimpleExpressionList(t *testing.T) {
 	text := "42 , 3.14 , PI"
 	ctxList := generateTestWords(text)
@@ -184,8 +188,7 @@ func TestExpressionInfix(t *testing.T) {
 		NewIdentifier(ctxList[2]),
 	)
 
-	var _ Expression = expr
-	expr.expressionNode()
+	checkExpressionNodeInterface(expr)
 
 	expected := ASTBuildInfixExpression(
 		ASTBuildIdentifier("a"),
@@ -207,6 +210,8 @@ func TestExpressionInfixNotEqualInType(t *testing.T) {
 		NewTerminalToken(ctxList[1], Plus),
 		NewIdentifier(ctxList[2]),
 	)
+
+	checkExpressionNodeInterface(expr)
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
@@ -235,6 +240,8 @@ func TestExpressionInfixNotEqualInLeft(t *testing.T) {
 		NewTerminalToken(ctxList[1], Plus),
 		NewIdentifier(ctxList[2]),
 	)
+
+	checkExpressionNodeInterface(expr)
 
 	expected := ASTBuildInfixExpression(
 		ASTBuildIdentifier("x"),
@@ -268,6 +275,8 @@ func TestExpressionInfixNotEqualInOperator(t *testing.T) {
 		NewIdentifier(ctxList[2]),
 	)
 
+	checkExpressionNodeInterface(expr)
+
 	expected := ASTBuildInfixExpression(
 		ASTBuildIdentifier("a"),
 		Sub,
@@ -299,6 +308,8 @@ func TestExpressionInfixNotEqualInRight(t *testing.T) {
 		NewTerminalToken(ctxList[1], Plus),
 		NewIdentifier(ctxList[2]),
 	)
+
+	checkExpressionNodeInterface(expr)
 
 	expected := ASTBuildInfixExpression(
 		ASTBuildIdentifier("a"),

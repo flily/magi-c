@@ -12,7 +12,6 @@ type Comparable interface {
 }
 
 type Node interface {
-	context.ContextProvider
 	Comparable
 	HighlightText(message string, args ...any) string
 }

@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+func checkTypeNodeInterface(node Type) {
+	node.typeNode()
+}
+
 func TestSimpleType(t *testing.T) {
 	text := "* * lorem"
 	ctxList := generateTestWords(text)
@@ -16,9 +20,7 @@ func TestSimpleType(t *testing.T) {
 	}
 	identifier := NewIdentifier(ctxList[2])
 	simpleType := NewSimpleType(asterisks, identifier)
-
-	var _ Type = simpleType
-	simpleType.typeNode()
+	checkTypeNodeInterface(simpleType)
 
 	expected := ASTBuildSimpleType("**lorem")
 
@@ -37,6 +39,7 @@ func TestSimpleTypeNotEqualOnType(t *testing.T) {
 	}
 	identifier := NewIdentifier(ctxList[2])
 	simpleType := NewSimpleType(asterisks, identifier)
+	checkTypeNodeInterface(simpleType)
 
 	expected := ASTBuildValue(42)
 	message := strings.Join([]string{
@@ -66,6 +69,7 @@ func TestSimpleTypeNotEqualOnAsterisks(t *testing.T) {
 	}
 	identifier := NewIdentifier(ctxList[2])
 	simpleType := NewSimpleType(asterisks, identifier)
+	checkTypeNodeInterface(simpleType)
 
 	expected := ASTBuildSimpleType("*lorem")
 	message := strings.Join([]string{
@@ -94,6 +98,7 @@ func TestSimpleTypeNotEqualOnIdentifier(t *testing.T) {
 	}
 	identifier := NewIdentifier(ctxList[2])
 	simpleType := NewSimpleType(asterisks, identifier)
+	checkTypeNodeInterface(simpleType)
 
 	expected := ASTBuildSimpleType("**ipsum")
 	message := strings.Join([]string{

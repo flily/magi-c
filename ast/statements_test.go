@@ -17,8 +17,7 @@ func TestReturnStatement(t *testing.T) {
 	returnValues.Add(NewIntegerLiteral(ctxList[1], 0), nil)
 	returnStmt.Value = returnValues
 
-	var _ Statement = returnStmt
-	returnStmt.statementNode()
+	checkStatementNodeInterface(returnStmt)
 
 	expected := ASTBuildReturnStatement(
 		ASTBuildExpressionList(
