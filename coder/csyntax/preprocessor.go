@@ -41,3 +41,26 @@ func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
 	return out.WriteLine(level, NewContext(d.Context),
 		PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR)
 }
+
+type InlineBlock struct {
+	Context *context.Context
+	Content string
+}
+
+func NewInlineBlock(ctx *context.Context, content string) *InlineBlock {
+	b := &InlineBlock{
+		Context: ctx,
+		Content: content,
+	}
+
+	return b
+}
+
+func (b *InlineBlock) codeElement()     {}
+func (b *InlineBlock) declarationNode() {}
+func (b *InlineBlock) statementNode()   {}
+
+func (b *InlineBlock) Write(out *StyleWriter, level int) error {
+	return out.WriteLine(level, NewContext(b.Context),
+		StringElement(b.Content))
+}

@@ -31,3 +31,19 @@ func TestPreprocessorIncludeQuoteWrite(t *testing.T) {
 	}, "\n") + "\n"
 	checkOutputOnStyle(t, KRStyle, expected, include)
 }
+
+func TestInlineBlock(t *testing.T) {
+	ctx := makeLineContext("test.mc", 7)
+	inlineBlock := NewInlineBlock(ctx, "lorem ipsum;\ndolor sit amet;")
+
+	checkInterfaceCodeElement(inlineBlock)
+	checkInterfaceDeclaration(inlineBlock)
+	checkInterfaceStatement(inlineBlock)
+
+	expected := strings.Join([]string{
+		`#line 8 "test.mc"`,
+		`lorem ipsum;`,
+		`dolor sit amet;`,
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, KRStyle, expected, inlineBlock)
+}
