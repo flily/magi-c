@@ -1,10 +1,39 @@
 package coder
 
 import (
+	"bytes"
 	"testing"
 
 	"strings"
 )
+
+const (
+	testFilename = "test.mc"
+)
+
+func testOutputCode(t *testing.T, code string, expected string) {
+	coder := NewCoder(".", ".")
+	err := coder.ParseFileContent(testFilename, []byte(code))
+	if err != nil {
+		t.Fatalf("ParseFileContent failed:\n%s", err)
+	}
+
+	err = coder.Check(testFilename)
+	if err != nil {
+		t.Fatalf("Check failed:\n%s", err)
+	}
+
+	buf := bytes.NewBuffer(nil)
+	err = coder.OutputTo(testFilename, buf)
+	if err != nil {
+		t.Fatalf("OutputTo failed:\n%s", err)
+	}
+
+	output := buf.String()
+	if output != expected {
+		t.Fatalf("Output code mismatch:\nExpect:\n%s\nGot:\n%s", expected, output)
+	}
+}
 
 func TestCoderFromBinary1(t *testing.T) {
 	source := []byte(strings.Join([]string{
@@ -70,4 +99,28 @@ func TestOutputFilename(t *testing.T) {
 			t.Fatalf("OutputFilename failed for input '%s', expected '%s', got '%s'", c.input, c.expected, output)
 		}
 	}
+}
+
+func TestCodeBasicGenerate(t *testing.T) {
+	source := strings.Join([]string{
+		`#include <stdio.h>`,
+		`fun main() {`,
+		`    #inline c`,
+		`    printf("hello, world\n");`,
+		`    #end-inline c`,
+		`}`,
+		``,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
+		`#include <stdio.h>`,
+		`void main() {`,
+		`#line 3 "test.mc"`,
+		`    printf("hello, world\n");`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, source, expected)
 }

@@ -2,6 +2,7 @@ package coder
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 
@@ -99,12 +100,7 @@ func (c *Coder) Check(source string) error {
 	return result
 }
 
-func (c *Coder) Output(source string, target string) error {
-	doc, ok := c.Refs.Documents[source]
-	if !ok {
-		return fmt.Errorf("source file '%s' not exists", source)
-	}
-
+func (c *Coder) OutputToFile(source string, target string) error {
 	if err := os.MkdirAll(c.OutputBase, 0755); err != nil {
 		return err
 	}
@@ -117,7 +113,16 @@ func (c *Coder) Output(source string, target string) error {
 		_ = fd.Close()
 	}()
 
-	writer := c.Style.MakeWriter(fd)
+	return c.OutputTo(source, fd)
+}
+
+func (c *Coder) OutputTo(source string, out io.StringWriter) error {
+	doc, ok := c.Refs.Documents[source]
+	if !ok {
+		return fmt.Errorf("source file '%s' not exists", source)
+	}
+
+	writer := c.Style.MakeWriter(out)
 	return c.OutputDocument(doc, writer)
 }
 
