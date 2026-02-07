@@ -42,7 +42,7 @@ func main() {
 
 	outputFilename := path.Base(coder.OutputFilename(filename))
 	fmt.Printf("%s -> %s", filename, outputFilename)
-	err = c.Output(filename, outputFilename)
+	err = c.OutputToFile(filename, outputFilename)
 	if err != nil {
 		fmt.Printf("    failed\n")
 		fmt.Printf("Error:\n%s\n", err)
