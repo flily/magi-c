@@ -12,6 +12,8 @@ const (
 )
 
 func testOutputCode(t *testing.T, code string, expected string) {
+	t.Helper()
+
 	coder := NewCoder(".", ".")
 	err := coder.ParseFileContent(testFilename, []byte(code))
 	if err != nil {
@@ -115,7 +117,8 @@ func TestCodeBasicGenerate(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
-		`void main() {`,
+		`void main()`,
+		`{`,
 		`#line 3 "test.mc"`,
 		`    printf("hello, world\n");`,
 		`}`,

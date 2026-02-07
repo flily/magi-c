@@ -97,7 +97,8 @@ func TestFunctionDeclarationWithEmptyBody(t *testing.T) {
 	checkInterfaceDeclaration(f)
 
 	expected := strings.Join([]string{
-		"int add(int a, int b) {",
+		"int add(int a, int b)",
+		"{",
 		"}",
 		"",
 	}, "\n")
@@ -118,7 +119,8 @@ func TestFunctionDeclarationWithSimpleReturnStyle1(t *testing.T) {
 	f.AddStatement(returnStat)
 
 	expected := strings.Join([]string{
-		"int add(int a, int* b) {",
+		"int add(int a, int* b)",
+		"{",
 		"    return 42;",
 		"}",
 		"",

@@ -61,7 +61,7 @@ type CodeStyle struct {
 var (
 	KRStyle = &CodeStyle{
 		Indent:                 "    ",
-		FunctionBraceOnNewLine: false,
+		FunctionBraceOnNewLine: true,
 		FunctionBraceIndent:    "",
 		IfBraceOnNewLine:       false,
 		IfBraceIndent:          "",
