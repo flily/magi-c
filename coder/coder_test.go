@@ -1,9 +1,9 @@
 package coder
 
 import (
-	"bytes"
 	"testing"
 
+	"bytes"
 	"strings"
 )
 
@@ -103,7 +103,136 @@ func TestOutputFilename(t *testing.T) {
 	}
 }
 
-func TestCodeBasicGenerate(t *testing.T) {
+func TestCoderBasicLeastVoidMain(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun main() {`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`void main()`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderBasicLeastIntMain(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun main() (int) {`,
+		`    return 0`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`int main()`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderWithIncludeDirective(t *testing.T) {
+	souce := strings.Join([]string{
+		`#include <stdio.h>`,
+		`fun main() {`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
+		`#include <stdio.h>`,
+		`void main()`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderWithIncludeDirectiveInFunction(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun main() {`,
+		`    #include <example.txt>`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`void main()`,
+		`{`,
+		`#line 2 "test.mc"`,
+		`#include <example.txt>`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderWithInlineDirective(t *testing.T) {
+	souce := strings.Join([]string{
+		`#inline c`,
+		`#include <stdio.h>`,
+		`#end-inline c`,
+		`fun main() {`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
+		`#include <stdio.h>`,
+		`void main()`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderWithInlineDirectiveInFunction(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun main() {`,
+		`    #inline c`,
+		`    printf("hello, world\n");`,
+		`    #end-inline c`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`void main()`,
+		`{`,
+		`#line 2 "test.mc"`,
+		`    printf("hello, world\n");`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+// func TestCoderOnSimplestVoidFunction(t *testing.T) {
+// 	souce := strings.Join([]string{
+// 		`fun foo() {`,
+// 		`}`,
+// 	}, "\n")
+
+// 	expected := strings.Join([]string{
+// 		`void foo()`,
+// 		`{`,
+// 		`}`,
+// 		``,
+// 	}, "\n")
+
+// 	testOutputCode(t, souce, expected)
+// }
+
+func TestCodeSimpleHelloWorld(t *testing.T) {
 	source := strings.Join([]string{
 		`#include <stdio.h>`,
 		`fun main() {`,
@@ -111,7 +240,6 @@ func TestCodeBasicGenerate(t *testing.T) {
 		`    printf("hello, world\n");`,
 		`    #end-inline c`,
 		`}`,
-		``,
 	}, "\n")
 
 	expected := strings.Join([]string{

@@ -66,9 +66,9 @@ func TestCheckFunctionReturnValueCountMismatched(t *testing.T) {
 	checkCodeError(t, code, expected)
 }
 
-func TestCheckFunctionMissingReturnStatement(t *testing.T) {
+func TestCheckFunctionMissingReturnStatement1(t *testing.T) {
 	code := strings.Join([]string{
-		"fun addAndSub(a int, b int) (int, int) {",
+		"fun foo(a int, b int) (int) {",
 		"}",
 	}, "\n")
 
@@ -76,9 +76,27 @@ func TestCheckFunctionMissingReturnStatement(t *testing.T) {
 		"test.mc:2:1: error: function missing return statement and reach the end of function",
 		"    2 | }",
 		"      | ^",
-		"test.mc:1:30: note: function return value types is declared here",
-		"    1 | fun addAndSub(a int, b int) (int, int) {",
-		"      |                              ^^^^ ^^^",
+		"test.mc:1:24: note: function return value types is declared here",
+		"    1 | fun foo(a int, b int) (int) {",
+		"      |                        ^^^",
+	}, "\n")
+
+	checkCodeError(t, code, expected)
+}
+
+func TestCheckFunctionMissingReturnStatement2(t *testing.T) {
+	code := strings.Join([]string{
+		"fun foo(a int, b int) (int, int) {",
+		"}",
+	}, "\n")
+
+	expected := strings.Join([]string{
+		"test.mc:2:1: error: function missing return statement and reach the end of function",
+		"    2 | }",
+		"      | ^",
+		"test.mc:1:24: note: function return value types is declared here",
+		"    1 | fun foo(a int, b int) (int, int) {",
+		"      |                        ^^^^ ^^^",
 	}, "\n")
 
 	checkCodeError(t, code, expected)
