@@ -423,3 +423,47 @@ fun foo() {
     bb.next = a            // loop reference, ownership of a is taken by b.next
 }
 ```
+
+Grammar rules
+-------------
+
+```
+document:
+    declaration*
+
+declaration:
+    preprocessor
+    variable_declaration
+    function_declaration
+    struct_declaration
+    type_declaration
+
+argument_list:
+    /* empty */
+    argument ("," argument)*
+
+argument:
+    identifier type
+
+type:
+    ("*")* identifier
+
+type_list:
+    type ("," type)*
+
+function_declaration:
+    "fun" identifier "(" parameter_list? ")" ( "(" type_list ")" )?  "{" block "}"
+
+block:
+    statement*
+
+statement:
+    preprocessor_include
+    preprocessor_inline
+    variable_declaration
+    return_statement
+    expression_statement
+
+```
+
+
