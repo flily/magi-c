@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/flily/magi-c/ast"
 	"github.com/flily/magi-c/coder/check"
@@ -50,21 +51,29 @@ func NewCoder(sourceBase string, outputBase string) *Coder {
 	return c
 }
 
-func (c *Coder) ParseFileContent(filename string, content []byte) error {
-	doc, err := ParseDocument(content, filename)
-	if err != nil {
-		return err
-	}
-
-	c.Refs.Add(filename, doc)
-
-	return nil
+func (c *Coder) OutputFilename(indexName string) string {
+	return path.Join(c.OutputBase, indexName) + DefaultOutputSuffix
 }
 
-func (c *Coder) ParseFile(filename string) error {
+func (c *Coder) ParseFileContent(filename string, content []byte) (string, error) {
+	doc, err := ParseDocument(content, filename)
+	if err != nil {
+		return "", err
+	}
+
+	relName, err := filepath.Rel(c.SourceBase, filename)
+	if err != nil {
+		panic(err)
+	}
+
+	c.Refs.Add(relName, doc)
+	return relName, nil
+}
+
+func (c *Coder) ParseFile(filename string) (string, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	return c.ParseFileContent(filename, content)
@@ -100,12 +109,18 @@ func (c *Coder) Check(source string) error {
 	return result
 }
 
-func (c *Coder) OutputToFile(source string, target string) error {
-	if err := os.MkdirAll(c.OutputBase, 0755); err != nil {
+func (c *Coder) Output(sourceRel string) error {
+	outputTarget := c.OutputFilename(sourceRel)
+	return c.OutputToFile(sourceRel, outputTarget)
+}
+
+func (c *Coder) OutputToFile(sourceRel string, target string) error {
+	targetBase := path.Dir(target)
+	if err := os.MkdirAll(targetBase, 0755); err != nil {
 		return err
 	}
 
-	fd, err := os.Create(path.Join(c.OutputBase, target))
+	fd, err := os.Create(target)
 	if err != nil {
 		return err
 	}
@@ -113,13 +128,13 @@ func (c *Coder) OutputToFile(source string, target string) error {
 		_ = fd.Close()
 	}()
 
-	return c.OutputTo(source, fd)
+	return c.OutputTo(sourceRel, fd)
 }
 
-func (c *Coder) OutputTo(source string, out io.StringWriter) error {
-	doc, ok := c.Refs.Documents[source]
+func (c *Coder) OutputTo(sourceRel string, out io.StringWriter) error {
+	doc, ok := c.Refs.Documents[sourceRel]
 	if !ok {
-		return fmt.Errorf("source file '%s' not exists", source)
+		return fmt.Errorf("source file '%s' not exists", sourceRel)
 	}
 
 	writer := c.Style.MakeWriter(out)

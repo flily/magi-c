@@ -15,9 +15,13 @@ func testOutputCode(t *testing.T, code string, expected string) {
 	t.Helper()
 
 	coder := NewCoder(".", ".")
-	err := coder.ParseFileContent(testFilename, []byte(code))
+	indexName, err := coder.ParseFileContent(testFilename, []byte(code))
 	if err != nil {
 		t.Fatalf("ParseFileContent failed:\n%s", err)
+	}
+
+	if indexName != testFilename {
+		t.Fatalf("ParseFileContent returned wrong index name, expect '%s', got '%s'", testFilename, indexName)
 	}
 
 	err = coder.Check(testFilename)
@@ -50,7 +54,7 @@ func TestCoderFromBinary1(t *testing.T) {
 
 	coder := NewCoder(".", ".")
 
-	err := coder.ParseFileContent("example.mc", source)
+	_, err := coder.ParseFileContent("example.mc", source)
 	if err != nil {
 		t.Fatalf("ParseFileContent failed:\n%s", err)
 	}
@@ -74,7 +78,7 @@ func TestCoderFromBinary2(t *testing.T) {
 
 	coder := NewCoder(".", ".")
 
-	err := coder.ParseFileContent("example.mc", source)
+	_, err := coder.ParseFileContent("example.mc", source)
 	if err != nil {
 		t.Fatalf("ParseFileContent failed:\n%s", err)
 	}

@@ -3,39 +3,40 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/flily/magi-c/coder"
 	"github.com/flily/magi-c/context"
 )
 
 func translateFile(c *coder.Coder, filename string) error {
-	err := c.ParseFile(filename)
+	indexName, err := c.ParseFile(filename)
 	if err != nil {
 		switch e := err.(type) {
 		case *context.Diagnostic:
 			fmt.Printf("Syntax error:\n%s\n", e)
 
 		default:
-			fmt.Printf("Error:\n%s\n", err)
+			fmt.Printf("Parse error:\n%s\n", err)
 		}
 
 		return err
 	}
 
-	err = c.Check(filename)
+	err = c.Check(indexName)
 	if err != nil {
-		fmt.Printf("Error:\n%s\n", err)
+		fmt.Printf("Check error:\n%s\n", err)
 		return err
 	}
 
-	outputFilename := path.Base(coder.OutputFilename(filename))
-	fmt.Printf("%s -> %s", filename, outputFilename)
-	err = c.OutputToFile(filename, outputFilename)
+	outputFilename := c.OutputFilename(indexName)
+	fmt.Printf("%s -> [%s] %s", filename, indexName, outputFilename)
+	err = c.Output(indexName)
 	if err != nil {
 		fmt.Printf("    failed\n")
-		fmt.Printf("Error:\n%s\n", err)
+		fmt.Printf("Output error:\n%s\n", err)
 		return err
 	}
 
@@ -43,13 +44,30 @@ func translateFile(c *coder.Coder, filename string) error {
 	return nil
 }
 
+func translateDirectory(c *coder.Coder, base string) error {
+	err := filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		return translateFile(c, path)
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func doTranslate(args []string) error {
 	set := flag.NewFlagSet("translate", flag.ExitOnError)
-	source := set.String("source", ".", "source base directory")
 	output := set.String("output", "output", "output base directory")
 	_ = set.Parse(args)
-
-	c := coder.NewCoder(*source, *output)
 
 	base := "."
 
@@ -62,7 +80,10 @@ func doTranslate(args []string) error {
 		return err
 	}
 
+	c := coder.NewCoder(base, *output)
+
 	if stat.IsDir() {
+		err = translateDirectory(c, base)
 
 	} else {
 		err = translateFile(c, base)
