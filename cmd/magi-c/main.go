@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/flily/magi-c/coder"
 	"github.com/flily/magi-c/context"
@@ -51,6 +52,10 @@ func translateDirectory(c *coder.Coder, base string) error {
 		}
 
 		if d.IsDir() {
+			return nil
+		}
+
+		if !strings.HasSuffix(path, coder.DefaultSourceSuffix) {
 			return nil
 		}
 

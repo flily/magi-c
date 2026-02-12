@@ -20,6 +20,7 @@ const (
 	DefaultOutputBase    = "output"
 	DefaultMainEntryName = "main"
 	DefaultOutputSuffix  = ".c"
+	DefaultSourceSuffix  = ".mc"
 )
 
 func ParseDocument(data []byte, filename string) (*ast.Document, error) {
