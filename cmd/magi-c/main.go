@@ -98,6 +98,37 @@ func doTranslate(args []string) error {
 }
 
 func doBuild(args []string) error {
+	set := flag.NewFlagSet("translate", flag.ExitOnError)
+	output := set.String("output", "output", "output base directory")
+	_ = set.Parse(args)
+
+	base := "."
+
+	if set.NArg() > 0 {
+		base = set.Arg(0)
+	}
+
+	stat, err := os.Stat(base)
+	if err != nil {
+		return err
+	}
+
+	if !stat.IsDir() {
+		fmt.Printf("error: shall build in a project directory\n")
+		return nil
+	}
+
+	c := coder.NewCoder(base, *output)
+	err = translateDirectory(c, base)
+	if err != nil {
+		return err
+	}
+
+	entry := c.FindMain()
+	if len(entry) <= 0 {
+		fmt.Printf("error: no main entry found\n")
+	}
+
 	return nil
 }
 
