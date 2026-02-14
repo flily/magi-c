@@ -220,21 +220,21 @@ func TestCoderWithInlineDirectiveInFunction(t *testing.T) {
 	testOutputCode(t, souce, expected)
 }
 
-// func TestCoderOnSimplestVoidFunction(t *testing.T) {
-// 	souce := strings.Join([]string{
-// 		`fun foo() {`,
-// 		`}`,
-// 	}, "\n")
+func TestCoderOnVoidFunction(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun foo() {`,
+		`}`,
+	}, "\n")
 
-// 	expected := strings.Join([]string{
-// 		`void foo()`,
-// 		`{`,
-// 		`}`,
-// 		``,
-// 	}, "\n")
+	expected := strings.Join([]string{
+		`void foo()`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
 
-// 	testOutputCode(t, souce, expected)
-// }
+	testOutputCode(t, souce, expected)
+}
 
 func TestCodeSimpleHelloWorld(t *testing.T) {
 	source := strings.Join([]string{

@@ -173,7 +173,30 @@ func (c *Coder) OutputFunctionDeclaration(decl *ast.FunctionDeclaration) *csynta
 		return c.OutputMainFunction(decl)
 	}
 
-	return nil
+	rcc := 0
+	if decl.ReturnTypes != nil {
+		rcc = decl.ReturnTypes.Length()
+	}
+
+	var f *csyntax.FunctionDeclaration
+	if rcc > 1 {
+
+	} else {
+		f = c.OutputFunctionSingleReturnValue(decl)
+	}
+
+	return f
+}
+
+func (c *Coder) outputFunctionBody(decl *ast.FunctionDeclaration, f *csyntax.FunctionDeclaration) *csyntax.FunctionDeclaration {
+	for _, stmt := range decl.Statements {
+		r := c.OutputStatement(stmt)
+		if r != nil {
+			f.AddStatement(r)
+		}
+	}
+
+	return f
 }
 
 func (c *Coder) OutputMainFunction(decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
@@ -182,6 +205,17 @@ func (c *Coder) OutputMainFunction(decl *ast.FunctionDeclaration) *csyntax.Funct
 		f = csyntax.NewFunctionDeclaration("main", csyntax.NewConcreteType("void"), csyntax.NewParameterList(), nil)
 	} else {
 		f = csyntax.NewFunctionDeclaration("main", csyntax.NewConcreteType("int"), csyntax.NewParameterList(), nil)
+	}
+
+	return c.outputFunctionBody(decl, f)
+}
+
+func (c *Coder) OutputFunctionSingleReturnValue(decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
+	var f *csyntax.FunctionDeclaration
+	if decl.ReturnTypes == nil || decl.ReturnTypes.Length() == 0 {
+		f = csyntax.NewFunctionDeclaration(decl.Name.Name, csyntax.NewConcreteType("void"), csyntax.NewParameterList(), nil)
+	} else {
+		f = csyntax.NewFunctionDeclaration(decl.Name.Name, csyntax.NewConcreteType("int"), csyntax.NewParameterList(), nil)
 	}
 
 	for _, stmt := range decl.Statements {
