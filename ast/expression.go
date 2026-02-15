@@ -79,6 +79,10 @@ func (l *ExpressionList) Add(e Expression, comma *TerminalToken) {
 	l.Expressions = append(l.Expressions, item)
 }
 
+func (l *ExpressionList) Length() int {
+	return len(l.Expressions)
+}
+
 func (l *ExpressionList) EqualTo(archor context.ContextProvider, other Comparable) error {
 	o, err := CheckNodeEqual(l, other)
 	if err != nil {

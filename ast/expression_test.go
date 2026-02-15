@@ -19,6 +19,10 @@ func TestSimpleExpressionList(t *testing.T) {
 	list.Add(NewFloatLiteral(ctxList[2], 3.14), NewTerminalToken(ctxList[3], Comma))
 	list.Add(NewIdentifier(ctxList[4]), nil)
 
+	if list.Length() != 3 {
+		t.Fatalf("wrong expression list length, expected 3, got %d", list.Length())
+	}
+
 	expected := ASTBuildExpressionList(
 		ASTBuildExpressionListItemWithComma(ASTBuildValue(42)),
 		ASTBuildExpressionListItemWithComma(ASTBuildValue(3.14)),
