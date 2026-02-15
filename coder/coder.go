@@ -211,21 +211,23 @@ func (c *Coder) OutputMainFunction(decl *ast.FunctionDeclaration) *csyntax.Funct
 }
 
 func (c *Coder) OutputFunctionSingleReturnValue(decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
-	var f *csyntax.FunctionDeclaration
-	if decl.ReturnTypes == nil || decl.ReturnTypes.Length() == 0 {
-		f = csyntax.NewFunctionDeclaration(decl.Name.Name, csyntax.NewConcreteType("void"), csyntax.NewParameterList(), nil)
-	} else {
-		f = csyntax.NewFunctionDeclaration(decl.Name.Name, csyntax.NewConcreteType("int"), csyntax.NewParameterList(), nil)
+	retType := csyntax.NewConcreteType("void")
+	if decl.ReturnTypes != nil && decl.ReturnTypes.Length() > 0 {
+		// FIXME: return type is always int for now
+		retType = csyntax.NewConcreteType("int")
 	}
 
-	for _, stmt := range decl.Statements {
-		r := c.OutputStatement(stmt)
-		if r != nil {
-			f.AddStatement(r)
+	params := make([]*csyntax.ParameterListItem, 0, 10)
+	if decl.Arguments != nil {
+		for _, param := range decl.Arguments.Arguments {
+			// FIXME: parameter type is always int for now
+			item := csyntax.NewParameterListItem(csyntax.NewConcreteType("int"), param.Name.Name)
+			params = append(params, item)
 		}
 	}
 
-	return f
+	f := csyntax.NewFunctionDeclaration(decl.Name.Name, retType, csyntax.NewParameterList(params...), nil)
+	return c.outputFunctionBody(decl, f)
 }
 
 func (c *Coder) OutputStatement(stmt ast.Statement) csyntax.Statement {

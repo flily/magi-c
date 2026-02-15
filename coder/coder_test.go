@@ -236,6 +236,39 @@ func TestCoderOnVoidFunction(t *testing.T) {
 	testOutputCode(t, souce, expected)
 }
 
+func TestCoderOnVoidFunctionWithParameter(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun foo(a int, b int) {`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`void foo(int a, int b)`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderWithOnSimpleFunctionAdd(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun add(a int, b int) (int) {`,
+		`    return 0`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`int add(int a, int b)`,
+		`{`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
 func TestCodeSimpleHelloWorld(t *testing.T) {
 	source := strings.Join([]string{
 		`#include <stdio.h>`,
