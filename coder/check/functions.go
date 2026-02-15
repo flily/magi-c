@@ -48,7 +48,11 @@ func checkFunctionReturnValue(d *ast.FunctionDeclaration) context.DiagnosticInfo
 		retFound = true
 		if len(retStmt.Value.Expressions) != count {
 			c1 := d.ReturnTypes.Context()
-			c2 := retStmt.Value.Context()
+			c2 := retStmt.Return.Context()
+			if len(retStmt.Value.Expressions) > 0 {
+				c2 = retStmt.Value.Context()
+			}
+
 			err := c2.Error("function return value count mismatch, expect %d, got %d", count, len(retStmt.Value.Expressions)).
 				With("SHALL return %d values", count).
 				For(c1.Note("return value types is declared here"))

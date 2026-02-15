@@ -46,7 +46,7 @@ func TestCheckFunctionReturnValueCountMatched(t *testing.T) {
 	checkCodeCorrect(t, code)
 }
 
-func TestCheckFunctionReturnValueCountMismatched(t *testing.T) {
+func TestCheckFunctionReturnValueCountMismatched1(t *testing.T) {
 	code := strings.Join([]string{
 		"fun addAndSub(a int, b int) (int, int) {",
 		"    return a + b",
@@ -58,6 +58,26 @@ func TestCheckFunctionReturnValueCountMismatched(t *testing.T) {
 		"    2 |     return a + b",
 		"      |            ^ ^ ^",
 		"      |            SHALL return 2 values",
+		"test.mc:1:30: note: return value types is declared here",
+		"    1 | fun addAndSub(a int, b int) (int, int) {",
+		"      |                              ^^^^ ^^^",
+	}, "\n")
+
+	checkCodeError(t, code, expected)
+}
+
+func TestCheckFunctionReturnValueCountMismatched2(t *testing.T) {
+	code := strings.Join([]string{
+		"fun addAndSub(a int, b int) (int, int) {",
+		"    return",
+		"}",
+	}, "\n")
+
+	expected := strings.Join([]string{
+		"test.mc:2:5: error: function return value count mismatch, expect 2, got 0",
+		"    2 |     return",
+		"      |     ^^^^^^",
+		"      |     SHALL return 2 values",
 		"test.mc:1:30: note: return value types is declared here",
 		"    1 | fun addAndSub(a int, b int) (int, int) {",
 		"      |                              ^^^^ ^^^",
