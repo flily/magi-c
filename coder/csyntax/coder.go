@@ -132,6 +132,16 @@ func (s *CodeStyle) FunctionNewLine() ElementCollection {
 	return result
 }
 
+func (s *CodeStyle) BinaryOperator(op Punctuator) ElementCollection {
+	result := []CodeElement{
+		s.BinaryOperationSpacing.Select(DelimiterSpace),
+		op,
+		s.BinaryOperationSpacing.Select(DelimiterSpace),
+	}
+
+	return result
+}
+
 type Context struct {
 	Context *context.Context
 }
