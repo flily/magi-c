@@ -238,6 +238,9 @@ func (c *Coder) OutputStatement(stmt ast.Statement) csyntax.Statement {
 	case *ast.PreprocessorInline:
 		return c.OutputPreprocessorInline(s)
 
+	case *ast.ReturnStatement:
+		return c.OutputReturnStatement(s)
+
 	default:
 		return nil
 	}
@@ -259,4 +262,42 @@ func (c *Coder) OutputPreprocessorInclude(inc *ast.PreprocessorInclude) *csyntax
 func (c *Coder) OutputPreprocessorInline(inline *ast.PreprocessorInline) *csyntax.InlineBlock {
 	block := csyntax.NewInlineBlock(inline.Context(), inline.Content)
 	return block
+}
+
+func (c *Coder) OutputReturnStatement(ret *ast.ReturnStatement) *csyntax.ReturnStatement {
+	if ret.Value == nil || ret.Value.Length() <= 0 {
+		return csyntax.NewReturnStatement(nil)
+	}
+
+	if ret.Value.Length() == 1 {
+		expr := ret.Value.Expressions[0]
+		return c.OutputReturnStatementSingleValue(expr.Expression)
+	}
+
+	return nil
+}
+
+func (c *Coder) OutputReturnStatementSingleValue(expr ast.Expression) *csyntax.ReturnStatement {
+	value := c.OutputExpression(expr)
+	return csyntax.NewReturnStatement(value)
+}
+
+func (c *Coder) OutputExpression(expr ast.Expression) csyntax.Expression {
+	switch e := expr.(type) {
+	case *ast.Identifier:
+		return csyntax.NewIdentifier(e.Name)
+
+	case *ast.IntegerLiteral:
+		return csyntax.NewIntegerLiteral(int64(e.Value))
+
+	case *ast.InfixExpression:
+		left := c.OutputExpression(e.LeftOperand)
+		op := OperatorMap(e.Operator.Token)
+		right := c.OutputExpression(e.RightOperand)
+		return csyntax.NewInfixExpression(left, op, right)
+
+	default:
+		err := fmt.Errorf("unsupported expression type: %T", e)
+		panic(err)
+	}
 }

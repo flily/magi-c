@@ -133,6 +133,7 @@ func TestCoderBasicLeastIntMain(t *testing.T) {
 	expected := strings.Join([]string{
 		`int main()`,
 		`{`,
+		`    return 0;`,
 		`}`,
 		``,
 	}, "\n")
@@ -252,22 +253,79 @@ func TestCoderOnVoidFunctionWithParameter(t *testing.T) {
 	testOutputCode(t, souce, expected)
 }
 
-func TestCoderWithOnSimpleFunctionAdd(t *testing.T) {
+func TestCoderOnSimpleFunctionZero(t *testing.T) {
 	souce := strings.Join([]string{
-		`fun add(a int, b int) (int) {`,
+		`fun zero() (int) {`,
 		`    return 0`,
 		`}`,
 	}, "\n")
 
 	expected := strings.Join([]string{
-		`int add(int a, int b)`,
+		`int zero()`,
 		`{`,
+		`    return 0;`,
 		`}`,
 		``,
 	}, "\n")
 
 	testOutputCode(t, souce, expected)
 }
+
+func TestCoderOnSimpleFunctionIncr(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun incr(a int) (int) {`,
+		`    return a + 1`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`int incr(int a)`,
+		`{`,
+		`    return (a + 1);`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+func TestCoderOnSimpleFunctionAdd(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun add(a int, b int) (int) {`,
+		`    return a + b`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`int add(int a, int b)`,
+		`{`,
+		`    return (a + b);`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, souce, expected)
+}
+
+// func TestCoderOnSimpleFunctionWithAddAndSub(t *testing.T) {
+// 	souce := strings.Join([]string{
+// 		`fun addAndSub(a int, b int) (int, int) {`,
+// 		`    return a + b, a - b`,
+// 		`}`,
+// 	}, "\n")
+
+// 	expected := strings.Join([]string{
+// 		`int addAndSub(int* ra, int* rb, int a, int b)`,
+// 		`{`,
+// 		`    *ra = (a + b);`,
+// 		`    *rb = (a - b);`,
+// 		`    return 0;`,
+// 		`}`,
+// 		``,
+// 	}, "\n")
+
+// 	testOutputCode(t, souce, expected)
+// }
 
 func TestCodeSimpleHelloWorld(t *testing.T) {
 	source := strings.Join([]string{
