@@ -79,3 +79,63 @@ func TestFrameBasic(t *testing.T) {
 		t.Fatalf("variable 'var2' should be found in child frame")
 	}
 }
+
+func TestContextGlobalUse(t *testing.T) {
+	ctx := NewContext()
+	r := ctx.IsGlobalContext()
+	if !r {
+		t.Fatalf("new context should be global context")
+	}
+
+	r = ctx.RegisterVariable("gvar1")
+	if !r {
+		t.Fatalf("failed to register variable 'gvar1' in global context")
+	}
+
+	if _, found := ctx.Find("gvar1"); !found {
+		t.Fatalf("variable 'gvar1' should be found in global context")
+	}
+
+	r = ctx.RegisterVariable("gvar1")
+	if r {
+		t.Fatalf("should not be able to register duplicate variable 'gvar1' in global context")
+	}
+
+	r = ctx.RegisterVariable("gvar2")
+	if !r {
+		t.Fatalf("failed to register variable 'gvar2' in global context")
+	}
+
+	if _, found := ctx.Find("gvar1"); !found {
+		t.Fatalf("variable 'gvar1' should still be found in global context")
+	}
+
+	if _, found := ctx.Find("gvar2"); !found {
+		t.Fatalf("variable 'gvar2' should be found in global context")
+	}
+}
+
+func TestContextFunctionUse(t *testing.T) {
+	ctx := NewContext()
+	ctx.RegisterVariable("gvar1")
+
+	ctx.PushFrame()
+	ctx.RegisterVariable("fvar1")
+
+	if _, found := ctx.Find("fvar1"); !found {
+		t.Fatalf("variable 'fvar1' should be found in function context")
+	}
+
+	if _, found := ctx.Find("gvar1"); !found {
+		t.Fatalf("variable 'gvar1' should be found in function context")
+	}
+
+	ctx.PopFrame()
+	if _, found := ctx.Find("fvar1"); found {
+		t.Fatalf("variable 'fvar1' should not be found after popping function frame")
+	}
+
+	if _, found := ctx.Find("gvar1"); !found {
+		t.Fatalf("variable 'gvar1' should still be found in global context")
+	}
+}

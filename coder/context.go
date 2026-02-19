@@ -6,24 +6,24 @@ type VariableInfo struct {
 }
 
 type VariableMap struct {
-	Variables map[string]VariableInfo
+	Variables map[string]*VariableInfo
 }
 
 func NewVariableMap() *VariableMap {
 	m := &VariableMap{
-		Variables: make(map[string]VariableInfo),
+		Variables: make(map[string]*VariableInfo),
 	}
 
 	return m
 }
 
 func (m *VariableMap) Add(name string) {
-	m.Variables[name] = VariableInfo{
+	m.Variables[name] = &VariableInfo{
 		Name: name,
 	}
 }
 
-func (m *VariableMap) Get(name string) (VariableInfo, bool) {
+func (m *VariableMap) Get(name string) (*VariableInfo, bool) {
 	info, found := m.Variables[name]
 	return info, found
 }
@@ -50,7 +50,7 @@ func (f *Frame) IsRoot() bool {
 	return f.Next == nil
 }
 
-func (f *Frame) GetName(name string) (VariableInfo, bool) {
+func (f *Frame) GetName(name string) (*VariableInfo, bool) {
 	return f.Variables.Get(name)
 }
 
@@ -82,7 +82,7 @@ func (c *Context) IsGlobalContext() bool {
 	return c.FunctionFrame == nil
 }
 
-func (c *Context) Find(name string) (VariableInfo, bool) {
+func (c *Context) Find(name string) (*VariableInfo, bool) {
 	frame := c.FunctionFrame
 	for frame != nil {
 		if info, found := frame.GetName(name); found {
@@ -96,7 +96,7 @@ func (c *Context) Find(name string) (VariableInfo, bool) {
 		return info, true
 	}
 
-	return VariableInfo{}, false
+	return nil, false
 }
 
 func (c *Context) RegisterVariable(name string) bool {
@@ -112,9 +112,15 @@ func (c *Context) RegisterVariable(name string) bool {
 	return top.AddName(name)
 }
 
-func (c *Context) AddFunctionFrame() *Frame {
+func (c *Context) PushFrame() *Frame {
 	top := c.FunctionFrame
 	frame := NewFrameOn(top)
 	c.FunctionFrame = frame
 	return frame
+}
+
+func (c *Context) PopFrame() {
+	if c.FunctionFrame != nil {
+		c.FunctionFrame = c.FunctionFrame.Next
+	}
 }
