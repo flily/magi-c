@@ -17,9 +17,9 @@ func NewVariableMap() *VariableMap {
 	return m
 }
 
-func (m *VariableMap) Add(name string) {
-	m.Variables[name] = &VariableInfo{
-		Name: name,
+func (m *VariableMap) Add(nameInSource string, nameInCode string) {
+	m.Variables[nameInSource] = &VariableInfo{
+		Name: nameInCode,
 	}
 }
 
@@ -54,12 +54,12 @@ func (f *Frame) GetName(name string) (*VariableInfo, bool) {
 	return f.Variables.Get(name)
 }
 
-func (f *Frame) AddName(name string) bool {
-	if _, found := f.Variables.Get(name); found {
+func (f *Frame) AddName(nameInSource string, nameInCode string) bool {
+	if _, found := f.Variables.Get(nameInSource); found {
 		return false
 	}
 
-	f.Variables.Add(name)
+	f.Variables.Add(nameInSource, nameInCode)
 	return true
 }
 
@@ -99,17 +99,17 @@ func (c *Context) Find(name string) (*VariableInfo, bool) {
 	return nil, false
 }
 
-func (c *Context) RegisterVariable(name string) bool {
+func (c *Context) RegisterVariable(nameInSource string, nameInCode string) bool {
 	if c.IsGlobalContext() {
-		if _, found := c.Global.GetName(name); found {
+		if _, found := c.Global.GetName(nameInSource); found {
 			return false
 		}
 
-		return c.Global.AddName(name)
+		return c.Global.AddName(nameInSource, nameInCode)
 	}
 
 	top := c.FunctionFrame
-	return top.AddName(name)
+	return top.AddName(nameInSource, nameInCode)
 }
 
 func (c *Context) PushFrame() *Frame {
