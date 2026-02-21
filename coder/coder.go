@@ -17,10 +17,11 @@ import (
 )
 
 const (
-	DefaultOutputBase    = "output"
-	DefaultMainEntryName = "main"
-	DefaultOutputSuffix  = ".c"
-	DefaultSourceSuffix  = ".mc"
+	DefaultOutputBase        = "output"
+	DefaultMainEntryName     = "main"
+	DefaultOutputSuffix      = ".c"
+	DefaultSourceSuffix      = ".mc"
+	DefaultOutputParamPrefix = "__out__"
 )
 
 func ParseDocument(data []byte, filename string) (*ast.Document, error) {
@@ -32,6 +33,11 @@ func ParseDocument(data []byte, filename string) (*ast.Document, error) {
 
 func OutputFilename(filename string) string {
 	return filename + DefaultOutputSuffix
+}
+
+func OutputArgumentName(index int) string {
+	s := fmt.Sprintf("%s%d", DefaultOutputParamPrefix, index)
+	return s
 }
 
 type Coder struct {
@@ -143,34 +149,35 @@ func (c *Coder) OutputTo(sourceRel string, out io.StringWriter) error {
 }
 
 func (c *Coder) OutputDocument(document *ast.Document, out *csyntax.StyleWriter) error {
+	ctx := NewContext()
 	decls := make([]csyntax.CodeElement, 0, len(document.Declarations))
 
 	for _, decl := range document.Declarations {
-		out := c.OutputDeclaration(decl)
+		out := c.OutputDeclaration(ctx, decl)
 		decls = append(decls, out)
 	}
 
 	return out.Write(0, decls...)
 }
 
-func (c *Coder) OutputDeclaration(decl ast.Declaration) csyntax.Declaration {
+func (c *Coder) OutputDeclaration(ctx *Context, decl ast.Declaration) csyntax.Declaration {
 	switch d := decl.(type) {
 	case *ast.FunctionDeclaration:
-		return c.OutputFunctionDeclaration(d)
+		return c.OutputFunctionDeclaration(ctx, d)
 
 	case *ast.PreprocessorInclude:
-		return c.OutputPreprocessorInclude(d)
+		return c.OutputPreprocessorInclude(ctx, d)
 
 	case *ast.PreprocessorInline:
-		return c.OutputPreprocessorInline(d)
+		return c.OutputPreprocessorInline(ctx, d)
 	}
 
 	return nil
 }
 
-func (c *Coder) OutputFunctionDeclaration(decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
+func (c *Coder) OutputFunctionDeclaration(ctx *Context, decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
 	if decl.Name.Name == "main" {
-		return c.OutputMainFunction(decl)
+		return c.OutputMainFunction(ctx, decl)
 	}
 
 	rcc := 0
@@ -180,18 +187,19 @@ func (c *Coder) OutputFunctionDeclaration(decl *ast.FunctionDeclaration) *csynta
 
 	var f *csyntax.FunctionDeclaration
 	if rcc > 1 {
+		f = c.OutputFunctionMultipleReturnValues(ctx, decl)
 
 	} else {
-		f = c.OutputFunctionSingleReturnValue(decl)
+		f = c.OutputFunctionSingleReturnValue(ctx, decl)
 	}
 
 	return f
 }
 
-func (c *Coder) outputFunctionBody(decl *ast.FunctionDeclaration, f *csyntax.FunctionDeclaration) *csyntax.FunctionDeclaration {
+func (c *Coder) outputFunctionBody(ctx *Context, decl *ast.FunctionDeclaration, f *csyntax.FunctionDeclaration) *csyntax.FunctionDeclaration {
 	for _, stmt := range decl.Statements {
-		r := c.OutputStatement(stmt)
-		if r != nil {
+		rs := c.OutputStatement(ctx, stmt)
+		for _, r := range rs {
 			f.AddStatement(r)
 		}
 	}
@@ -199,7 +207,7 @@ func (c *Coder) outputFunctionBody(decl *ast.FunctionDeclaration, f *csyntax.Fun
 	return f
 }
 
-func (c *Coder) OutputMainFunction(decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
+func (c *Coder) OutputMainFunction(ctx *Context, decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
 	var f *csyntax.FunctionDeclaration
 	if decl.ReturnTypes == nil || decl.ReturnTypes.Length() == 0 {
 		f = csyntax.NewFunctionDeclaration("main", csyntax.NewConcreteType("void"), csyntax.NewParameterList(), nil)
@@ -207,10 +215,10 @@ func (c *Coder) OutputMainFunction(decl *ast.FunctionDeclaration) *csyntax.Funct
 		f = csyntax.NewFunctionDeclaration("main", csyntax.NewConcreteType("int"), csyntax.NewParameterList(), nil)
 	}
 
-	return c.outputFunctionBody(decl, f)
+	return c.outputFunctionBody(ctx, decl, f)
 }
 
-func (c *Coder) OutputFunctionSingleReturnValue(decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
+func (c *Coder) OutputFunctionSingleReturnValue(ctx *Context, decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
 	retType := csyntax.NewConcreteType("void")
 	if decl.ReturnTypes != nil && decl.ReturnTypes.Length() > 0 {
 		// FIXME: return type is always int for now
@@ -227,26 +235,53 @@ func (c *Coder) OutputFunctionSingleReturnValue(decl *ast.FunctionDeclaration) *
 	}
 
 	f := csyntax.NewFunctionDeclaration(decl.Name.Name, retType, csyntax.NewParameterList(params...), nil)
-	return c.outputFunctionBody(decl, f)
+	return c.outputFunctionBody(ctx, decl, f)
 }
 
-func (c *Coder) OutputStatement(stmt ast.Statement) csyntax.Statement {
+func (c *Coder) OutputFunctionMultipleReturnValues(ctx *Context, decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
+	for i := range decl.ReturnTypes.Types {
+		outputParamName := OutputArgumentName(i)
+		ctx.FunctionOut.Add(outputParamName, outputParamName)
+	}
+
+	retType := csyntax.NewConcreteType("int")
+	params := make([]*csyntax.ParameterListItem, 0, 10)
+	for name := range ctx.FunctionOut.Variables {
+		outType := csyntax.NewPointerType("int") // FIXME: output parameter type is always pointer to int for now
+		item := csyntax.NewParameterListItem(outType, name)
+		params = append(params, item)
+	}
+
+	if decl.Arguments != nil {
+		for _, param := range decl.Arguments.Arguments {
+			// FIXME: parameter type is always int for now
+			item := csyntax.NewParameterListItem(csyntax.NewConcreteType("int"), param.Name.Name)
+			params = append(params, item)
+		}
+	}
+
+	f := csyntax.NewFunctionDeclaration(decl.Name.Name, retType, csyntax.NewParameterList(params...), nil)
+	return c.outputFunctionBody(ctx, decl, f)
+}
+
+func (c *Coder) OutputStatement(ctx *Context, stmt ast.Statement) []csyntax.Statement {
+	result := make([]csyntax.Statement, 0, 10)
 	switch s := stmt.(type) {
 	case *ast.PreprocessorInclude:
-		return c.OutputPreprocessorInclude(s)
+		result = append(result, c.OutputPreprocessorInclude(ctx, s))
 
 	case *ast.PreprocessorInline:
-		return c.OutputPreprocessorInline(s)
+		result = append(result, c.OutputPreprocessorInline(ctx, s))
 
 	case *ast.ReturnStatement:
-		return c.OutputReturnStatement(s)
+		result = append(result, c.OutputReturnStatement(ctx, s)...)
 
-	default:
-		return nil
 	}
+
+	return result
 }
 
-func (c *Coder) OutputPreprocessorInclude(inc *ast.PreprocessorInclude) *csyntax.IncludeDirective {
+func (c *Coder) OutputPreprocessorInclude(ctx *Context, inc *ast.PreprocessorInclude) *csyntax.IncludeDirective {
 	var include *csyntax.IncludeDirective
 
 	if inc.LBracket == ast.SLessThan {
@@ -259,22 +294,34 @@ func (c *Coder) OutputPreprocessorInclude(inc *ast.PreprocessorInclude) *csyntax
 	return include
 }
 
-func (c *Coder) OutputPreprocessorInline(inline *ast.PreprocessorInline) *csyntax.InlineBlock {
+func (c *Coder) OutputPreprocessorInline(ctx *Context, inline *ast.PreprocessorInline) *csyntax.InlineBlock {
 	block := csyntax.NewInlineBlock(inline.Context(), inline.Content)
 	return block
 }
 
-func (c *Coder) OutputReturnStatement(ret *ast.ReturnStatement) *csyntax.ReturnStatement {
+func (c *Coder) OutputReturnStatement(ctx *Context, ret *ast.ReturnStatement) []csyntax.Statement {
+	stmts := make([]csyntax.Statement, 0, 10)
 	if ret.Value == nil || ret.Value.Length() <= 0 {
-		return csyntax.NewReturnStatement(nil)
+		stmts = append(stmts, csyntax.NewReturnStatement(nil))
+		return stmts
 	}
 
 	if ret.Value.Length() == 1 {
 		expr := ret.Value.Expressions[0]
-		return c.OutputReturnStatementSingleValue(expr.Expression)
+		stmt := c.OutputReturnStatementSingleValue(expr.Expression)
+		stmts = append(stmts, stmt)
+		return stmts
 	}
 
-	return nil
+	for i, expr := range ret.Value.Expressions {
+		outputParamName := OutputArgumentName(i)
+		cexpr := c.OutputExpression(expr.Expression)
+		assign := csyntax.NewAssignmentStatement(outputParamName, 1, cexpr) // FIXME: output parameter type is always pointer to concrete type for now
+		stmts = append(stmts, assign)
+	}
+
+	stmts = append(stmts, csyntax.NewReturnStatement(csyntax.NewIntegerLiteral(0)))
+	return stmts
 }
 
 func (c *Coder) OutputReturnStatementSingleValue(expr ast.Expression) *csyntax.ReturnStatement {

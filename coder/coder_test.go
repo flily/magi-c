@@ -307,25 +307,25 @@ func TestCoderOnSimpleFunctionAdd(t *testing.T) {
 	testOutputCode(t, souce, expected)
 }
 
-// func TestCoderOnSimpleFunctionWithAddAndSub(t *testing.T) {
-// 	souce := strings.Join([]string{
-// 		`fun addAndSub(a int, b int) (int, int) {`,
-// 		`    return a + b, a - b`,
-// 		`}`,
-// 	}, "\n")
+func TestCoderOnSimpleFunctionWithAddAndSub(t *testing.T) {
+	souce := strings.Join([]string{
+		`fun addAndSub(a int, b int) (int, int) {`,
+		`    return a + b, a - b`,
+		`}`,
+	}, "\n")
 
-// 	expected := strings.Join([]string{
-// 		`int addAndSub(int* ra, int* rb, int a, int b)`,
-// 		`{`,
-// 		`    *ra = (a + b);`,
-// 		`    *rb = (a - b);`,
-// 		`    return 0;`,
-// 		`}`,
-// 		``,
-// 	}, "\n")
+	expected := strings.Join([]string{
+		`int addAndSub(int* __out__0, int* __out__1, int a, int b)`,
+		`{`,
+		`    *__out__0 = (a + b);`,
+		`    *__out__1 = (a - b);`,
+		`    return 0;`,
+		`}`,
+		``,
+	}, "\n")
 
-// 	testOutputCode(t, souce, expected)
-// }
+	testOutputCode(t, souce, expected)
+}
 
 func TestCodeSimpleHelloWorld(t *testing.T) {
 	source := strings.Join([]string{

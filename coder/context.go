@@ -72,7 +72,9 @@ type Context struct {
 
 func NewContext() *Context {
 	ctx := &Context{
-		Global: NewFrame(),
+		Global:      NewFrame(),
+		FunctionIn:  NewVariableMap(),
+		FunctionOut: NewVariableMap(),
 	}
 
 	return ctx
