@@ -1,31 +1,39 @@
 package coder
 
 type VariableInfo struct {
-	Name     string
-	Assigned string
+	SourceName string
+	CodeName   string
+	Assigned   string
 }
 
 type VariableMap struct {
-	Variables map[string]*VariableInfo
+	Variables []*VariableInfo
 }
 
 func NewVariableMap() *VariableMap {
 	m := &VariableMap{
-		Variables: make(map[string]*VariableInfo),
+		Variables: make([]*VariableInfo, 0, 16),
 	}
 
 	return m
 }
 
 func (m *VariableMap) Add(nameInSource string, nameInCode string) {
-	m.Variables[nameInSource] = &VariableInfo{
-		Name: nameInCode,
+	info := &VariableInfo{
+		SourceName: nameInSource,
+		CodeName:   nameInCode,
 	}
+	m.Variables = append(m.Variables, info)
 }
 
 func (m *VariableMap) Get(name string) (*VariableInfo, bool) {
-	info, found := m.Variables[name]
-	return info, found
+	for _, info := range m.Variables {
+		if info.SourceName == name {
+			return info, true
+		}
+	}
+
+	return nil, false
 }
 
 type Frame struct {

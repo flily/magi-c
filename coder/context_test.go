@@ -24,8 +24,8 @@ func TestVariableMapBasic(t *testing.T) {
 	}
 
 	for _, name := range names {
-		if got, found := vm.Variables[name.nameInSource]; !found || got.Name != name.nameInCode {
-			t.Fatalf("variable '%s' not found or name mismatch: expect '%s', got '%s'", name.nameInSource, name.nameInCode, got.Name)
+		if got, found := vm.Get(name.nameInSource); !found || got.CodeName != name.nameInCode {
+			t.Fatalf("variable '%s' not found or name mismatch: expect '%s', got '%s'", name.nameInSource, name.nameInCode, got.CodeName)
 		}
 
 	}
@@ -47,8 +47,8 @@ func TestFrameBasic(t *testing.T) {
 		t.Fatalf("failed to add variable 'var1' to root frame")
 	}
 
-	if got, found := root.GetName("var1s"); !found || got.Name != "var1c" {
-		t.Fatalf("variable 'var1' not found or name mismatch: expect 'var1c', got '%s'", got.Name)
+	if got, found := root.GetName("var1s"); !found || got.CodeName != "var1c" {
+		t.Fatalf("variable 'var1' not found or name mismatch: expect 'var1c', got '%s'", got.CodeName)
 	}
 
 	r = root.AddName("var1s", "var1c2")
@@ -66,8 +66,8 @@ func TestFrameBasic(t *testing.T) {
 		t.Fatalf("failed to add variable 'var2' to child frame")
 	}
 
-	if got, found := child.GetName("var2s"); !found || got.Name != "var2c" {
-		t.Fatalf("variable 'var2' not found or name mismatch: expect 'var2c', got '%s'", got.Name)
+	if got, found := child.GetName("var2s"); !found || got.CodeName != "var2c" {
+		t.Fatalf("variable 'var2' not found or name mismatch: expect 'var2c', got '%s'", got.CodeName)
 	}
 
 	if _, found := child.GetName("var1s"); found {
@@ -79,12 +79,12 @@ func TestFrameBasic(t *testing.T) {
 		t.Fatalf("should be able to add variable 'var1' to child frame even if it exists in parent frame")
 	}
 
-	if got, found := child.GetName("var1s"); !found || got.Name != "var1c" {
-		t.Fatalf("variable 'var1' not found or name mismatch: expect 'var1c', got '%s'", got.Name)
+	if got, found := child.GetName("var1s"); !found || got.CodeName != "var1c" {
+		t.Fatalf("variable 'var1' not found or name mismatch: expect 'var1c', got '%s'", got.CodeName)
 	}
 
-	if got, found := child.GetName("var2s"); !found || got.Name != "var2c" {
-		t.Fatalf("variable 'var2' not found or name mismatch: expect 'var2c', got '%s'", got.Name)
+	if got, found := child.GetName("var2s"); !found || got.CodeName != "var2c" {
+		t.Fatalf("variable 'var2' not found or name mismatch: expect 'var2c', got '%s'", got.CodeName)
 	}
 }
 

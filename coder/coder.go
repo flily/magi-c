@@ -246,9 +246,9 @@ func (c *Coder) OutputFunctionMultipleReturnValues(ctx *Context, decl *ast.Funct
 
 	retType := csyntax.NewConcreteType("int")
 	params := make([]*csyntax.ParameterListItem, 0, 10)
-	for name := range ctx.FunctionOut.Variables {
+	for _, name := range ctx.FunctionOut.Variables {
 		outType := csyntax.NewPointerType("int") // FIXME: output parameter type is always pointer to int for now
-		item := csyntax.NewParameterListItem(outType, name)
+		item := csyntax.NewParameterListItem(outType, name.CodeName)
 		params = append(params, item)
 	}
 
