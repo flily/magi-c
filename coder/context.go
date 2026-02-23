@@ -1,8 +1,15 @@
 package coder
 
+import (
+	"github.com/flily/magi-c/ast"
+	"github.com/flily/magi-c/coder/csyntax"
+)
+
 type VariableInfo struct {
 	SourceName string
+	SourceType ast.Type
 	CodeName   string
+	CodeType   csyntax.Type
 	Assigned   string
 }
 

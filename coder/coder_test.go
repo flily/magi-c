@@ -114,6 +114,7 @@ func TestCoderBasicLeastVoidMain(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`void main()`,
 		`{`,
 		`}`,
@@ -131,8 +132,10 @@ func TestCoderBasicLeastIntMain(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`int main()`,
 		`{`,
+		`#line 2 "test.mc"`,
 		`    return 0;`,
 		`}`,
 		``,
@@ -151,6 +154,7 @@ func TestCoderWithIncludeDirective(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
+		`#line 2 "test.mc"`,
 		`void main()`,
 		`{`,
 		`}`,
@@ -168,6 +172,7 @@ func TestCoderWithIncludeDirectiveInFunction(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`void main()`,
 		`{`,
 		`#line 2 "test.mc"`,
@@ -191,6 +196,7 @@ func TestCoderWithInlineDirective(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
+		`#line 4 "test.mc"`,
 		`void main()`,
 		`{`,
 		`}`,
@@ -210,6 +216,7 @@ func TestCoderWithInlineDirectiveInFunction(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`void main()`,
 		`{`,
 		`#line 2 "test.mc"`,
@@ -228,6 +235,7 @@ func TestCoderOnVoidFunction(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`void foo()`,
 		`{`,
 		`}`,
@@ -244,6 +252,7 @@ func TestCoderOnVoidFunctionWithParameter(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`void foo(int a, int b)`,
 		`{`,
 		`}`,
@@ -261,8 +270,10 @@ func TestCoderOnSimpleFunctionZero(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`int zero()`,
 		`{`,
+		`#line 2 "test.mc"`,
 		`    return 0;`,
 		`}`,
 		``,
@@ -279,8 +290,10 @@ func TestCoderOnSimpleFunctionIncr(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`int incr(int a)`,
 		`{`,
+		`#line 2 "test.mc"`,
 		`    return (a + 1);`,
 		`}`,
 		``,
@@ -297,8 +310,10 @@ func TestCoderOnSimpleFunctionAdd(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`int add(int a, int b)`,
 		`{`,
+		`#line 2 "test.mc"`,
 		`    return (a + b);`,
 		`}`,
 		``,
@@ -315,8 +330,10 @@ func TestCoderOnSimpleFunctionWithAddAndSub(t *testing.T) {
 	}, "\n")
 
 	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
 		`int addAndSub(int* __out__0, int* __out__1, int a, int b)`,
 		`{`,
+		`#line 2 "test.mc"`,
 		`    *__out__0 = (a + b);`,
 		`    *__out__1 = (a - b);`,
 		`    return 0;`,
@@ -340,6 +357,7 @@ func TestCodeSimpleHelloWorld(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
+		`#line 2 "test.mc"`,
 		`void main()`,
 		`{`,
 		`#line 3 "test.mc"`,

@@ -154,25 +154,28 @@ func (c *Coder) OutputDocument(document *ast.Document, out *csyntax.StyleWriter)
 
 	for _, decl := range document.Declarations {
 		out := c.OutputDeclaration(ctx, decl)
-		decls = append(decls, out)
+		decls = append(decls, out...)
 	}
 
 	return out.Write(0, decls...)
 }
 
-func (c *Coder) OutputDeclaration(ctx *Context, decl ast.Declaration) csyntax.Declaration {
+func (c *Coder) OutputDeclaration(ctx *Context, decl ast.Declaration) []csyntax.CodeElement {
+	result := make([]csyntax.CodeElement, 0, 10)
+	result = append(result, csyntax.NewContext(decl.Context()))
+
 	switch d := decl.(type) {
 	case *ast.FunctionDeclaration:
-		return c.OutputFunctionDeclaration(ctx, d)
+		result = append(result, c.OutputFunctionDeclaration(ctx, d))
 
 	case *ast.PreprocessorInclude:
-		return c.OutputPreprocessorInclude(ctx, d)
+		result = append(result, c.OutputPreprocessorInclude(ctx, d))
 
 	case *ast.PreprocessorInline:
-		return c.OutputPreprocessorInline(ctx, d)
+		result = append(result, c.OutputPreprocessorInline(ctx, d))
 	}
 
-	return nil
+	return result
 }
 
 func (c *Coder) OutputFunctionDeclaration(ctx *Context, decl *ast.FunctionDeclaration) *csyntax.FunctionDeclaration {
@@ -266,6 +269,8 @@ func (c *Coder) OutputFunctionMultipleReturnValues(ctx *Context, decl *ast.Funct
 
 func (c *Coder) OutputStatement(ctx *Context, stmt ast.Statement) []csyntax.Statement {
 	result := make([]csyntax.Statement, 0, 10)
+	result = append(result, csyntax.NewContext(stmt.Context()))
+
 	switch s := stmt.(type) {
 	case *ast.PreprocessorInclude:
 		result = append(result, c.OutputPreprocessorInclude(ctx, s))

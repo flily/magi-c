@@ -124,6 +124,8 @@ func TestCodeContext(t *testing.T) {
 
 	cctx := NewContext(ctx)
 	checkInterfaceCodeElement(cctx)
+	checkInterfaceDeclaration(cctx)
+	checkInterfaceStatement(cctx)
 
 	expected := "#line 10 \"file.c\"\n"
 	checkOutputOnStyle(t, testStyle1, expected, cctx)

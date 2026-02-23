@@ -15,7 +15,6 @@ func TestPreprocessorIncludeWrite(t *testing.T) {
 	checkInterfaceStatement(include)
 
 	expected := strings.Join([]string{
-		`#line 42 "test.mc"`,
 		"#include <stdio.h>",
 	}, "\n") + "\n"
 	checkOutputOnStyle(t, KRStyle, expected, include)
@@ -26,7 +25,6 @@ func TestPreprocessorIncludeQuoteWrite(t *testing.T) {
 	include := NewIncludeQuote(ctx, "myheader.h")
 
 	expected := strings.Join([]string{
-		`#line 100 "test.mc"`,
 		`#include "myheader.h"`,
 	}, "\n") + "\n"
 	checkOutputOnStyle(t, KRStyle, expected, include)
@@ -41,7 +39,6 @@ func TestInlineBlock(t *testing.T) {
 	checkInterfaceStatement(inlineBlock)
 
 	expected := strings.Join([]string{
-		`#line 8 "test.mc"`,
 		`lorem ipsum;`,
 		`dolor sit amet;`,
 	}, "\n") + "\n"

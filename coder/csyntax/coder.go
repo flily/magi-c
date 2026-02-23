@@ -154,7 +154,9 @@ func NewContext(ctx *context.Context) *Context {
 	return c
 }
 
-func (c *Context) codeElement() {}
+func (c *Context) codeElement()     {}
+func (c *Context) declarationNode() {}
+func (c *Context) statementNode()   {}
 
 func (c *Context) Write(out *StyleWriter, level int) error {
 	filename, line, _ := c.Context.Position()

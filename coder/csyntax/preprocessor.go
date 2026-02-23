@@ -38,8 +38,7 @@ func (d *IncludeDirective) declarationNode() {}
 func (d *IncludeDirective) statementNode()   {}
 
 func (d *IncludeDirective) Write(out *StyleWriter, level int) error {
-	return out.WriteLine(level, NewContext(d.Context),
-		PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR)
+	return out.WriteLine(level, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR)
 }
 
 type InlineBlock struct {
@@ -61,6 +60,5 @@ func (b *InlineBlock) declarationNode() {}
 func (b *InlineBlock) statementNode()   {}
 
 func (b *InlineBlock) Write(out *StyleWriter, level int) error {
-	return out.WriteLine(level, NewContext(b.Context),
-		StringElement(b.Content))
+	return out.WriteLine(level, StringElement(b.Content))
 }
