@@ -235,7 +235,7 @@ func (e StringElement) String() string {
 }
 
 func (e StringElement) ItemString() string {
-	return string(e)
+	return e.String()
 }
 
 type DelimiterCharacter string
@@ -251,7 +251,7 @@ func (d DelimiterCharacter) String() string {
 }
 
 func (d DelimiterCharacter) ItemString() string {
-	return string(d)
+	return d.String()
 }
 
 const (
@@ -279,7 +279,7 @@ func (w *StyleWriter) Write(level int, items ...CodeElement) error {
 		_, isDelimiter := item.(DelimiterCharacter)
 		switch it := item.(type) {
 		case StringElement:
-			if _, err := w.out.WriteString(it.String()); err != nil {
+			if _, err := w.out.WriteString(it.ItemString()); err != nil {
 				return err
 			}
 			w.lastWasDelimiter = isDelimiter
