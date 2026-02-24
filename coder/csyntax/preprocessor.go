@@ -5,15 +5,13 @@ import (
 )
 
 type IncludeDirective struct {
-	Context  *context.Context
 	Filename StringElement
 	quoteL   StringElement
 	quoteR   StringElement
 }
 
-func NewIncludeAngle(ctx *context.Context, filename string) *IncludeDirective {
+func NewIncludeAngle(filename string) *IncludeDirective {
 	d := &IncludeDirective{
-		Context:  ctx,
 		Filename: StringElement(filename),
 		quoteL:   StringElement("<"),
 		quoteR:   StringElement(">"),
@@ -22,9 +20,8 @@ func NewIncludeAngle(ctx *context.Context, filename string) *IncludeDirective {
 	return d
 }
 
-func NewIncludeQuote(ctx *context.Context, filename string) *IncludeDirective {
+func NewIncludeQuote(filename string) *IncludeDirective {
 	d := &IncludeDirective{
-		Context:  ctx,
 		Filename: StringElement(filename),
 		quoteL:   StringElement("\""),
 		quoteR:   StringElement("\""),
@@ -46,9 +43,8 @@ type InlineBlock struct {
 	Content string
 }
 
-func NewInlineBlock(ctx *context.Context, content string) *InlineBlock {
+func NewInlineBlock(content string) *InlineBlock {
 	b := &InlineBlock{
-		Context: ctx,
 		Content: content,
 	}
 

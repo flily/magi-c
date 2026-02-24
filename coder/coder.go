@@ -290,17 +290,17 @@ func (c *Coder) OutputPreprocessorInclude(ctx *Context, inc *ast.PreprocessorInc
 	var include *csyntax.IncludeDirective
 
 	if inc.LBracket == ast.SLessThan {
-		include = csyntax.NewIncludeAngle(inc.Context(), inc.Content)
+		include = csyntax.NewIncludeAngle(inc.Content)
 
 	} else {
-		include = csyntax.NewIncludeQuote(inc.Context(), inc.Content)
+		include = csyntax.NewIncludeQuote(inc.Content)
 	}
 
 	return include
 }
 
 func (c *Coder) OutputPreprocessorInline(ctx *Context, inline *ast.PreprocessorInline) *csyntax.InlineBlock {
-	block := csyntax.NewInlineBlock(inline.Context(), inline.Content)
+	block := csyntax.NewInlineBlock(inline.Content)
 	return block
 }
 
