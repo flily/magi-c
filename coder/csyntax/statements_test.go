@@ -22,6 +22,18 @@ func TestCodeBlockWrite(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, block)
 }
 
+func TestEmptyCodeBlockWrite(t *testing.T) {
+	l := NewEmptyLine()
+
+	checkInterfaceCodeElement(l)
+	checkInterfaceStatement(l)
+	checkInterfaceDeclaration(l)
+
+	expected := "\n\n"
+
+	checkOutputOnStyle(t, testStyle1, expected, l)
+}
+
 func TestAssignmentStatementOnNormalVariable(t *testing.T) {
 	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
 

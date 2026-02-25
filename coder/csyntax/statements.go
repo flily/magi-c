@@ -37,6 +37,22 @@ func (b *CodeBlock) Write(out *StyleWriter, level int) error {
 	return out.Write(level+1, FromCodeElements(b.Statements...))
 }
 
+type EmptyLine struct{}
+
+func NewEmptyLine() *EmptyLine {
+	s := &EmptyLine{}
+
+	return s
+}
+
+func (s *EmptyLine) codeElement()     {}
+func (s *EmptyLine) statementNode()   {}
+func (s *EmptyLine) declarationNode() {}
+
+func (s *EmptyLine) Write(out *StyleWriter, level int) error {
+	return out.WriteIndentLine(level, out.style.EOL)
+}
+
 type AssignmentStatement struct {
 	LeftIdentifier   StringElement
 	LeftPointerLevel int
