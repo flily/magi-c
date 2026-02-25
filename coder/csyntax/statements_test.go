@@ -29,7 +29,7 @@ func TestEmptyCodeBlockWrite(t *testing.T) {
 	checkInterfaceStatement(l)
 	checkInterfaceDeclaration(l)
 
-	expected := "\n\n"
+	expected := "\n"
 
 	checkOutputOnStyle(t, testStyle1, expected, l)
 }

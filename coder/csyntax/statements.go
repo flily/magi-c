@@ -50,7 +50,7 @@ func (s *EmptyLine) statementNode()   {}
 func (s *EmptyLine) declarationNode() {}
 
 func (s *EmptyLine) Write(out *StyleWriter, level int) error {
-	return out.WriteIndentLine(level, out.style.EOL)
+	return out.Write(level, out.style.EOL)
 }
 
 type AssignmentStatement struct {

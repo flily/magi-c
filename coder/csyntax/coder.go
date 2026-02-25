@@ -170,6 +170,26 @@ type CodeElement interface {
 	codeElement()
 }
 
+type Node interface {
+	CodeElement
+	Write(out *StyleWriter, level int) error
+}
+
+type Expression interface {
+	Node
+	expressionNode()
+}
+
+type Statement interface {
+	Node
+	statementNode()
+}
+
+type Declaration interface {
+	Node
+	declarationNode()
+}
+
 type ElementCollection []CodeElement
 
 func (c ElementCollection) codeElement() {}
@@ -324,24 +344,4 @@ func (w *StyleWriter) WriteIndentLine(level int, items ...CodeElement) error {
 	}
 
 	return w.WriteLine(0, items...)
-}
-
-type Node interface {
-	CodeElement
-	Write(out *StyleWriter, level int) error
-}
-
-type Expression interface {
-	Node
-	expressionNode()
-}
-
-type Statement interface {
-	Node
-	statementNode()
-}
-
-type Declaration interface {
-	Node
-	declarationNode()
 }
