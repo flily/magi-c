@@ -154,6 +154,7 @@ func TestCoderWithIncludeDirective(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
+		``,
 		`#line 2 "test.mc"`,
 		`void main()`,
 		`{`,
@@ -196,6 +197,7 @@ func TestCoderWithInlineDirective(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
+		``,
 		`#line 4 "test.mc"`,
 		`void main()`,
 		`{`,
@@ -357,11 +359,44 @@ func TestCodeSimpleHelloWorld(t *testing.T) {
 	expected := strings.Join([]string{
 		`#line 1 "test.mc"`,
 		`#include <stdio.h>`,
+		``,
 		`#line 2 "test.mc"`,
 		`void main()`,
 		`{`,
 		`#line 3 "test.mc"`,
 		`    printf("hello, world\n");`,
+		`}`,
+		``,
+	}, "\n")
+
+	testOutputCode(t, source, expected)
+}
+
+func TestCodeSimpleHelloWorld2(t *testing.T) {
+	source := strings.Join([]string{
+		`#include <stdio.h>`,
+		`fun main() {`,
+		`    #inline c`,
+		`    printf("hello\n");`,
+		`    #end-inline c`,
+		`    #inline c`,
+		`    printf("world\n");`,
+		`    #end-inline c`,
+		`}`,
+	}, "\n")
+
+	expected := strings.Join([]string{
+		`#line 1 "test.mc"`,
+		`#include <stdio.h>`,
+		``,
+		`#line 2 "test.mc"`,
+		`void main()`,
+		`{`,
+		`#line 3 "test.mc"`,
+		`    printf("hello\n");`,
+		``,
+		`#line 6 "test.mc"`,
+		`    printf("world\n");`,
 		`}`,
 		``,
 	}, "\n")

@@ -150,14 +150,22 @@ func (c *Coder) OutputTo(sourceRel string, out io.StringWriter) error {
 
 func (c *Coder) OutputDocument(document *ast.Document, out *csyntax.StyleWriter) error {
 	ctx := NewContext()
-	decls := make([]csyntax.CodeElement, 0, len(document.Declarations))
+	elements := c.OutputDeclarations(ctx, document.Declarations)
+	return out.Write(0, elements...)
+}
 
-	for _, decl := range document.Declarations {
+func (c *Coder) OutputDeclarations(ctx *Context, decls []ast.Declaration) []csyntax.CodeElement {
+	result := make([]csyntax.CodeElement, 0, 2*len(decls))
+	for i, decl := range decls {
 		out := c.OutputDeclaration(ctx, decl)
-		decls = append(decls, out...)
+		result = append(result, out...)
+
+		if i < len(decls)-1 {
+			result = append(result, csyntax.NewEmptyLine())
+		}
 	}
 
-	return out.Write(0, decls...)
+	return result
 }
 
 func (c *Coder) OutputDeclaration(ctx *Context, decl ast.Declaration) []csyntax.CodeElement {
@@ -200,10 +208,16 @@ func (c *Coder) OutputFunctionDeclaration(ctx *Context, decl *ast.FunctionDeclar
 }
 
 func (c *Coder) outputFunctionBody(ctx *Context, decl *ast.FunctionDeclaration, f *csyntax.FunctionDeclaration) *csyntax.FunctionDeclaration {
-	for _, stmt := range decl.Statements {
+	length := len(decl.Statements)
+	for i, stmt := range decl.Statements {
 		rs := c.OutputStatement(ctx, stmt)
 		for _, r := range rs {
 			f.AddStatement(r)
+
+		}
+
+		if i < length-1 {
+			f.AddStatement(csyntax.NewEmptyLine())
 		}
 	}
 
