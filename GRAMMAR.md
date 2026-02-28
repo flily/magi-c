@@ -424,6 +424,49 @@ fun foo() {
 }
 ```
 
+
+Function call conventions
+-------------------------
+
+### One or none return value, concrete type
+
+```
+fun add(a int32, b int32) int32 {
+    return a + b
+}
+```
+
+```c
+int32_t add(int32_t a, int32_t b)
+{
+    return a + b;
+}
+```
+
+### Multiple return values, concrete type
+
+```
+fun addAndSub(a int32, b int32) (int32, int32) {
+    return a + b, a - b
+}
+```
+
+```c
+int addAndSub(int32_t __out__0, int32_t __out__1, int32_t a, int32_t b)
+{
+    if (NULL != __out__0) {
+        *__out__0  = a + b;
+    }
+
+    if (NULL != __out__1) {
+        *__out__1 = a - b;
+    }
+
+    return 0;
+}
+```
+
+
 Grammar rules
 -------------
 
