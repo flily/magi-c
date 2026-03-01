@@ -73,3 +73,47 @@ func TestReturnStatementWithSimpleIntegerLiteral(t *testing.T) {
 	expected := "return 42;\n"
 	checkOutputOnStyle(t, testStyle1, expected, stat)
 }
+
+func TestIfStatementWithoutElse1(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
+	thenBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("a")),
+	})
+
+	ifStat := NewIfStatement(cond, thenBlock)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	expected := strings.Join([]string{
+		"if ((a > b)) {",
+		"    return a;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, testStyle1, expected, ifStat)
+}
+
+func TestIfStatementWithoutElse2(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
+	thenBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("a")),
+	})
+
+	ifStat := NewIfStatement(cond, thenBlock)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	style := testStyle1.Clone()
+	style.IfSpacing = false
+	style.IfBraceOnNewLine = true
+	style.IfBraceIndent = ""
+
+	expected := strings.Join([]string{
+		"if((a > b))",
+		"{",
+		"    return a;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, style, expected, ifStat)
+}

@@ -100,3 +100,31 @@ func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
 		NewElementCollection(DelimiterSpace, s.Expression).On(s.Expression != nil),
 		PunctuatorSemicolon)
 }
+
+type IfStatement struct {
+	Expression Expression
+	Body       *CodeBlock
+}
+
+func NewIfStatement(expression Expression, body *CodeBlock) *IfStatement {
+	s := &IfStatement{
+		Expression: expression,
+		Body:       body,
+	}
+
+	return s
+}
+
+func (s *IfStatement) codeElement()   {}
+func (s *IfStatement) statementNode() {}
+
+func (s *IfStatement) Write(out *StyleWriter, level int) error {
+	parts := []CodeElement{
+		KeywordIf, out.style.IfSpacing.Select(DelimiterSpace), OperatorLeftParen, s.Expression, OperatorRightParen,
+		out.style.IfNewLine(), out.style.IfBraceIndent, OperatorLeftBrace, out.style.EOL,
+		s.Body,
+		out.style.IfBraceIndent, OperatorRightBrace,
+	}
+
+	return out.WriteIndentLine(level, parts...)
+}
