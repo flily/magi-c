@@ -39,6 +39,7 @@ type CodeStyle struct {
 	Indent                 StringElement
 	FunctionBraceOnNewLine StyleBoolean
 	FunctionBraceIndent    StringElement
+	IfSpacing              StyleBoolean
 	IfBraceOnNewLine       StyleBoolean
 	IfBraceIndent          StringElement
 	ForBraceOnNewLine      StyleBoolean
@@ -63,6 +64,7 @@ var (
 		Indent:                 "    ",
 		FunctionBraceOnNewLine: true,
 		FunctionBraceIndent:    "",
+		IfSpacing:              true,
 		IfBraceOnNewLine:       false,
 		IfBraceIndent:          "",
 		ForBraceOnNewLine:      false,
@@ -126,6 +128,21 @@ func (s *CodeStyle) FunctionNewLine() ElementCollection {
 		result = []CodeElement{
 			s.EOL,
 			s.FunctionBraceIndent,
+		}
+	}
+
+	return result
+}
+
+func (s *CodeStyle) IfNewLine() ElementCollection {
+	result := []CodeElement{
+		DelimiterSpace,
+	}
+
+	if s.IfBraceOnNewLine {
+		result = []CodeElement{
+			s.EOL,
+			s.IfBraceIndent,
 		}
 	}
 
