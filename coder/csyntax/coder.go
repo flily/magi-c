@@ -134,7 +134,11 @@ func (s *CodeStyle) FunctionNewLine() ElementCollection {
 	return result
 }
 
-func (s *CodeStyle) IfNewLine() ElementCollection {
+func (s *CodeStyle) GetIndent(level int) StringElement {
+	return StringElement(strings.Repeat(string(s.Indent), level))
+}
+
+func (s *CodeStyle) IfNewLine(level int) ElementCollection {
 	result := []CodeElement{
 		DelimiterSpace,
 	}
@@ -143,6 +147,7 @@ func (s *CodeStyle) IfNewLine() ElementCollection {
 		result = []CodeElement{
 			s.EOL,
 			s.IfBraceIndent,
+			s.GetIndent(level),
 		}
 	}
 
@@ -303,12 +308,8 @@ type StyleWriter struct {
 	lastWasDelimiter bool
 }
 
-func (w *StyleWriter) MakeIndent(level int) StringElement {
-	return StringElement(strings.Repeat(string(w.style.Indent), level))
-}
-
 func (w *StyleWriter) WriteIndent(level int) error {
-	return w.Write(0, w.MakeIndent(level))
+	return w.Write(0, w.style.GetIndent(level))
 }
 
 func (w *StyleWriter) Write(level int, items ...CodeElement) error {
@@ -360,5 +361,5 @@ func (w *StyleWriter) WriteIndentLine(level int, items ...CodeElement) error {
 		return err
 	}
 
-	return w.WriteLine(0, items...)
+	return w.WriteLine(level, items...)
 }

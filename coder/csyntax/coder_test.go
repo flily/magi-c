@@ -91,6 +91,18 @@ func checkOutputOnStyle(t *testing.T, style *CodeStyle, expected string, elems .
 	checkOutputResult(t, builder, expected)
 }
 
+func checkOutputOnStyleWithIndentLevel(t *testing.T, style *CodeStyle, indentLevel int, expected string, elems ...CodeElement) {
+	t.Helper()
+
+	builder, writer := makeTestWriter(style)
+	err := writer.Write(indentLevel, elems...)
+	if err != nil {
+		t.Fatalf("CodeElement write failed: %s", err)
+	}
+
+	checkOutputResult(t, builder, expected)
+}
+
 func TestCodeStyleClone(t *testing.T) {
 	newStyle := KRStyle.Clone()
 

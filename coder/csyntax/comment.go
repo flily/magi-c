@@ -21,7 +21,7 @@ func (c *Comment) Write(out *StyleWriter, level int) error {
 		return nil
 	}
 
-	indent := out.MakeIndent(level)
+	indent := out.style.GetIndent(level)
 	if len(c.Content) == 1 {
 		content := StringElement(c.Content[0])
 		return out.WriteLine(0, indent, PunctuatorCommentStart, DelimiterSpace, content, DelimiterSpace, PunctuatorCommentEnd)

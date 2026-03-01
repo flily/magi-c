@@ -121,9 +121,9 @@ func (s *IfStatement) statementNode() {}
 func (s *IfStatement) Write(out *StyleWriter, level int) error {
 	parts := []CodeElement{
 		KeywordIf, out.style.IfSpacing.Select(DelimiterSpace), OperatorLeftParen, s.Expression, OperatorRightParen,
-		out.style.IfNewLine(), out.style.IfBraceIndent, OperatorLeftBrace, out.style.EOL,
+		out.style.IfNewLine(level), out.style.IfBraceIndent, OperatorLeftBrace, out.style.EOL,
 		s.Body,
-		out.style.IfBraceIndent, OperatorRightBrace,
+		out.style.GetIndent(level), out.style.IfBraceIndent, OperatorRightBrace,
 	}
 
 	return out.WriteIndentLine(level, parts...)
