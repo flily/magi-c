@@ -334,9 +334,20 @@ func (c *Coder) OutputReturnStatement(ctx *Context, ret *ast.ReturnStatement) []
 
 	for i, expr := range ret.Value.Expressions {
 		outputParamName := OutputArgumentName(i)
+
+		cond := csyntax.NewInfixExpression(
+			csyntax.NewIdentifier("NULL"),
+			csyntax.OperatorEqual,
+			csyntax.NewIdentifier(outputParamName))
+
 		cexpr := c.OutputExpression(expr.Expression)
 		assign := csyntax.NewAssignmentStatement(outputParamName, 1, cexpr) // FIXME: output parameter type is always pointer to concrete type for now
-		stmts = append(stmts, assign)
+		body := csyntax.NewCodeBlock([]csyntax.Statement{
+			assign,
+		})
+
+		ifStmt := csyntax.NewIfStatement(cond, body)
+		stmts = append(stmts, ifStmt)
 	}
 
 	stmts = append(stmts, csyntax.NewReturnStatement(csyntax.NewIntegerLiteral(0)))
