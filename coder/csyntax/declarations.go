@@ -135,10 +135,6 @@ func (f *FunctionDeclaration) AddStatement(stmt Statement) {
 }
 
 func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
-	if err := out.WriteIndent(level); err != nil {
-		return err
-	}
-
 	err := out.WriteIndentLine(level,
 		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
 		out.style.FunctionNewLine(), OperatorLeftBrace, out.style.EOL,
