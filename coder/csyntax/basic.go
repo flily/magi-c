@@ -1,6 +1,8 @@
 package csyntax
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type CStandard int
 
