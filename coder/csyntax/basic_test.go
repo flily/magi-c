@@ -44,3 +44,25 @@ func TestStyleWriterWriteStringsWithDuplicatedDelimiters(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected,
 		elem1, delimiter1, delimiter2, elem2)
 }
+
+func TestLevel(t *testing.T) {
+	l := NewDefaultLevel()
+	if l.IndentLevel != 0 || l.ParanthesisLevel != 0 {
+		t.Fatalf("NewDefaultLevel failed: expected indent and paranthesis levels to be 0")
+	}
+
+	l = l.NextIndent()
+	if l.IndentLevel != 1 || l.ParanthesisLevel != 0 {
+		t.Fatalf("NextIndent failed: expected indent level to be 1 and paranthesis level to be 0")
+	}
+
+	l = l.NextParanthesis()
+	if l.IndentLevel != 1 || l.ParanthesisLevel != 1 {
+		t.Fatalf("NextParanthesis failed: expected indent level to be 1 and paranthesis level to be 1")
+	}
+
+	l = l.NextIndent()
+	if l.IndentLevel != 2 || l.ParanthesisLevel != 0 {
+		t.Fatalf("NextIndent failed: expected indent level to be 2 and paranthesis level to be reset to 0")
+	}
+}

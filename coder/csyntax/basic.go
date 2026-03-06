@@ -71,3 +71,29 @@ const (
 	DelimiterSpace   DelimiterCharacter = " "
 	DefaultDelimiter DelimiterCharacter = " "
 )
+
+type Level struct {
+	IndentLevel      int
+	ParanthesisLevel int
+}
+
+func NewLevel(indentLevel int, paranthesisLevel int) Level {
+	l := Level{
+		IndentLevel:      indentLevel,
+		ParanthesisLevel: paranthesisLevel,
+	}
+
+	return l
+}
+
+func NewDefaultLevel() Level {
+	return NewLevel(0, 0)
+}
+
+func (l Level) NextIndent() Level {
+	return NewLevel(l.IndentLevel+1, 0)
+}
+
+func (l Level) NextParanthesis() Level {
+	return NewLevel(l.IndentLevel, l.ParanthesisLevel+1)
+}
