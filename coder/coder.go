@@ -151,7 +151,7 @@ func (c *Coder) OutputTo(sourceRel string, out io.StringWriter) error {
 func (c *Coder) OutputDocument(document *ast.Document, out *csyntax.StyleWriter) error {
 	ctx := NewContext()
 	elements := c.OutputDeclarations(ctx, document.Declarations)
-	return out.Write(0, elements...)
+	return out.Write(csyntax.NewDefaultLevel(), elements...)
 }
 
 func (c *Coder) OutputDeclarations(ctx *Context, decls []ast.Declaration) []csyntax.CodeElement {

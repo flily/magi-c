@@ -16,7 +16,7 @@ func (c *Comment) codeElement()     {}
 func (c *Comment) statementNode()   {}
 func (c *Comment) declarationNode() {}
 
-func (c *Comment) Write(out *StyleWriter, level int) error {
+func (c *Comment) Write(out *StyleWriter, level Level) error {
 	if len(c.Content) <= 0 {
 		return nil
 	}
@@ -24,7 +24,7 @@ func (c *Comment) Write(out *StyleWriter, level int) error {
 	indent := out.style.GetIndent(level)
 	if len(c.Content) == 1 {
 		content := StringElement(c.Content[0])
-		return out.WriteLine(0, indent, PunctuatorCommentStart, DelimiterSpace, content, DelimiterSpace, PunctuatorCommentEnd)
+		return out.WriteLine(level, indent, PunctuatorCommentStart, DelimiterSpace, content, DelimiterSpace, PunctuatorCommentEnd)
 	}
 
 	parts := make([]CodeElement, 0, 6*len(c.Content)+10)
@@ -37,5 +37,5 @@ func (c *Comment) Write(out *StyleWriter, level int) error {
 	}
 
 	parts = append(parts, indent, DelimiterSpace, PunctuatorCommentEnd, out.style.EOL)
-	return out.Write(0, parts...)
+	return out.Write(level, parts...)
 }

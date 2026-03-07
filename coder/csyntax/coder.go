@@ -109,11 +109,11 @@ func (s *CodeStyle) FunctionNewLine() ElementCollection {
 	return result
 }
 
-func (s *CodeStyle) GetIndent(level int) StringElement {
-	return StringElement(strings.Repeat(string(s.Indent), level))
+func (s *CodeStyle) GetIndent(level Level) StringElement {
+	return StringElement(strings.Repeat(string(s.Indent), level.IndentLevel))
 }
 
-func (s *CodeStyle) IfNewLine(level int) ElementCollection {
+func (s *CodeStyle) IfNewLine(level Level) ElementCollection {
 	result := []CodeElement{
 		DelimiterSpace,
 	}
@@ -155,7 +155,7 @@ func (c *Context) codeElement()     {}
 func (c *Context) declarationNode() {}
 func (c *Context) statementNode()   {}
 
-func (c *Context) Write(out *StyleWriter, level int) error {
+func (c *Context) Write(out *StyleWriter, level Level) error {
 	filename, line, _ := c.Context.Position()
 	return out.Write(level,
 		PreprocessorLine, DelimiterSpace, NewIntegerStringElement(line+1),
@@ -169,7 +169,7 @@ type CodeElement interface {
 
 type Node interface {
 	CodeElement
-	Write(out *StyleWriter, level int) error
+	Write(out *StyleWriter, level Level) error
 }
 
 type Expression interface {
@@ -204,7 +204,7 @@ func NewElementCollection(items ...CodeElement) ElementCollection {
 	return FromCodeElements(items...)
 }
 
-func (c ElementCollection) Write(out *StyleWriter, level int) error {
+func (c ElementCollection) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, c...)
 }
 
@@ -231,7 +231,7 @@ type WritableItem interface {
 
 type WritableCollection interface {
 	CodeElement
-	Write(out *StyleWriter, level int) error
+	Write(out *StyleWriter, level Level) error
 }
 
 type StyleWriter struct {
@@ -240,11 +240,11 @@ type StyleWriter struct {
 	lastWasDelimiter bool
 }
 
-func (w *StyleWriter) WriteIndent(level int) error {
-	return w.Write(0, w.style.GetIndent(level))
+func (w *StyleWriter) WriteIndent(level Level) error {
+	return w.Write(level, w.style.GetIndent(level))
 }
 
-func (w *StyleWriter) Write(level int, items ...CodeElement) error {
+func (w *StyleWriter) Write(level Level, items ...CodeElement) error {
 	for i, item := range items {
 		_, isDelimiter := item.(DelimiterCharacter)
 		switch it := item.(type) {
@@ -278,7 +278,7 @@ func (w *StyleWriter) Write(level int, items ...CodeElement) error {
 	return nil
 }
 
-func (w *StyleWriter) WriteLine(level int, items ...CodeElement) error {
+func (w *StyleWriter) WriteLine(level Level, items ...CodeElement) error {
 	err := w.Write(level, items...)
 	if err != nil {
 		return err
@@ -288,7 +288,7 @@ func (w *StyleWriter) WriteLine(level int, items ...CodeElement) error {
 	return err
 }
 
-func (w *StyleWriter) WriteIndentLine(level int, items ...CodeElement) error {
+func (w *StyleWriter) WriteIndentLine(level Level, items ...CodeElement) error {
 	if err := w.WriteIndent(level); err != nil {
 		return err
 	}

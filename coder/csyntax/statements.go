@@ -33,8 +33,8 @@ func (b *CodeBlock) Add(stmt Statement) {
 	b.Statements = append(b.Statements, stmt)
 }
 
-func (b *CodeBlock) Write(out *StyleWriter, level int) error {
-	return out.Write(level+1, FromCodeElements(b.Statements...))
+func (b *CodeBlock) Write(out *StyleWriter, level Level) error {
+	return out.Write(level.NextIndent(), FromCodeElements(b.Statements...))
 }
 
 type EmptyLine struct{}
@@ -49,7 +49,7 @@ func (s *EmptyLine) codeElement()     {}
 func (s *EmptyLine) statementNode()   {}
 func (s *EmptyLine) declarationNode() {}
 
-func (s *EmptyLine) Write(out *StyleWriter, level int) error {
+func (s *EmptyLine) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, out.style.EOL)
 }
 
@@ -72,7 +72,7 @@ func NewAssignmentStatement(leftIdentifier string, leftPointerLevel int, rightEx
 func (s *AssignmentStatement) codeElement()   {}
 func (s *AssignmentStatement) statementNode() {}
 
-func (s *AssignmentStatement) Write(out *StyleWriter, level int) error {
+func (s *AssignmentStatement) Write(out *StyleWriter, level Level) error {
 	pointer := PunctuatorAsterisk.Duplicate(s.LeftPointerLevel)
 	return out.WriteIndentLine(level,
 		pointer, out.style.PointerSpacingBefore.Select(DelimiterSpace),
@@ -95,7 +95,7 @@ func NewReturnStatement(expression Expression) *ReturnStatement {
 func (s *ReturnStatement) codeElement()   {}
 func (s *ReturnStatement) statementNode() {}
 
-func (s *ReturnStatement) Write(out *StyleWriter, level int) error {
+func (s *ReturnStatement) Write(out *StyleWriter, level Level) error {
 	return out.WriteIndentLine(level, KeywordReturn,
 		NewElementCollection(DelimiterSpace, s.Expression).On(s.Expression != nil),
 		PunctuatorSemicolon)
@@ -118,7 +118,7 @@ func NewIfStatement(expression Expression, body *CodeBlock) *IfStatement {
 func (s *IfStatement) codeElement()   {}
 func (s *IfStatement) statementNode() {}
 
-func (s *IfStatement) Write(out *StyleWriter, level int) error {
+func (s *IfStatement) Write(out *StyleWriter, level Level) error {
 	parts := []CodeElement{
 		KeywordIf, out.style.IfSpacing.Select(DelimiterSpace), OperatorLeftParen, s.Expression, OperatorRightParen,
 		out.style.IfNewLine(level), out.style.IfBraceIndent, OperatorLeftBrace, out.style.EOL,

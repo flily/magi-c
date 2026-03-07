@@ -24,7 +24,7 @@ func NewPointerType(base string) *Type {
 
 func (t *Type) codeElement() {}
 
-func (t *Type) Write(out *StyleWriter, level int) error {
+func (t *Type) Write(out *StyleWriter, level Level) error {
 	parts := []CodeElement{
 		t.Base,
 		NewElementCollection(

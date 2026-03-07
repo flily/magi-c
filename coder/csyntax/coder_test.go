@@ -79,19 +79,7 @@ func checkOutputResult(t *testing.T, builder *strings.Builder, expected string) 
 	}
 }
 
-func checkOutputOnStyle(t *testing.T, style *CodeStyle, expected string, elems ...CodeElement) {
-	t.Helper()
-
-	builder, writer := makeTestWriter(style)
-	err := writer.Write(0, elems...)
-	if err != nil {
-		t.Fatalf("CodeElement write failed: %s", err)
-	}
-
-	checkOutputResult(t, builder, expected)
-}
-
-func checkOutputOnStyleWithIndentLevel(t *testing.T, style *CodeStyle, indentLevel int, expected string, elems ...CodeElement) {
+func checkOutputOnStyleWithIndentLevel(t *testing.T, style *CodeStyle, indentLevel Level, expected string, elems ...CodeElement) {
 	t.Helper()
 
 	builder, writer := makeTestWriter(style)
@@ -101,6 +89,13 @@ func checkOutputOnStyleWithIndentLevel(t *testing.T, style *CodeStyle, indentLev
 	}
 
 	checkOutputResult(t, builder, expected)
+}
+
+func checkOutputOnStyle(t *testing.T, style *CodeStyle, expected string, elems ...CodeElement) {
+	t.Helper()
+
+	level := NewDefaultLevel()
+	checkOutputOnStyleWithIndentLevel(t, style, level, expected, elems...)
 }
 
 func TestCodeStyleClone(t *testing.T) {

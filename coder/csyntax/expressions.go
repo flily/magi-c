@@ -15,7 +15,7 @@ func NewIdentifier(name string) *Identifier {
 func (id *Identifier) codeElement()    {}
 func (id *Identifier) expressionNode() {}
 
-func (id *Identifier) Write(out *StyleWriter, level int) error {
+func (id *Identifier) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, StringElement(id.Name))
 }
 
@@ -38,6 +38,6 @@ func NewInfixExpression(left Expression, operator Punctuator, right Expression) 
 func (e *InfixExpression) codeElement()    {}
 func (e *InfixExpression) expressionNode() {}
 
-func (e *InfixExpression) Write(out *StyleWriter, level int) error {
+func (e *InfixExpression) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, OperatorLeftParen, e.Left, out.style.BinaryOperator(e.Operator), e.Right, OperatorRightParen)
 }

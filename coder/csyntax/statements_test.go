@@ -134,7 +134,8 @@ func TestIfStatementWithIndent1(t *testing.T) {
 		"        return a;",
 		"    }",
 	}, "\n") + "\n"
-	checkOutputOnStyleWithIndentLevel(t, testStyle1, 1, expected, ifStat)
+	level := NewLevel(1, 0)
+	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStat)
 }
 
 func TestIfStatementWittIndent2(t *testing.T) {
@@ -159,5 +160,6 @@ func TestIfStatementWittIndent2(t *testing.T) {
 		"        return a;",
 		"    }",
 	}, "\n") + "\n"
-	checkOutputOnStyleWithIndentLevel(t, style, 1, expected, ifStat)
+	level := NewLevel(1, 0)
+	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStat)
 }

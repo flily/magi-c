@@ -34,7 +34,7 @@ func (v *VariableDeclaration) codeElement()     {}
 func (v *VariableDeclaration) declarationNode() {}
 func (v *VariableDeclaration) statementNode()   {}
 
-func (v *VariableDeclaration) Write(out *StyleWriter, level int) error {
+func (v *VariableDeclaration) Write(out *StyleWriter, level Level) error {
 	parts := make([]CodeElement, 0, 4+len(v.Declarator)*6)
 	parts = append(parts, v.Type)
 
@@ -81,7 +81,7 @@ func NewParameterListItem(typ *Type, name string) *ParameterListItem {
 
 func (i *ParameterListItem) codeElement() {}
 
-func (i *ParameterListItem) Write(out *StyleWriter, level int) error {
+func (i *ParameterListItem) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, i.Type, i.Type.IsPointer().Not().Select(DelimiterSpace), i.Name)
 }
 
@@ -99,7 +99,7 @@ func NewParameterList(items ...*ParameterListItem) *ParameterList {
 
 func (p *ParameterList) codeElement() {}
 
-func (p *ParameterList) Write(out *StyleWriter, level int) error {
+func (p *ParameterList) Write(out *StyleWriter, level Level) error {
 	parts := make([]CodeElement, 0, len(p.Items)*2)
 
 	for i, item := range p.Items {
@@ -134,7 +134,7 @@ func (f *FunctionDeclaration) AddStatement(stmt Statement) {
 	f.Body.Add(stmt)
 }
 
-func (f *FunctionDeclaration) Write(out *StyleWriter, level int) error {
+func (f *FunctionDeclaration) Write(out *StyleWriter, level Level) error {
 	err := out.WriteIndentLine(level,
 		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
 		out.style.FunctionNewLine(), OperatorLeftBrace, out.style.EOL,
