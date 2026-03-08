@@ -23,7 +23,7 @@ func TestInfixExpressionWrite(t *testing.T) {
 	checkInterfaceCodeElement(expr)
 	checkInterfaceExpression(expr)
 
-	expected := "(a + b)"
+	expected := "a + b"
 	checkOutputOnStyle(t, testStyle1, expected, expr)
 }
 
@@ -40,6 +40,6 @@ func TestNestedInfixExpressionWrite(t *testing.T) {
 	checkInterfaceCodeElement(fullExpr)
 	checkInterfaceExpression(fullExpr)
 
-	expected := "((a + (b * c)) - d)"
+	expected := "(a + (b * c)) - d"
 	checkOutputOnStyle(t, testStyle1, expected, fullExpr)
 }

@@ -39,5 +39,8 @@ func (e *InfixExpression) codeElement()    {}
 func (e *InfixExpression) expressionNode() {}
 
 func (e *InfixExpression) Write(out *StyleWriter, level Level) error {
-	return out.Write(level, OperatorLeftParen, e.Left, out.style.BinaryOperator(e.Operator), e.Right, OperatorRightParen)
+	return out.Write(level.NextParanthesis(),
+		OperatorLeftParen.Select(level.ParanthesisLevel > 0),
+		e.Left, out.style.BinaryOperator(e.Operator), e.Right,
+		OperatorRightParen.Select(level.ParanthesisLevel > 0))
 }

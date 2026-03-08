@@ -86,7 +86,7 @@ func TestIfStatementWithoutElse1(t *testing.T) {
 	checkInterfaceStatement(ifStat)
 
 	expected := strings.Join([]string{
-		"if ((a > b)) {",
+		"if (a > b) {",
 		"    return a;",
 		"}",
 	}, "\n") + "\n"
@@ -110,7 +110,7 @@ func TestIfStatementWithoutElse2(t *testing.T) {
 	style.IfBraceIndent = ""
 
 	expected := strings.Join([]string{
-		"if((a > b))",
+		"if(a > b)",
 		"{",
 		"    return a;",
 		"}",
@@ -130,7 +130,7 @@ func TestIfStatementWithIndent1(t *testing.T) {
 	checkInterfaceStatement(ifStat)
 
 	expected := strings.Join([]string{
-		"    if ((a > b)) {",
+		"    if (a > b) {",
 		"        return a;",
 		"    }",
 	}, "\n") + "\n"
@@ -155,7 +155,7 @@ func TestIfStatementWittIndent2(t *testing.T) {
 	style.IfBraceIndent = ""
 
 	expected := strings.Join([]string{
-		"    if((a > b))",
+		"    if(a > b)",
 		"    {",
 		"        return a;",
 		"    }",

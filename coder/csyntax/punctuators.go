@@ -158,3 +158,11 @@ func (p Punctuator) Duplicate(count int) ElementCollection {
 	}
 	return result
 }
+
+func (p Punctuator) Select(cond bool) CodeElement {
+	if cond {
+		return p
+	}
+
+	return DelimiterNone
+}
