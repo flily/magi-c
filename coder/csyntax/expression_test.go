@@ -4,6 +4,22 @@ import (
 	"testing"
 )
 
+type ExpressionTestCase struct {
+	Result   Expression
+	Expected string
+}
+
+type ExpressionTestCases []ExpressionTestCase
+
+func (cases ExpressionTestCases) Run(t *testing.T, style *CodeStyle) {
+	for _, testCase := range cases {
+		checkInterfaceCodeElement(testCase.Result)
+		checkInterfaceExpression(testCase.Result)
+
+		checkOutputOnStyle(t, style, testCase.Expected, testCase.Result)
+	}
+}
+
 func TestIdentifierWrite(t *testing.T) {
 	id := NewIdentifier("myVar")
 
@@ -12,6 +28,53 @@ func TestIdentifierWrite(t *testing.T) {
 
 	expected := "myVar"
 	checkOutputOnStyle(t, testStyle1, expected, id)
+}
+
+func TestIdentifierUnaryOperators(t *testing.T) {
+	id := NewIdentifier("counter")
+
+	ExpressionTestCases{
+		{
+			Result:   id.IncrPrefix(),
+			Expected: "++counter",
+		},
+		{
+			Result:   id.DecrPrefix(),
+			Expected: "--counter",
+		},
+		{
+			Result:   id.IncrPostfix(),
+			Expected: "counter++",
+		},
+		{
+			Result:   id.DecrPostfix(),
+			Expected: "counter--",
+		},
+	}.Run(t, testStyle1)
+}
+
+func TestIdentifierInfixOperators(t *testing.T) {
+	id1 := NewIdentifier("a")
+	id2 := NewIdentifier("b")
+
+	ExpressionTestCases{
+		{
+			Result:   id1.Add(id2),
+			Expected: "a + b",
+		},
+		{
+			Result:   id1.Sub(id2),
+			Expected: "a - b",
+		},
+		{
+			Result:   id1.Mul(id2),
+			Expected: "a * b",
+		},
+		{
+			Result:   id1.Div(id2),
+			Expected: "a / b",
+		},
+	}.Run(t, testStyle1)
 }
 
 func TestInfixExpressionWrite(t *testing.T) {

@@ -10,6 +10,7 @@ const (
 )
 
 type Integer struct {
+	ExpressionBase[*Integer]
 	Value  int64
 	Format IntegerFormat
 }
@@ -20,7 +21,7 @@ func NewIntegerLiteral(value int64) *Integer {
 		Format: IntegerFormatDecimal,
 	}
 
-	return i
+	return i.Init(i)
 }
 
 func NewHexIntegerLiteralUpper(value int64) *Integer {

@@ -172,10 +172,7 @@ type Node interface {
 	Write(out *StyleWriter, level Level) error
 }
 
-type Expression interface {
-	Node
-	expressionNode()
-}
+
 
 type Statement interface {
 	Node
