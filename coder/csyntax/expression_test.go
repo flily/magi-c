@@ -43,3 +43,61 @@ func TestNestedInfixExpressionWrite(t *testing.T) {
 	expected := "(a + (b * c)) - d"
 	checkOutputOnStyle(t, testStyle1, expected, fullExpr)
 }
+
+func TestPostfixExpressionWrite(t *testing.T) {
+	operand := NewIdentifier("x")
+	operator := OperatorIncrement
+	expr := NewPostfixExpression(operand, operator)
+
+	checkInterfaceCodeElement(expr)
+	checkInterfaceExpression(expr)
+
+	expected := "x++"
+	checkOutputOnStyle(t, testStyle1, expected, expr)
+}
+
+func TestPostfixExpressionNested(t *testing.T) {
+	operand := NewIdentifier("x")
+	operator := OperatorIncrement
+
+	expr1 := NewPostfixExpression(operand, operator)
+	expected1 := "x++"
+	checkInterfaceCodeElement(expr1)
+	checkInterfaceExpression(expr1)
+	checkOutputOnStyle(t, testStyle1, expected1, expr1)
+
+	expr2 := NewPostfixExpression(expr1, operator)
+	expected2 := "(x++)++"
+	checkInterfaceCodeElement(expr2)
+	checkInterfaceExpression(expr2)
+	checkOutputOnStyle(t, testStyle1, expected2, expr2)
+}
+
+func TestUnaryExpressionWrite(t *testing.T) {
+	operand := NewIdentifier("y")
+	operator := OperatorNegative
+	expr := NewUnaryExpression(operator, operand)
+
+	checkInterfaceCodeElement(expr)
+	checkInterfaceExpression(expr)
+
+	expected := "-y"
+	checkOutputOnStyle(t, testStyle1, expected, expr)
+}
+
+func TestUnaryExpressionNested(t *testing.T) {
+	operand := NewIdentifier("y")
+	operator := OperatorNegative
+
+	expr1 := NewUnaryExpression(operator, operand)
+	expected1 := "-y"
+	checkInterfaceCodeElement(expr1)
+	checkInterfaceExpression(expr1)
+	checkOutputOnStyle(t, testStyle1, expected1, expr1)
+
+	expr2 := NewUnaryExpression(operator, expr1)
+	expected2 := "-(-y)"
+	checkInterfaceCodeElement(expr2)
+	checkInterfaceExpression(expr2)
+	checkOutputOnStyle(t, testStyle1, expected2, expr2)
+}
