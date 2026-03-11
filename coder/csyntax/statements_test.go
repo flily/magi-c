@@ -163,3 +163,22 @@ func TestIfStatementWittIndent2(t *testing.T) {
 	level := NewLevel(1, 0)
 	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStat)
 }
+
+func TestWhileStatement(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
+	})
+
+	whileStat := NewWhileStatement(cond, body)
+
+	checkInterfaceCodeElement(whileStat)
+	checkInterfaceStatement(whileStat)
+
+	expected := strings.Join([]string{
+		"while (i < 10) {",
+		"    i = i + 1;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, testStyle1, expected, whileStat)
+}

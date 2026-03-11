@@ -19,6 +19,7 @@ type CodeStyle struct {
 	IfBraceIndent          StringElement
 	ForBraceOnNewLine      StyleBoolean
 	ForBraceIndent         StringElement
+	WhileSpacing           StyleBoolean
 	WhileBraceOnNewLine    StyleBoolean
 	WhileBraceIndent       StringElement
 	SwitchBraceOnNewLine   StyleBoolean
@@ -44,6 +45,7 @@ var (
 		IfBraceIndent:          "",
 		ForBraceOnNewLine:      false,
 		ForBraceIndent:         "",
+		WhileSpacing:           true,
 		WhileBraceOnNewLine:    false,
 		WhileBraceIndent:       "",
 		SwitchBraceOnNewLine:   false,
@@ -129,6 +131,22 @@ func (s *CodeStyle) IfNewLine(level Level) ElementCollection {
 	return result
 }
 
+func (s *CodeStyle) WhileNewLine(level Level) ElementCollection {
+	result := []CodeElement{
+		DelimiterSpace,
+	}
+
+	if s.WhileBraceOnNewLine {
+		result = []CodeElement{
+			s.EOL,
+			s.WhileBraceIndent,
+			s.GetIndent(level),
+		}
+	}
+
+	return result
+}
+
 func (s *CodeStyle) BinaryOperator(op Punctuator) ElementCollection {
 	result := []CodeElement{
 		s.BinaryOperationSpacing.Select(DelimiterSpace),
@@ -171,8 +189,6 @@ type Node interface {
 	CodeElement
 	Write(out *StyleWriter, level Level) error
 }
-
-
 
 type Statement interface {
 	Node

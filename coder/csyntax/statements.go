@@ -128,3 +128,31 @@ func (s *IfStatement) Write(out *StyleWriter, level Level) error {
 
 	return out.WriteIndentLine(level, parts...)
 }
+
+type WhileStatement struct {
+	Expression Expression
+	Body       *CodeBlock
+}
+
+func NewWhileStatement(expression Expression, body *CodeBlock) *WhileStatement {
+	s := &WhileStatement{
+		Expression: expression,
+		Body:       body,
+	}
+
+	return s
+}
+
+func (s *WhileStatement) codeElement()   {}
+func (s *WhileStatement) statementNode() {}
+
+func (s *WhileStatement) Write(out *StyleWriter, level Level) error {
+	parts := []CodeElement{
+		KeywordWhile, out.style.WhileSpacing.Select(DelimiterSpace), OperatorLeftParen, s.Expression, OperatorRightParen,
+		out.style.WhileNewLine(level), out.style.WhileBraceIndent, OperatorLeftBrace, out.style.EOL,
+		s.Body,
+		out.style.GetIndent(level), out.style.WhileBraceIndent, OperatorRightBrace,
+	}
+
+	return out.WriteIndentLine(level, parts...)
+}
