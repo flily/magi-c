@@ -104,15 +104,21 @@ func (s *ReturnStatement) Write(out *StyleWriter, level Level) error {
 type IfStatement struct {
 	Expression Expression
 	Body       *CodeBlock
+	ElseBody   *CodeBlock
 }
 
-func NewIfStatement(expression Expression, body *CodeBlock) *IfStatement {
+func NewIfElseStatement(expression Expression, thenBody *CodeBlock, elseBody *CodeBlock) *IfStatement {
 	s := &IfStatement{
 		Expression: expression,
-		Body:       body,
+		Body:       thenBody,
+		ElseBody:   elseBody,
 	}
 
 	return s
+}
+
+func NewIfStatement(expression Expression, body *CodeBlock) *IfStatement {
+	return NewIfElseStatement(expression, body, nil)
 }
 
 func (s *IfStatement) codeElement()   {}
@@ -124,6 +130,16 @@ func (s *IfStatement) Write(out *StyleWriter, level Level) error {
 		out.style.IfNewLine(level), out.style.IfBraceIndent, OperatorLeftBrace, out.style.EOL,
 		s.Body,
 		out.style.GetIndent(level), out.style.IfBraceIndent, OperatorRightBrace,
+	}
+
+	if s.ElseBody != nil {
+		parts = append(parts,
+			out.style.IfNewLine(level), out.style.IfBraceIndent,
+			KeywordElse, out.style.IfNewLine(level),
+			out.style.IfSpacing.Select(DelimiterSpace), OperatorLeftBrace, out.style.EOL,
+			s.ElseBody,
+			out.style.GetIndent(level), out.style.IfBraceIndent, OperatorRightBrace,
+		)
 	}
 
 	return out.WriteIndentLine(level, parts...)

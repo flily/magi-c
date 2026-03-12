@@ -93,6 +93,30 @@ func TestIfStatementWithoutElse1(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, ifStat)
 }
 
+func TestIfStatementWithElse(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
+	thenBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("a")),
+	})
+	elseBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("b")),
+	})
+
+	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	expected := strings.Join([]string{
+		"if (a > b) {",
+		"    return a;",
+		"} else {",
+		"    return b;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, testStyle1, expected, ifStat)
+}
+
 func TestIfStatementWithoutElse2(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
@@ -118,6 +142,38 @@ func TestIfStatementWithoutElse2(t *testing.T) {
 	checkOutputOnStyle(t, style, expected, ifStat)
 }
 
+func TestIfStatementWithElse2(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
+	thenBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("a")),
+	})
+	elseBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("b")),
+	})
+
+	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	style := testStyle1.Clone()
+	style.IfSpacing = false
+	style.IfBraceOnNewLine = true
+	style.IfBraceIndent = ""
+
+	expected := strings.Join([]string{
+		"if(a > b)",
+		"{",
+		"    return a;",
+		"}",
+		"else",
+		"{",
+		"    return b;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, style, expected, ifStat)
+}
+
 func TestIfStatementWithIndent1(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
@@ -132,6 +188,31 @@ func TestIfStatementWithIndent1(t *testing.T) {
 	expected := strings.Join([]string{
 		"    if (a > b) {",
 		"        return a;",
+		"    }",
+	}, "\n") + "\n"
+	level := NewLevel(1, 0)
+	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStat)
+}
+
+func TestIfElseStatementWithIndent1(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
+	thenBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("a")),
+	})
+	elseBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("b")),
+	})
+
+	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	expected := strings.Join([]string{
+		"    if (a > b) {",
+		"        return a;",
+		"    } else {",
+		"        return b;",
 		"    }",
 	}, "\n") + "\n"
 	level := NewLevel(1, 0)
@@ -158,6 +239,39 @@ func TestIfStatementWittIndent2(t *testing.T) {
 		"    if(a > b)",
 		"    {",
 		"        return a;",
+		"    }",
+	}, "\n") + "\n"
+	level := NewLevel(1, 0)
+	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStat)
+}
+
+func TestIfElseStatementWithIndent2(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
+	thenBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("a")),
+	})
+	elseBlock := NewCodeBlock([]Statement{
+		NewReturnStatement(NewIdentifier("b")),
+	})
+
+	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	style := testStyle1.Clone()
+	style.IfSpacing = false
+	style.IfBraceOnNewLine = true
+	style.IfBraceIndent = ""
+
+	expected := strings.Join([]string{
+		"    if(a > b)",
+		"    {",
+		"        return a;",
+		"    }",
+		"    else",
+		"    {",
+		"        return b;",
 		"    }",
 	}, "\n") + "\n"
 	level := NewLevel(1, 0)
