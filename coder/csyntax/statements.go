@@ -37,6 +37,14 @@ func (b *CodeBlock) Write(out *StyleWriter, level Level) error {
 	return out.Write(level.NextIndent(), FromCodeElements(b.Statements...))
 }
 
+func (b *CodeBlock) Length() int {
+	if b == nil {
+		return 0
+	}
+
+	return len(b.Statements)
+}
+
 type EmptyLine struct{}
 
 func NewEmptyLine() *EmptyLine {
@@ -121,6 +129,28 @@ func NewIfStatement(expression Expression, body *CodeBlock) *IfStatement {
 	return NewIfElseStatement(expression, body, nil)
 }
 
+func NewIfElseChainStatement(conditions []*IfStatement, elseBody *CodeBlock) *IfStatement {
+	var result *IfStatement
+	var last *IfStatement
+
+	for _, cond := range conditions {
+		if result == nil {
+			result = NewIfStatement(cond.Expression, cond.Body)
+			last = result
+
+		} else {
+			last.ElseBody = NewCodeBlock([]Statement{cond})
+			last = cond
+		}
+	}
+
+	if last != nil {
+		last.ElseBody = elseBody
+	}
+
+	return result
+}
+
 func (s *IfStatement) codeElement()   {}
 func (s *IfStatement) statementNode() {}
 
@@ -132,14 +162,25 @@ func (s *IfStatement) Write(out *StyleWriter, level Level) error {
 		out.style.GetIndent(level), out.style.IfBraceIndent, OperatorRightBrace,
 	}
 
-	if s.ElseBody != nil {
-		parts = append(parts,
-			out.style.IfNewLine(level), out.style.IfBraceIndent,
-			KeywordElse, out.style.IfNewLine(level),
-			out.style.IfSpacing.Select(DelimiterSpace), OperatorLeftBrace, out.style.EOL,
-			s.ElseBody,
-			out.style.GetIndent(level), out.style.IfBraceIndent, OperatorRightBrace,
-		)
+	if s.ElseBody.Length() > 0 {
+		first := s.ElseBody.Statements[0]
+		if _, ok := first.(*IfStatement); ok {
+			parts = append(parts,
+				out.style.IfNewLine(level), out.style.IfBraceIndent,
+				KeywordElse, DelimiterSpace, first,
+			)
+
+			return out.Write(level, parts...)
+
+		} else {
+			parts = append(parts,
+				out.style.IfNewLine(level), out.style.IfBraceIndent,
+				KeywordElse, out.style.IfNewLine(level),
+				out.style.IfSpacing.Select(DelimiterSpace), OperatorLeftBrace, out.style.EOL,
+				s.ElseBody,
+				out.style.GetIndent(level), out.style.IfBraceIndent, OperatorRightBrace,
+			)
+		}
 	}
 
 	return out.WriteIndentLine(level, parts...)

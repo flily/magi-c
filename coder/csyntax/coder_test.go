@@ -75,7 +75,16 @@ func checkOutputResult(t *testing.T, builder *strings.Builder, expected string) 
 
 	result := builder.String()
 	if result != expected {
-		t.Fatalf("Write result wrong:\nexpect:\n%s\ngot:\n%s", expected, result)
+		t.Fatalf(strings.Join([]string{
+			"Write result wrong:",
+			"expect:",
+			"%s",
+			"--------",
+			"got:",
+			"%s",
+			"--------",
+		}, "\n"),
+			expected, result)
 	}
 }
 

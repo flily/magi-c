@@ -278,6 +278,56 @@ func TestIfElseStatementWithIndent2(t *testing.T) {
 	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStat)
 }
 
+func TestIfElseChainStatement2(t *testing.T) {
+	cond1 := NewInfixExpression(NewIdentifier("a"), OperatorEqual, NewIntegerLiteral(1))
+	thenBlock1 := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(1)),
+	})
+	cond2 := NewInfixExpression(NewIdentifier("a"), OperatorEqual, NewIntegerLiteral(2))
+	thenBlock2 := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(2)),
+	})
+	cond3 := NewInfixExpression(NewIdentifier("a"), OperatorEqual, NewIntegerLiteral(3))
+	thenBlock3 := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(3)),
+	})
+	cond4 := NewInfixExpression(NewIdentifier("a"), OperatorEqual, NewIntegerLiteral(4))
+	thenBlock4 := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(4)),
+	})
+	elseBlock := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(0)),
+	})
+
+	ifStat := NewIfElseChainStatement(
+		[]*IfStatement{
+			NewIfStatement(cond1, thenBlock1),
+			NewIfStatement(cond2, thenBlock2),
+			NewIfStatement(cond3, thenBlock3),
+			NewIfStatement(cond4, thenBlock4),
+		},
+		elseBlock,
+	)
+
+	checkInterfaceCodeElement(ifStat)
+	checkInterfaceStatement(ifStat)
+
+	expected := strings.Join([]string{
+		"if (a == 1) {",
+		"    r = 1;",
+		"} else if (a == 2) {",
+		"    r = 2;",
+		"} else if (a == 3) {",
+		"    r = 3;",
+		"} else if (a == 4) {",
+		"    r = 4;",
+		"} else {",
+		"    r = 0;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, testStyle1, expected, ifStat)
+}
+
 func TestWhileStatement(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
 	body := NewCodeBlock([]Statement{
