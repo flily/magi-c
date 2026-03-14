@@ -34,7 +34,7 @@ func TestEmptyCodeBlockWrite(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, l)
 }
 
-func TestAssignmentStatementOnNormalVariable(t *testing.T) {
+func TestAssignmentStatementOnNormalVariableStyle1(t *testing.T) {
 	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
 
 	checkInterfaceCodeElement(stat)
@@ -44,7 +44,17 @@ func TestAssignmentStatementOnNormalVariable(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, stat)
 }
 
-func TestAssignmentStatementOnPointerVariable(t *testing.T) {
+func TestAssignmentStatementOnNormalVariableStyle2(t *testing.T) {
+	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
+
+	checkInterfaceCodeElement(stat)
+	checkInterfaceStatement(stat)
+
+	expected := "a = 10;\n"
+	checkOutputOnStyle(t, testStyle2, expected, stat)
+}
+
+func TestAssignmentStatementOnPointerVariableStyle1(t *testing.T) {
 	stat := NewAssignmentStatement("p", 1, NewIntegerLiteral(20))
 
 	checkInterfaceCodeElement(stat)
@@ -52,6 +62,16 @@ func TestAssignmentStatementOnPointerVariable(t *testing.T) {
 
 	expected := "*p = 20;\n"
 	checkOutputOnStyle(t, testStyle1, expected, stat)
+}
+
+func TestAssignmentStatementOnPointerVariableStyle2(t *testing.T) {
+	stat := NewAssignmentStatement("p", 1, NewIntegerLiteral(20))
+
+	checkInterfaceCodeElement(stat)
+	checkInterfaceStatement(stat)
+
+	expected := "* p = 20;\n"
+	checkOutputOnStyle(t, testStyle2, expected, stat)
 }
 
 func TestReturnStatementWithoutExpression(t *testing.T) {
@@ -328,7 +348,7 @@ func TestIfElseChainStatement2(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, ifStat)
 }
 
-func TestWhileStatement(t *testing.T) {
+func TestWhileStatementStyle1(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
 	body := NewCodeBlock([]Statement{
 		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
@@ -345,4 +365,43 @@ func TestWhileStatement(t *testing.T) {
 		"}",
 	}, "\n") + "\n"
 	checkOutputOnStyle(t, testStyle1, expected, whileStat)
+}
+
+func TestWhileStatementStyle2(t *testing.T) {
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
+	})
+
+	whileStat := NewWhileStatement(cond, body)
+
+	checkInterfaceCodeElement(whileStat)
+	checkInterfaceStatement(whileStat)
+
+	expected := strings.Join([]string{
+		"while(i < 10)",
+		"{",
+		"    i = i + 1;",
+		"}",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, testStyle2, expected, whileStat)
+}
+
+func TestDoWhileStatement(t *testing.T) {
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
+	})
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+
+	doWhileStat := NewDoWhileStatement(body, cond)
+
+	checkInterfaceCodeElement(doWhileStat)
+	checkInterfaceStatement(doWhileStat)
+
+	expected := strings.Join([]string{
+		"do {",
+		"    i = i + 1;",
+		"} while (i < 10);",
+	}, "\n") + "\n"
+	checkOutputOnStyle(t, testStyle1, expected, doWhileStat)
 }

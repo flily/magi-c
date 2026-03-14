@@ -82,10 +82,16 @@ func (s *AssignmentStatement) statementNode() {}
 
 func (s *AssignmentStatement) Write(out *StyleWriter, level Level) error {
 	pointer := PunctuatorAsterisk.Duplicate(s.LeftPointerLevel)
-	return out.WriteIndentLine(level,
-		pointer, out.style.PointerSpacingBefore.Select(DelimiterSpace),
+	parts := []CodeElement{
+		pointer,
+		NewElementCollection(
+			out.style.PointerSpacingBefore.Select(DelimiterSpace),
+		).On(s.LeftPointerLevel > 0),
 		s.LeftIdentifier, out.style.Assign(), s.RightExpression,
-		PunctuatorSemicolon)
+		PunctuatorSemicolon,
+	}
+
+	return out.WriteIndentLine(level, parts...)
 }
 
 type ReturnStatement struct {
@@ -209,6 +215,35 @@ func (s *WhileStatement) Write(out *StyleWriter, level Level) error {
 		out.style.WhileNewLine(level), out.style.WhileBraceIndent, OperatorLeftBrace, out.style.EOL,
 		s.Body,
 		out.style.GetIndent(level), out.style.WhileBraceIndent, OperatorRightBrace,
+	}
+
+	return out.WriteIndentLine(level, parts...)
+}
+
+type DoWhileStatement struct {
+	Body      *CodeBlock
+	Condition Expression
+}
+
+func NewDoWhileStatement(body *CodeBlock, condition Expression) *DoWhileStatement {
+	s := &DoWhileStatement{
+		Body:      body,
+		Condition: condition,
+	}
+
+	return s
+}
+
+func (s *DoWhileStatement) codeElement()   {}
+func (s *DoWhileStatement) statementNode() {}
+
+func (s *DoWhileStatement) Write(out *StyleWriter, level Level) error {
+	parts := []CodeElement{
+		KeywordDo, out.style.DoNewLine(level), out.style.WhileBraceIndent, OperatorLeftBrace, out.style.EOL,
+		s.Body,
+		out.style.GetIndent(level), out.style.WhileBraceIndent, OperatorRightBrace, DelimiterSpace,
+		KeywordWhile, out.style.WhileSpacing.Select(DelimiterSpace), OperatorLeftParen, s.Condition, OperatorRightParen,
+		PunctuatorSemicolon,
 	}
 
 	return out.WriteIndentLine(level, parts...)
