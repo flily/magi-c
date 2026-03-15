@@ -7,10 +7,10 @@ import (
 )
 
 func TestCodeBlockWrite(t *testing.T) {
-	stat1 := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
-	stat2 := NewAssignmentStatement("b", 1, NewIntegerLiteral(20))
+	stmt1 := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
+	stmt2 := NewAssignmentStatement("b", 1, NewIntegerLiteral(20))
 
-	block := NewCodeBlock([]Statement{stat1, stat2})
+	block := NewCodeBlock([]Statement{stmt1, stmt2})
 
 	checkInterfaceCodeElement(block)
 	checkInterfaceStatement(block)
@@ -35,63 +35,63 @@ func TestEmptyCodeBlockWrite(t *testing.T) {
 }
 
 func TestAssignmentStatementOnNormalVariableStyle1(t *testing.T) {
-	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
+	stmt := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
 
-	checkInterfaceCodeElement(stat)
-	checkInterfaceStatement(stat)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
 
 	expected := "a = 10;\n"
-	checkOutputOnStyle(t, testStyle1, expected, stat)
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
 }
 
 func TestAssignmentStatementOnNormalVariableStyle2(t *testing.T) {
-	stat := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
+	stmt := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
 
-	checkInterfaceCodeElement(stat)
-	checkInterfaceStatement(stat)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
 
 	expected := "a = 10;\n"
-	checkOutputOnStyle(t, testStyle2, expected, stat)
+	checkOutputOnStyle(t, testStyle2, expected, stmt)
 }
 
 func TestAssignmentStatementOnPointerVariableStyle1(t *testing.T) {
-	stat := NewAssignmentStatement("p", 1, NewIntegerLiteral(20))
+	stmt := NewAssignmentStatement("p", 1, NewIntegerLiteral(20))
 
-	checkInterfaceCodeElement(stat)
-	checkInterfaceStatement(stat)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
 
 	expected := "*p = 20;\n"
-	checkOutputOnStyle(t, testStyle1, expected, stat)
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
 }
 
 func TestAssignmentStatementOnPointerVariableStyle2(t *testing.T) {
-	stat := NewAssignmentStatement("p", 1, NewIntegerLiteral(20))
+	stmt := NewAssignmentStatement("p", 1, NewIntegerLiteral(20))
 
-	checkInterfaceCodeElement(stat)
-	checkInterfaceStatement(stat)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
 
 	expected := "* p = 20;\n"
-	checkOutputOnStyle(t, testStyle2, expected, stat)
+	checkOutputOnStyle(t, testStyle2, expected, stmt)
 }
 
 func TestReturnStatementWithoutExpression(t *testing.T) {
-	stat := NewReturnStatement(nil)
+	stmt := NewReturnStatement(nil)
 
-	checkInterfaceCodeElement(stat)
-	checkInterfaceStatement(stat)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
 
 	expected := "return;\n"
-	checkOutputOnStyle(t, testStyle1, expected, stat)
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
 }
 
 func TestReturnStatementWithSimpleIntegerLiteral(t *testing.T) {
-	stat := NewReturnStatement(NewIntegerLiteral(42))
+	stmt := NewReturnStatement(NewIntegerLiteral(42))
 
-	checkInterfaceCodeElement(stat)
-	checkInterfaceStatement(stat)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
 
 	expected := "return 42;\n"
-	checkOutputOnStyle(t, testStyle1, expected, stat)
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
 }
 
 func TestIfStatementWithoutElse1(t *testing.T) {
@@ -100,17 +100,18 @@ func TestIfStatementWithoutElse1(t *testing.T) {
 		NewReturnStatement(NewIdentifier("a")),
 	})
 
-	ifStat := NewIfStatement(cond, thenBlock)
+	ifStmt := NewIfStatement(cond, thenBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	expected := strings.Join([]string{
 		"if (a > b) {",
 		"    return a;",
 		"}",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, testStyle1, expected, ifStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, ifStmt)
 }
 
 func TestIfStatementWithElse(t *testing.T) {
@@ -133,7 +134,8 @@ func TestIfStatementWithElse(t *testing.T) {
 		"} else {",
 		"    return b;",
 		"}",
-	}, "\n") + "\n"
+		"",
+	}, "\n")
 	checkOutputOnStyle(t, testStyle1, expected, ifStat)
 }
 
@@ -143,10 +145,10 @@ func TestIfStatementWithoutElse2(t *testing.T) {
 		NewReturnStatement(NewIdentifier("a")),
 	})
 
-	ifStat := NewIfStatement(cond, thenBlock)
+	ifStmt := NewIfStatement(cond, thenBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	style := testStyle1.Clone()
 	style.IfSpacing = false
@@ -158,8 +160,9 @@ func TestIfStatementWithoutElse2(t *testing.T) {
 		"{",
 		"    return a;",
 		"}",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, style, expected, ifStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, style, expected, ifStmt)
 }
 
 func TestIfStatementWithElse2(t *testing.T) {
@@ -171,10 +174,10 @@ func TestIfStatementWithElse2(t *testing.T) {
 		NewReturnStatement(NewIdentifier("b")),
 	})
 
-	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+	ifStmt := NewIfElseStatement(cond, thenBlock, elseBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	style := testStyle1.Clone()
 	style.IfSpacing = false
@@ -190,8 +193,9 @@ func TestIfStatementWithElse2(t *testing.T) {
 		"{",
 		"    return b;",
 		"}",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, style, expected, ifStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, style, expected, ifStmt)
 }
 
 func TestIfStatementWithIndent1(t *testing.T) {
@@ -200,18 +204,19 @@ func TestIfStatementWithIndent1(t *testing.T) {
 		NewReturnStatement(NewIdentifier("a")),
 	})
 
-	ifStat := NewIfStatement(cond, thenBlock)
+	ifStmt := NewIfStatement(cond, thenBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	expected := strings.Join([]string{
 		"    if (a > b) {",
 		"        return a;",
 		"    }",
-	}, "\n") + "\n"
+		"",
+	}, "\n")
 	level := NewLevel(1, 0)
-	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStat)
+	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStmt)
 }
 
 func TestIfElseStatementWithIndent1(t *testing.T) {
@@ -223,10 +228,10 @@ func TestIfElseStatementWithIndent1(t *testing.T) {
 		NewReturnStatement(NewIdentifier("b")),
 	})
 
-	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+	ifStmt := NewIfElseStatement(cond, thenBlock, elseBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	expected := strings.Join([]string{
 		"    if (a > b) {",
@@ -234,9 +239,10 @@ func TestIfElseStatementWithIndent1(t *testing.T) {
 		"    } else {",
 		"        return b;",
 		"    }",
-	}, "\n") + "\n"
+		"",
+	}, "\n")
 	level := NewLevel(1, 0)
-	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStat)
+	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStmt)
 }
 
 func TestIfStatementWittIndent2(t *testing.T) {
@@ -245,10 +251,10 @@ func TestIfStatementWittIndent2(t *testing.T) {
 		NewReturnStatement(NewIdentifier("a")),
 	})
 
-	ifStat := NewIfStatement(cond, thenBlock)
+	ifStmt := NewIfStatement(cond, thenBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	style := testStyle1.Clone()
 	style.IfSpacing = false
@@ -260,9 +266,10 @@ func TestIfStatementWittIndent2(t *testing.T) {
 		"    {",
 		"        return a;",
 		"    }",
-	}, "\n") + "\n"
+		"",
+	}, "\n")
 	level := NewLevel(1, 0)
-	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStat)
+	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStmt)
 }
 
 func TestIfElseStatementWithIndent2(t *testing.T) {
@@ -274,10 +281,10 @@ func TestIfElseStatementWithIndent2(t *testing.T) {
 		NewReturnStatement(NewIdentifier("b")),
 	})
 
-	ifStat := NewIfElseStatement(cond, thenBlock, elseBlock)
+	ifStmt := NewIfElseStatement(cond, thenBlock, elseBlock)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	style := testStyle1.Clone()
 	style.IfSpacing = false
@@ -293,9 +300,10 @@ func TestIfElseStatementWithIndent2(t *testing.T) {
 		"    {",
 		"        return b;",
 		"    }",
-	}, "\n") + "\n"
+		"",
+	}, "\n")
 	level := NewLevel(1, 0)
-	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStat)
+	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStmt)
 }
 
 func TestIfElseChainStatement2(t *testing.T) {
@@ -319,7 +327,7 @@ func TestIfElseChainStatement2(t *testing.T) {
 		NewAssignmentStatement("r", 0, NewIntegerLiteral(0)),
 	})
 
-	ifStat := NewIfElseChainStatement(
+	ifStmt := NewIfElseChainStatement(
 		[]*IfStatement{
 			NewIfStatement(cond1, thenBlock1),
 			NewIfStatement(cond2, thenBlock2),
@@ -329,8 +337,8 @@ func TestIfElseChainStatement2(t *testing.T) {
 		elseBlock,
 	)
 
-	checkInterfaceCodeElement(ifStat)
-	checkInterfaceStatement(ifStat)
+	checkInterfaceCodeElement(ifStmt)
+	checkInterfaceStatement(ifStmt)
 
 	expected := strings.Join([]string{
 		"if (a == 1) {",
@@ -344,8 +352,9 @@ func TestIfElseChainStatement2(t *testing.T) {
 		"} else {",
 		"    r = 0;",
 		"}",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, testStyle1, expected, ifStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, ifStmt)
 }
 
 func TestWhileStatementStyle1(t *testing.T) {
@@ -354,17 +363,18 @@ func TestWhileStatementStyle1(t *testing.T) {
 		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
 	})
 
-	whileStat := NewWhileStatement(cond, body)
+	whileStmt := NewWhileStatement(cond, body)
 
-	checkInterfaceCodeElement(whileStat)
-	checkInterfaceStatement(whileStat)
+	checkInterfaceCodeElement(whileStmt)
+	checkInterfaceStatement(whileStmt)
 
 	expected := strings.Join([]string{
 		"while (i < 10) {",
 		"    i = i + 1;",
 		"}",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, testStyle1, expected, whileStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, whileStmt)
 }
 
 func TestWhileStatementStyle2(t *testing.T) {
@@ -373,35 +383,139 @@ func TestWhileStatementStyle2(t *testing.T) {
 		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
 	})
 
-	whileStat := NewWhileStatement(cond, body)
+	whileStmt := NewWhileStatement(cond, body)
 
-	checkInterfaceCodeElement(whileStat)
-	checkInterfaceStatement(whileStat)
+	checkInterfaceCodeElement(whileStmt)
+	checkInterfaceStatement(whileStmt)
 
 	expected := strings.Join([]string{
 		"while(i < 10)",
 		"{",
 		"    i = i + 1;",
 		"}",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, testStyle2, expected, whileStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle2, expected, whileStmt)
 }
 
-func TestDoWhileStatement(t *testing.T) {
+func TestDoWhileStatementStyle1(t *testing.T) {
 	body := NewCodeBlock([]Statement{
 		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
 	})
 	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
 
-	doWhileStat := NewDoWhileStatement(body, cond)
+	doWhileStmt := NewDoWhileStatement(body, cond)
 
-	checkInterfaceCodeElement(doWhileStat)
-	checkInterfaceStatement(doWhileStat)
+	checkInterfaceCodeElement(doWhileStmt)
+	checkInterfaceStatement(doWhileStmt)
 
 	expected := strings.Join([]string{
 		"do {",
 		"    i = i + 1;",
 		"} while (i < 10);",
-	}, "\n") + "\n"
-	checkOutputOnStyle(t, testStyle1, expected, doWhileStat)
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, doWhileStmt)
+}
+
+func TestDoWhileStatementStyle2(t *testing.T) {
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("i", 0, NewInfixExpression(NewIdentifier("i"), OperatorAdd, NewIntegerLiteral(1))),
+	})
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+
+	doWhileStmt := NewDoWhileStatement(body, cond)
+
+	checkInterfaceCodeElement(doWhileStmt)
+	checkInterfaceStatement(doWhileStmt)
+
+	expected := strings.Join([]string{
+		"do",
+		"{",
+		"    i = i + 1;",
+		"} while(i < 10);",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle2, expected, doWhileStmt)
+}
+
+func TestSwitchStatementStyle1(t *testing.T) {
+	cond := NewIdentifier("a")
+	case1Block := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(1)),
+		NewBreakStatement(),
+	})
+	case2Block := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(2)),
+		NewBreakStatement(),
+	})
+	defaultBlock := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(0)),
+		NewBreakStatement(),
+	})
+
+	switchStmt := NewSwitchStatement(cond, []*CaseBranch{
+		NewCaseBranch(NewIntegerLiteral(1), case1Block),
+		NewCaseBranch(NewIntegerLiteral(2), case2Block),
+	}, defaultBlock)
+
+	checkInterfaceCodeElement(switchStmt)
+	checkInterfaceStatement(switchStmt)
+
+	expected := strings.Join([]string{
+		"switch (a) {",
+		"case 1:",
+		"    r = 1;",
+		"    break;",
+		"case 2:",
+		"    r = 2;",
+		"    break;",
+		"default:",
+		"    r = 0;",
+		"    break;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, switchStmt)
+}
+
+func TestSwitchStatementStyle2(t *testing.T) {
+	cond := NewIdentifier("a")
+	case1Block := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(1)),
+		NewBreakStatement(),
+	})
+	case2Block := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(2)),
+		NewBreakStatement(),
+	})
+	defaultBlock := NewCodeBlock([]Statement{
+		NewAssignmentStatement("r", 0, NewIntegerLiteral(0)),
+		NewBreakStatement(),
+	})
+
+	switchStmt := NewSwitchStatement(cond, []*CaseBranch{
+		NewCaseBranch(NewIntegerLiteral(1), case1Block),
+		NewCaseBranch(NewIntegerLiteral(2), case2Block),
+	}, defaultBlock)
+
+	checkInterfaceCodeElement(switchStmt)
+	checkInterfaceStatement(switchStmt)
+
+	expected := strings.Join([]string{
+		"switch(a)",
+		"{",
+		"case 1:",
+		"    r = 1;",
+		"    break;",
+		"case 2:",
+		"    r = 2;",
+		"    break;",
+		"default:",
+		"    r = 0;",
+		"    break;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle2, expected, switchStmt)
 }

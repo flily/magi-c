@@ -248,3 +248,90 @@ func (s *DoWhileStatement) Write(out *StyleWriter, level Level) error {
 
 	return out.WriteIndentLine(level, parts...)
 }
+
+type KeywordStatement struct {
+	Keyword Keyword
+}
+
+func NewKeywordStatement(keyword Keyword) *KeywordStatement {
+	s := &KeywordStatement{
+		Keyword: keyword,
+	}
+
+	return s
+}
+
+func NewBreakStatement() *KeywordStatement {
+	return NewKeywordStatement(KeywordBreak)
+}
+
+func NewContinueStatement() *KeywordStatement {
+	return NewKeywordStatement(KeywordContinue)
+}
+
+func (s *KeywordStatement) codeElement()   {}
+func (s *KeywordStatement) statementNode() {}
+
+func (s *KeywordStatement) Write(out *StyleWriter, level Level) error {
+	return out.WriteIndentLine(level, s.Keyword, PunctuatorSemicolon)
+}
+
+type CaseBranch struct {
+	Expression Expression
+	Body       *CodeBlock
+}
+
+func NewCaseBranch(expression Expression, body *CodeBlock) *CaseBranch {
+	b := &CaseBranch{
+		Expression: expression,
+		Body:       body,
+	}
+
+	return b
+}
+
+type SwitchStatement struct {
+	Condition Expression
+	Cases     []*CaseBranch
+	Default   *CodeBlock
+}
+
+func NewSwitchStatement(condition Expression, cases []*CaseBranch, defaultBody *CodeBlock) *SwitchStatement {
+	s := &SwitchStatement{
+		Condition: condition,
+		Cases:     cases,
+		Default:   defaultBody,
+	}
+
+	return s
+}
+
+func (s *SwitchStatement) codeElement()   {}
+func (s *SwitchStatement) statementNode() {}
+
+func (s *SwitchStatement) Write(out *StyleWriter, level Level) error {
+	parts := []CodeElement{
+		KeywordSwitch, out.style.SwitchSpacing.Select(DelimiterSpace), OperatorLeftParen, s.Condition, OperatorRightParen,
+		out.style.SwitchNewLine(level), out.style.SwitchBraceIndent, OperatorLeftBrace, out.style.EOL,
+	}
+
+	for _, caseBranch := range s.Cases {
+		parts = append(parts,
+			KeywordCase, DelimiterSpace, caseBranch.Expression, PunctuatorColon, out.style.EOL,
+			caseBranch.Body,
+		)
+	}
+
+	if s.Default.Length() > 0 {
+		parts = append(parts,
+			KeywordDefault, PunctuatorColon, out.style.EOL,
+			s.Default,
+		)
+	}
+
+	parts = append(parts,
+		out.style.GetIndent(level), out.style.SwitchBraceIndent, OperatorRightBrace,
+	)
+
+	return out.WriteIndentLine(level, parts...)
+}

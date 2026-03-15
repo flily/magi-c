@@ -11,6 +11,7 @@ const (
 	KeywordSwitch       Keyword = "switch"
 	KeywordCase         Keyword = "case"
 	KeywordBreak        Keyword = "break"
+	KeywordDefault      Keyword = "default"
 	KeywordContinue     Keyword = "continue"
 	KeywordReturn       Keyword = "return"
 	KeywordStruct       Keyword = "struct"

@@ -23,6 +23,7 @@ type CodeStyle struct {
 	WhileBraceOnNewLine    StyleBoolean
 	WhileBraceIndent       StringElement
 	DoBraceOnNewLine       StyleBoolean
+	SwitchSpacing          StyleBoolean
 	SwitchBraceOnNewLine   StyleBoolean
 	SwitchBraceIndent      StringElement
 	CaseBranchIndent       StringElement
@@ -50,6 +51,7 @@ var (
 		WhileBraceOnNewLine:    false,
 		WhileBraceIndent:       "",
 		DoBraceOnNewLine:       false,
+		SwitchSpacing:          true,
 		SwitchBraceOnNewLine:   false,
 		SwitchBraceIndent:      "",
 		CaseBranchIndent:       "",
@@ -158,6 +160,22 @@ func (s *CodeStyle) DoNewLine(level Level) ElementCollection {
 		result = []CodeElement{
 			s.EOL,
 			s.WhileBraceIndent,
+			s.GetIndent(level),
+		}
+	}
+
+	return result
+}
+
+func (s *CodeStyle) SwitchNewLine(level Level) ElementCollection {
+	result := []CodeElement{
+		DelimiterSpace,
+	}
+
+	if s.SwitchBraceOnNewLine {
+		result = []CodeElement{
+			s.EOL,
+			s.SwitchBraceIndent,
 			s.GetIndent(level),
 		}
 	}
