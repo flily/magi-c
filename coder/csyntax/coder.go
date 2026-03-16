@@ -236,6 +236,11 @@ type Declaration interface {
 	declarationNode()
 }
 
+type Definition interface {
+	Node
+	definitionNode()
+}
+
 type ElementCollection []CodeElement
 
 func (c ElementCollection) codeElement() {}

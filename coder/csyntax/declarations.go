@@ -1,13 +1,13 @@
 package csyntax
 
-type VariableDeclarator struct {
+type VariableDeclarationItem struct {
 	PointerLevel int
 	Name         string
 	Initializer  Expression
 }
 
-func NewVariableDeclarator(name string, pointerLevel int, initializer Expression) VariableDeclarator {
-	d := VariableDeclarator{
+func NewVariableDeclarator(name string, pointerLevel int, initializer Expression) VariableDeclarationItem {
+	d := VariableDeclarationItem{
 		PointerLevel: pointerLevel,
 		Name:         name,
 		Initializer:  initializer,
@@ -18,10 +18,10 @@ func NewVariableDeclarator(name string, pointerLevel int, initializer Expression
 
 type VariableDeclaration struct {
 	Type       StringElement
-	Declarator []VariableDeclarator
+	Declarator []VariableDeclarationItem
 }
 
-func NewVariableDeclaration(typ string, declarators []VariableDeclarator) *VariableDeclaration {
+func NewVariableDeclaration(typ string, declarators []VariableDeclarationItem) *VariableDeclaration {
 	d := &VariableDeclaration{
 		Type:       StringElement(typ),
 		Declarator: declarators,
@@ -107,39 +107,4 @@ func (p *ParameterList) Write(out *StyleWriter, level Level) error {
 	}
 
 	return out.Write(level, parts...)
-}
-
-type FunctionDeclaration struct {
-	ReturnType *Type
-	Name       StringElement
-	Parameters *ParameterList
-	Body       *CodeBlock
-}
-
-func NewFunctionDeclaration(name string, returnType *Type, parameters *ParameterList, body []Statement) *FunctionDeclaration {
-	f := &FunctionDeclaration{
-		ReturnType: returnType,
-		Name:       StringElement(name),
-		Parameters: parameters,
-		Body:       NewCodeBlock(body),
-	}
-
-	return f
-}
-
-func (f *FunctionDeclaration) codeElement()     {}
-func (f *FunctionDeclaration) declarationNode() {}
-
-func (f *FunctionDeclaration) AddStatement(stmt Statement) {
-	f.Body.Add(stmt)
-}
-
-func (f *FunctionDeclaration) Write(out *StyleWriter, level Level) error {
-	err := out.WriteIndentLine(level,
-		f.ReturnType, DelimiterSpace, f.Name, OperatorLeftParen, f.Parameters, OperatorRightParen,
-		out.style.FunctionNewLine(), OperatorLeftBrace, out.style.EOL,
-		f.Body,
-		out.style.FunctionBraceIndent, OperatorRightBrace)
-
-	return err
 }

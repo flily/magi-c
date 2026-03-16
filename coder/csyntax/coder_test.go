@@ -64,6 +64,10 @@ func checkInterfaceDeclaration(elem Declaration) {
 	elem.declarationNode()
 }
 
+func checkInterfaceDefinition(elem Definition) {
+	elem.definitionNode()
+}
+
 func checkInterfaceStatement(elem Statement) {
 	elem.statementNode()
 }

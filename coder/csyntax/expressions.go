@@ -3,6 +3,7 @@ package csyntax
 type Expression interface {
 	Node
 	expressionNode()
+
 	IncrPrefix() Expression
 	DecrPrefix() Expression
 	IncrPostfix() Expression
