@@ -34,6 +34,101 @@ func TestEmptyCodeBlockWrite(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, l)
 }
 
+func TestDeclarationStatmentOneVariableStyle1(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("a", 0, NewIntegerLiteral(3))
+
+	stmt := NewDeclarationStatement(decl)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
+
+	expected := "int a = 3;\n"
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
+}
+
+func TestDeclarationStatmentOneVariableStyle2(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("a", 0, NewIntegerLiteral(3))
+
+	stmt := NewDeclarationStatement(decl)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
+
+	expected := "int a = 3;\n"
+	checkOutputOnStyle(t, testStyle2, expected, stmt)
+}
+
+func TestDeclarationStatmentTwoVariablesStyle1(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("a", 0, NewIntegerLiteral(3))
+	decl.Add("b", 0, NewIntegerLiteral(5))
+
+	stmt := NewDeclarationStatement(decl)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
+
+	expected := "int a = 3, b = 5;\n"
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
+}
+
+func TestDeclarationStatmentTwoVariablesStyle2(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("a", 0, NewIntegerLiteral(3))
+	decl.Add("b", 0, NewIntegerLiteral(5))
+	stmt := NewDeclarationStatement(decl)
+
+	expected := "int a = 3,b = 5;\n"
+	checkOutputOnStyle(t, testStyle2, expected, stmt)
+}
+
+func TestDeclarationStatmentOnePointerVariableStyle1(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("p", 1, NewIntegerLiteral(3))
+
+	stmt := NewDeclarationStatement(decl)
+
+	expected := "int* p = 3;\n"
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
+}
+
+func TestDeclarationStatmentOnePointerVariableStyle2(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("p", 1, NewIntegerLiteral(3))
+
+	stmt := NewDeclarationStatement(decl)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
+
+	expected := "int *p = 3;\n"
+	checkOutputOnStyle(t, testStyle2, expected, stmt)
+}
+
+func TestDeclarationStatmentTwoPointerVariableStyle1(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("p", 1, NewIntegerLiteral(3))
+	decl.Add("q", 2, NewIntegerLiteral(5))
+
+	stmt := NewDeclarationStatement(decl)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
+
+	expected := "int* p = 3, ** q = 5;\n"
+	checkOutputOnStyle(t, testStyle1, expected, stmt)
+}
+
+func TestDeclarationStatmentTwoPointerVariableStyle2(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("p", 1, NewIntegerLiteral(3))
+	decl.Add("q", 2, NewIntegerLiteral(5))
+
+	stmt := NewDeclarationStatement(decl)
+	checkInterfaceCodeElement(stmt)
+	checkInterfaceStatement(stmt)
+
+	expected := "int *p = 3, **q = 5;\n"
+	checkOutputOnStyle(t, testStyle2, expected, stmt)
+}
+
 func TestAssignmentStatementOnNormalVariableStyle1(t *testing.T) {
 	stmt := NewAssignmentStatement("a", 0, NewIntegerLiteral(10))
 

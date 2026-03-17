@@ -32,7 +32,6 @@ func NewVariableDeclaration(typ string, declarators []VariableDeclarationItem) *
 
 func (v *VariableDeclaration) codeElement()     {}
 func (v *VariableDeclaration) declarationNode() {}
-func (v *VariableDeclaration) statementNode()   {}
 
 func (v *VariableDeclaration) Write(out *StyleWriter, level Level) error {
 	parts := make([]CodeElement, 0, 4+len(v.Declarator)*6)
@@ -56,8 +55,7 @@ func (v *VariableDeclaration) Write(out *StyleWriter, level Level) error {
 		)
 	}
 
-	parts = append(parts, PunctuatorSemicolon)
-	return out.WriteIndentLine(level, parts...)
+	return out.Write(level, parts...)
 }
 
 func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Expression) {

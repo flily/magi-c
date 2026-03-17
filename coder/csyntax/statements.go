@@ -61,6 +61,25 @@ func (s *EmptyLine) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, out.style.EOL)
 }
 
+type DeclarationStatement struct {
+	VariableDeclaration *VariableDeclaration
+}
+
+func NewDeclarationStatement(variableDeclaration *VariableDeclaration) *DeclarationStatement {
+	s := &DeclarationStatement{
+		VariableDeclaration: variableDeclaration,
+	}
+
+	return s
+}
+
+func (s *DeclarationStatement) codeElement()   {}
+func (s *DeclarationStatement) statementNode() {}
+
+func (s *DeclarationStatement) Write(out *StyleWriter, level Level) error {
+	return out.WriteIndentLine(level, s.VariableDeclaration, PunctuatorSemicolon)
+}
+
 type AssignmentStatement struct {
 	LeftIdentifier   StringElement
 	LeftPointerLevel int
