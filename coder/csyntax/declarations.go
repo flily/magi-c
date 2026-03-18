@@ -30,8 +30,9 @@ func NewVariableDeclaration(typ string, declarators []VariableDeclarationItem) *
 	return d
 }
 
-func (v *VariableDeclaration) codeElement()     {}
-func (v *VariableDeclaration) declarationNode() {}
+func (v *VariableDeclaration) codeElement()        {}
+func (v *VariableDeclaration) declarationNode()    {}
+func (v *VariableDeclaration) forInitializerNode() {}
 
 func (v *VariableDeclaration) Write(out *StyleWriter, level Level) error {
 	parts := make([]CodeElement, 0, 4+len(v.Declarator)*6)

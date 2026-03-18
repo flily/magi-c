@@ -268,6 +268,46 @@ func (s *DoWhileStatement) Write(out *StyleWriter, level Level) error {
 	return out.WriteIndentLine(level, parts...)
 }
 
+type ForInitializer interface {
+	CodeElement
+	forInitializerNode()
+}
+
+type ForStatement struct {
+	Initializer ForInitializer
+	Condition   Expression
+	Post        Expression
+	Body        *CodeBlock
+}
+
+func NewForStatement(initializer ForInitializer, condition Expression, post Expression, body *CodeBlock) *ForStatement {
+	s := &ForStatement{
+		Initializer: initializer,
+		Condition:   condition,
+		Post:        post,
+		Body:        body,
+	}
+
+	return s
+}
+
+func (s *ForStatement) codeElement()   {}
+func (s *ForStatement) statementNode() {}
+
+func (s *ForStatement) Write(out *StyleWriter, level Level) error {
+	parts := []CodeElement{
+		KeywordFor, out.style.ForSpacing.Select(DelimiterSpace), OperatorLeftParen,
+		NewElementCollection(s.Initializer).On(s.Initializer != nil), PunctuatorSemicolon, DelimiterSpace,
+		NewElementCollection(s.Condition).On(s.Condition != nil), PunctuatorSemicolon, DelimiterSpace,
+		NewElementCollection(s.Post).On(s.Post != nil),
+		OperatorRightParen, out.style.ForNewLine(level), out.style.ForBraceIndent, OperatorLeftBrace, out.style.EOL,
+		s.Body,
+		out.style.GetIndent(level), out.style.ForBraceIndent, OperatorRightBrace,
+	}
+
+	return out.WriteIndentLine(level, parts...)
+}
+
 type KeywordStatement struct {
 	Keyword Keyword
 }

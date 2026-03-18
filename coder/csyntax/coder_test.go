@@ -14,9 +14,10 @@ var (
 		Indent:                 "    ",
 		FunctionBraceOnNewLine: true,
 		FunctionBraceIndent:    "",
-		IfBraceOnNewLine:       false,
+		IfBraceOnNewLine:       true,
 		IfBraceIndent:          "",
-		ForBraceOnNewLine:      false,
+		ForSpacing:             false,
+		ForBraceOnNewLine:      true,
 		ForBraceIndent:         "",
 		WhileBraceOnNewLine:    true,
 		WhileBraceIndent:       "",
@@ -62,6 +63,7 @@ func checkInterfaceCodeElement(elem CodeElement) {
 
 func checkInterfaceDeclaration(elem Declaration) {
 	elem.declarationNode()
+	elem.forInitializerNode()
 }
 
 func checkInterfaceDefinition(elem Definition) {
@@ -128,7 +130,6 @@ func TestCodeContext(t *testing.T) {
 
 	cctx := NewContext(ctx)
 	checkInterfaceCodeElement(cctx)
-	checkInterfaceDeclaration(cctx)
 	checkInterfaceStatement(cctx)
 
 	expected := "#line 10 \"file.c\"\n"

@@ -10,7 +10,6 @@ func TestPreprocessorIncludeWrite(t *testing.T) {
 	include := NewIncludeAngle("stdio.h")
 
 	checkInterfaceCodeElement(include)
-	checkInterfaceDeclaration(include)
 	checkInterfaceStatement(include)
 
 	expected := strings.Join([]string{
@@ -32,7 +31,6 @@ func TestInlineBlock(t *testing.T) {
 	inlineBlock := NewInlineBlock("lorem ipsum;\ndolor sit amet;")
 
 	checkInterfaceCodeElement(inlineBlock)
-	checkInterfaceDeclaration(inlineBlock)
 	checkInterfaceStatement(inlineBlock)
 
 	expected := strings.Join([]string{

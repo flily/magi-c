@@ -2,6 +2,7 @@ package csyntax
 
 type Expression interface {
 	Node
+	ForInitializer
 	expressionNode()
 
 	IncrPrefix() Expression
@@ -18,6 +19,8 @@ func (e *ExpressionBase[T]) Init(expr T) T {
 	e.Expression = expr
 	return expr
 }
+
+func (e *ExpressionBase[T]) forInitializerNode() {}
 
 func (e *ExpressionBase[T]) IncrPrefix() Expression {
 	return NewUnaryExpression(OperatorIncrement, e.Expression)

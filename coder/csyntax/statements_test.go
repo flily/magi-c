@@ -27,7 +27,6 @@ func TestEmptyCodeBlockWrite(t *testing.T) {
 
 	checkInterfaceCodeElement(l)
 	checkInterfaceStatement(l)
-	checkInterfaceDeclaration(l)
 
 	expected := "\n"
 
@@ -189,7 +188,7 @@ func TestReturnStatementWithSimpleIntegerLiteral(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, stmt)
 }
 
-func TestIfStatementWithoutElse1(t *testing.T) {
+func TestIfStatementWithoutElseStyle1(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -209,7 +208,7 @@ func TestIfStatementWithoutElse1(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, ifStmt)
 }
 
-func TestIfStatementWithElse(t *testing.T) {
+func TestIfStatementWithElseStyle1(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -234,7 +233,7 @@ func TestIfStatementWithElse(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, ifStat)
 }
 
-func TestIfStatementWithoutElse2(t *testing.T) {
+func TestIfStatementWithoutElseStyle2(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -260,7 +259,7 @@ func TestIfStatementWithoutElse2(t *testing.T) {
 	checkOutputOnStyle(t, style, expected, ifStmt)
 }
 
-func TestIfStatementWithElse2(t *testing.T) {
+func TestIfStatementWithElseStyle2(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -274,11 +273,6 @@ func TestIfStatementWithElse2(t *testing.T) {
 	checkInterfaceCodeElement(ifStmt)
 	checkInterfaceStatement(ifStmt)
 
-	style := testStyle1.Clone()
-	style.IfSpacing = false
-	style.IfBraceOnNewLine = true
-	style.IfBraceIndent = ""
-
 	expected := strings.Join([]string{
 		"if(a > b)",
 		"{",
@@ -290,10 +284,10 @@ func TestIfStatementWithElse2(t *testing.T) {
 		"}",
 		"",
 	}, "\n")
-	checkOutputOnStyle(t, style, expected, ifStmt)
+	checkOutputOnStyle(t, testStyle2, expected, ifStmt)
 }
 
-func TestIfStatementWithIndent1(t *testing.T) {
+func TestIfStatementWithIndentStyle1(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -314,7 +308,7 @@ func TestIfStatementWithIndent1(t *testing.T) {
 	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStmt)
 }
 
-func TestIfElseStatementWithIndent1(t *testing.T) {
+func TestIfElseStatementWithIndentStyle1(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -340,7 +334,7 @@ func TestIfElseStatementWithIndent1(t *testing.T) {
 	checkOutputOnStyleWithIndentLevel(t, testStyle1, level, expected, ifStmt)
 }
 
-func TestIfStatementWittIndent2(t *testing.T) {
+func TestIfStatementWithIndentStyle2(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -367,7 +361,7 @@ func TestIfStatementWittIndent2(t *testing.T) {
 	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStmt)
 }
 
-func TestIfElseStatementWithIndent2(t *testing.T) {
+func TestIfElseStatementWithIndentStyle2(t *testing.T) {
 	cond := NewInfixExpression(NewIdentifier("a"), OperatorGreaterThan, NewIdentifier("b"))
 	thenBlock := NewCodeBlock([]Statement{
 		NewReturnStatement(NewIdentifier("a")),
@@ -401,7 +395,7 @@ func TestIfElseStatementWithIndent2(t *testing.T) {
 	checkOutputOnStyleWithIndentLevel(t, style, level, expected, ifStmt)
 }
 
-func TestIfElseChainStatement2(t *testing.T) {
+func TestIfElseChainStatementStyle2(t *testing.T) {
 	cond1 := NewInfixExpression(NewIdentifier("a"), OperatorEqual, NewIntegerLiteral(1))
 	thenBlock1 := NewCodeBlock([]Statement{
 		NewAssignmentStatement("r", 0, NewIntegerLiteral(1)),
@@ -532,6 +526,53 @@ func TestDoWhileStatementStyle2(t *testing.T) {
 		"",
 	}, "\n")
 	checkOutputOnStyle(t, testStyle2, expected, doWhileStmt)
+}
+
+func TestForStatementWithVariableDeclarationStyle1(t *testing.T) {
+	initor := NewVariableDeclaration("int", nil)
+	initor.Add("i", 0, NewIntegerLiteral(0))
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	update := NewIdentifier("i").IncrPostfix()
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("sum", 0, NewInfixExpression(NewIdentifier("sum"), OperatorAdd, NewIdentifier("i"))),
+	})
+
+	forStmt := NewForStatement(initor, cond, update, body)
+
+	checkInterfaceCodeElement(forStmt)
+	checkInterfaceStatement(forStmt)
+
+	expected := strings.Join([]string{
+		"for (int i = 0; i < 10; i++) {",
+		"    sum = sum + i;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, forStmt)
+}
+
+func TestForStatementWithVariableDeclarationStyle2(t *testing.T) {
+	initor := NewVariableDeclaration("int", nil)
+	initor.Add("i", 0, NewIntegerLiteral(0))
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	update := NewIdentifier("i").IncrPostfix()
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("sum", 0, NewInfixExpression(NewIdentifier("sum"), OperatorAdd, NewIdentifier("i"))),
+	})
+
+	forStmt := NewForStatement(initor, cond, update, body)
+
+	checkInterfaceCodeElement(forStmt)
+	checkInterfaceStatement(forStmt)
+
+	expected := strings.Join([]string{
+		"for(int i = 0; i < 10; i++)",
+		"{",
+		"    sum = sum + i;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle2, expected, forStmt)
 }
 
 func TestSwitchStatementStyle1(t *testing.T) {

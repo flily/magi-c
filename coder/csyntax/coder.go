@@ -17,6 +17,7 @@ type CodeStyle struct {
 	IfSpacing              StyleBoolean
 	IfBraceOnNewLine       StyleBoolean
 	IfBraceIndent          StringElement
+	ForSpacing             StyleBoolean
 	ForBraceOnNewLine      StyleBoolean
 	ForBraceIndent         StringElement
 	WhileSpacing           StyleBoolean
@@ -45,6 +46,7 @@ var (
 		IfSpacing:              true,
 		IfBraceOnNewLine:       false,
 		IfBraceIndent:          "",
+		ForSpacing:             true,
 		ForBraceOnNewLine:      false,
 		ForBraceIndent:         "",
 		WhileSpacing:           true,
@@ -167,6 +169,22 @@ func (s *CodeStyle) DoNewLine(level Level) ElementCollection {
 	return result
 }
 
+func (s *CodeStyle) ForNewLine(level Level) ElementCollection {
+	result := []CodeElement{
+		DelimiterSpace,
+	}
+
+	if s.ForBraceOnNewLine {
+		result = []CodeElement{
+			s.EOL,
+			s.ForBraceIndent,
+			s.GetIndent(level),
+		}
+	}
+
+	return result
+}
+
 func (s *CodeStyle) SwitchNewLine(level Level) ElementCollection {
 	result := []CodeElement{
 		DelimiterSpace,
@@ -205,9 +223,8 @@ func NewContext(ctx *context.Context) *Context {
 	return c
 }
 
-func (c *Context) codeElement()     {}
-func (c *Context) declarationNode() {}
-func (c *Context) statementNode()   {}
+func (c *Context) codeElement()   {}
+func (c *Context) statementNode() {}
 
 func (c *Context) Write(out *StyleWriter, level Level) error {
 	filename, line, _ := c.Context.Position()
@@ -233,6 +250,7 @@ type Statement interface {
 
 type Declaration interface {
 	Node
+	ForInitializer
 	declarationNode()
 }
 

@@ -10,7 +10,6 @@ func TestCommentEmpty(t *testing.T) {
 
 	checkInterfaceCodeElement(comment)
 	checkInterfaceStatement(comment)
-	checkInterfaceDeclaration(comment)
 
 	expected := ""
 	checkOutputOnStyle(t, testStyle1, expected, comment)
@@ -21,7 +20,6 @@ func TestCommentSingleLine(t *testing.T) {
 
 	checkInterfaceCodeElement(comment)
 	checkInterfaceStatement(comment)
-	checkInterfaceDeclaration(comment)
 
 	expected := "/* the quick brown fox jumps over the lazy dog. */\n"
 	checkOutputOnStyle(t, testStyle1, expected, comment)
@@ -36,7 +34,6 @@ func TestCommentMultiLines(t *testing.T) {
 
 	checkInterfaceCodeElement(comment)
 	checkInterfaceStatement(comment)
-	checkInterfaceDeclaration(comment)
 
 	expected := strings.Join([]string{
 		"/*",
