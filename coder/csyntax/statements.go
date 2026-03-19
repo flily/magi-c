@@ -53,9 +53,8 @@ func NewEmptyLine() *EmptyLine {
 	return s
 }
 
-func (s *EmptyLine) codeElement()     {}
-func (s *EmptyLine) statementNode()   {}
-func (s *EmptyLine) declarationNode() {}
+func (s *EmptyLine) codeElement()   {}
+func (s *EmptyLine) statementNode() {}
 
 func (s *EmptyLine) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, out.style.EOL)

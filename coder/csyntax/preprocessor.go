@@ -30,9 +30,8 @@ func NewIncludeQuote(filename string) *IncludeDirective {
 	return d
 }
 
-func (d *IncludeDirective) codeElement()     {}
-func (d *IncludeDirective) declarationNode() {}
-func (d *IncludeDirective) statementNode()   {}
+func (d *IncludeDirective) codeElement()   {}
+func (d *IncludeDirective) statementNode() {}
 
 func (d *IncludeDirective) Write(out *StyleWriter, level Level) error {
 	return out.WriteLine(level, PreprocessorInclude, DelimiterSpace, d.quoteL, d.Filename, d.quoteR)
@@ -51,9 +50,8 @@ func NewInlineBlock(content string) *InlineBlock {
 	return b
 }
 
-func (b *InlineBlock) codeElement()     {}
-func (b *InlineBlock) declarationNode() {}
-func (b *InlineBlock) statementNode()   {}
+func (b *InlineBlock) codeElement()   {}
+func (b *InlineBlock) statementNode() {}
 
 func (b *InlineBlock) Write(out *StyleWriter, level Level) error {
 	return out.WriteLine(level, StringElement(b.Content))
