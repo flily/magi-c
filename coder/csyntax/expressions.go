@@ -74,6 +74,39 @@ func (id *Identifier) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, StringElement(id.Name))
 }
 
+type AssignmentExpression struct {
+	ExpressionBase[*AssignmentExpression]
+	LeftIdentifier   *Identifier
+	LeftPointerLevel int
+	RightExpression  Expression
+}
+
+func NewAssignmentExpression(leftIdentifier string, leftPointerLevel int, rightExpression Expression) *AssignmentExpression {
+	e := &AssignmentExpression{
+		LeftIdentifier:   NewIdentifier(leftIdentifier),
+		LeftPointerLevel: leftPointerLevel,
+		RightExpression:  rightExpression,
+	}
+
+	return e.Init(e)
+}
+
+func (e *AssignmentExpression) codeElement()    {}
+func (e *AssignmentExpression) expressionNode() {}
+
+func (e *AssignmentExpression) Write(out *StyleWriter, level Level) error {
+	pointer := PunctuatorAsterisk.Duplicate(e.LeftPointerLevel)
+	parts := []CodeElement{
+		pointer,
+		NewElementCollection(
+			out.style.PointerSpacingBefore.Select(DelimiterSpace),
+		).On(e.LeftPointerLevel > 0),
+		e.LeftIdentifier, out.style.Assign(), e.RightExpression,
+	}
+
+	return out.Write(level, parts...)
+}
+
 type InfixExpression struct {
 	ExpressionBase[*InfixExpression]
 	Left     Expression

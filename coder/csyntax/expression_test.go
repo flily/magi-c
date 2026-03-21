@@ -53,6 +53,28 @@ func TestIdentifierUnaryOperators(t *testing.T) {
 	}.Run(t, testStyle1)
 }
 
+func TestAssignmentExpressionWrite(t *testing.T) {
+	value := NewIntegerLiteral(42)
+	assignmentExpr := NewAssignmentExpression("x", 0, value)
+
+	checkInterfaceCodeElement(assignmentExpr)
+	checkInterfaceExpression(assignmentExpr)
+
+	expected := "x = 42"
+	checkOutputOnStyle(t, testStyle1, expected, assignmentExpr)
+}
+
+func TestAssignmentExpressionWithPointerWrite(t *testing.T) {
+	value := NewIntegerLiteral(100)
+	assignmentExpr := NewAssignmentExpression("ptr", 1, value)
+
+	checkInterfaceCodeElement(assignmentExpr)
+	checkInterfaceExpression(assignmentExpr)
+
+	expected := "*ptr = 100"
+	checkOutputOnStyle(t, testStyle1, expected, assignmentExpr)
+}
+
 func TestIdentifierInfixOperators(t *testing.T) {
 	id1 := NewIdentifier("a")
 	id2 := NewIdentifier("b")

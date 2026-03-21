@@ -80,16 +80,12 @@ func (s *DeclarationStatement) Write(out *StyleWriter, level Level) error {
 }
 
 type AssignmentStatement struct {
-	LeftIdentifier   StringElement
-	LeftPointerLevel int
-	RightExpression  Expression
+	Expression *AssignmentExpression
 }
 
 func NewAssignmentStatement(leftIdentifier string, leftPointerLevel int, rightExpression Expression) *AssignmentStatement {
 	s := &AssignmentStatement{
-		LeftIdentifier:   StringElement(leftIdentifier),
-		LeftPointerLevel: leftPointerLevel,
-		RightExpression:  rightExpression,
+		Expression: NewAssignmentExpression(leftIdentifier, leftPointerLevel, rightExpression),
 	}
 
 	return s
@@ -99,13 +95,8 @@ func (s *AssignmentStatement) codeElement()   {}
 func (s *AssignmentStatement) statementNode() {}
 
 func (s *AssignmentStatement) Write(out *StyleWriter, level Level) error {
-	pointer := PunctuatorAsterisk.Duplicate(s.LeftPointerLevel)
 	parts := []CodeElement{
-		pointer,
-		NewElementCollection(
-			out.style.PointerSpacingBefore.Select(DelimiterSpace),
-		).On(s.LeftPointerLevel > 0),
-		s.LeftIdentifier, out.style.Assign(), s.RightExpression,
+		s.Expression,
 		PunctuatorSemicolon,
 	}
 
