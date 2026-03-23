@@ -575,6 +575,51 @@ func TestForStatementWithVariableDeclarationStyle2(t *testing.T) {
 	checkOutputOnStyle(t, testStyle2, expected, forStmt)
 }
 
+func TestForStatementWithoutVariableDeclarationStyle1(t *testing.T) {
+	initor := NewAssignmentExpression("i", 0, NewIntegerLiteral(0))
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	update := NewIdentifier("i").IncrPostfix()
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("sum", 0, NewInfixExpression(NewIdentifier("sum"), OperatorAdd, NewIdentifier("i"))),
+	})
+
+	forStmt := NewForStatement(initor, cond, update, body)
+
+	checkInterfaceCodeElement(forStmt)
+	checkInterfaceStatement(forStmt)
+
+	expected := strings.Join([]string{
+		"for (i = 0; i < 10; i++) {",
+		"    sum = sum + i;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, forStmt)
+}
+
+func TestForStatementWithoutVariableDeclarationStyle2(t *testing.T) {
+	initor := NewAssignmentExpression("i", 0, NewIntegerLiteral(0))
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	update := NewIdentifier("i").IncrPostfix()
+	body := NewCodeBlock([]Statement{
+		NewAssignmentStatement("sum", 0, NewInfixExpression(NewIdentifier("sum"), OperatorAdd, NewIdentifier("i"))),
+	})
+
+	forStmt := NewForStatement(initor, cond, update, body)
+
+	checkInterfaceCodeElement(forStmt)
+	checkInterfaceStatement(forStmt)
+
+	expected := strings.Join([]string{
+		"for(i = 0; i < 10; i++)",
+		"{",
+		"    sum = sum + i;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle2, expected, forStmt)
+}
+
 func TestSwitchStatementStyle1(t *testing.T) {
 	cond := NewIdentifier("a")
 	case1Block := NewCodeBlock([]Statement{
