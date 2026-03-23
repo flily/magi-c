@@ -14,27 +14,23 @@ const (
 	BlockContextDefault
 )
 
-type CodeBlock struct {
-	Statements []Statement
-}
+type CodeBlock []Statement
 
 func NewCodeBlock(statements []Statement) *CodeBlock {
-	b := &CodeBlock{
-		Statements: statements,
-	}
+	b := CodeBlock(statements)
 
-	return b
+	return &b
 }
 
 func (b *CodeBlock) codeElement()   {}
 func (b *CodeBlock) statementNode() {}
 
 func (b *CodeBlock) Add(stmt Statement) {
-	b.Statements = append(b.Statements, stmt)
+	*b = append(*b, stmt)
 }
 
 func (b *CodeBlock) Write(out *StyleWriter, level Level) error {
-	return out.Write(level.NextIndent(), FromCodeElements(b.Statements...))
+	return out.Write(level.NextIndent(), FromCodeElements((*b)...))
 }
 
 func (b *CodeBlock) Length() int {
@@ -42,7 +38,15 @@ func (b *CodeBlock) Length() int {
 		return 0
 	}
 
-	return len(b.Statements)
+	return len(*b)
+}
+
+func (b *CodeBlock) GetStatement(i int) Statement {
+	if b == nil || i < 0 || i >= len(*b) {
+		return nil
+	}
+
+	return (*b)[i]
 }
 
 type EmptyLine struct{}
@@ -58,6 +62,45 @@ func (s *EmptyLine) statementNode() {}
 
 func (s *EmptyLine) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, out.style.EOL)
+}
+
+type CodeSegment struct {
+	Statments []Statement
+}
+
+func NewCodeSegment(statements []Statement) *CodeSegment {
+	s := CodeSegment{
+		Statments: statements,
+	}
+
+	return &s
+}
+
+func (s *CodeSegment) codeElement()   {}
+func (s *CodeSegment) statementNode() {}
+
+func (s *CodeSegment) Add(stmt Statement) {
+	s.Statments = append(s.Statments, stmt)
+}
+
+func (s *CodeSegment) Length() int {
+	if s == nil {
+		return 0
+	}
+
+	return len(s.Statments)
+}
+
+func (s *CodeSegment) GetStatement(i int) Statement {
+	if s == nil || i < 0 || i >= len(s.Statments) {
+		return nil
+	}
+
+	return s.Statments[i]
+}
+
+func (s *CodeSegment) Write(out *StyleWriter, level Level) error {
+	return out.Write(level, FromCodeElements(s.Statments...), NewEmptyLine())
 }
 
 type DeclarationStatement struct {
@@ -178,7 +221,7 @@ func (s *IfStatement) Write(out *StyleWriter, level Level) error {
 	}
 
 	if s.ElseBody.Length() > 0 {
-		first := s.ElseBody.Statements[0]
+		first := s.ElseBody.GetStatement(0)
 		if _, ok := first.(*IfStatement); ok {
 			parts = append(parts,
 				out.style.IfNewLine(level), out.style.IfBraceIndent,

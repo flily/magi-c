@@ -33,6 +33,38 @@ func TestEmptyCodeBlockWrite(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, l)
 }
 
+func TestCodeSegmentWrite(t *testing.T) {
+	decl := NewVariableDeclaration("int", nil)
+	decl.Add("a", 0, NewIntegerLiteral(10))
+	decl.Add("b", 0, NewIntegerLiteral(20))
+	stmt1 := NewDeclarationStatement(decl)
+
+	stmt2 := NewIfStatement(
+		NewInfixExpression(NewIdentifier("a"), OperatorLessThan, NewIdentifier("b")),
+		NewCodeBlock([]Statement{
+			NewAssignmentStatement("a", 0, NewIntegerLiteral(0)),
+		}),
+	)
+
+	segment := NewCodeSegment([]Statement{
+		stmt1,
+		stmt2,
+	})
+
+	checkInterfaceCodeElement(segment)
+	checkInterfaceStatement(segment)
+
+	expected := strings.Join([]string{
+		"int a = 10, b = 20;",
+		"if (a < b) {",
+		"    a = 0;",
+		"}",
+		"",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, segment)
+}
+
 func TestDeclarationStatmentOneVariableStyle1(t *testing.T) {
 	decl := NewVariableDeclaration("int", nil)
 	decl.Add("a", 0, NewIntegerLiteral(3))
