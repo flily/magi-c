@@ -76,6 +76,7 @@ func checkInterfaceStatement(elem Statement) {
 
 func checkInterfaceExpression(elem Expression) {
 	elem.expressionNode()
+	elem.forInitializerNode()
 }
 
 func checkOutputResult(t *testing.T, builder *strings.Builder, expected string) {

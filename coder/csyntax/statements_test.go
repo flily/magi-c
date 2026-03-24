@@ -22,6 +22,23 @@ func TestCodeBlockWrite(t *testing.T) {
 	checkOutputOnStyle(t, testStyle1, expected, block)
 }
 
+func TestCodeBlockOnNilPointer(t *testing.T) {
+	block := (*CodeBlock)(nil)
+
+	checkInterfaceCodeElement(block)
+	checkInterfaceStatement(block)
+
+	length := block.Length()
+	if length != 0 {
+		t.Fatalf("CodeBlock length wrong: expect 0, got %d", length)
+	}
+
+	stmt := block.GetStatement(0)
+	if stmt != nil {
+		t.Fatalf("CodeBlock statement wrong: expect nil, got %v", stmt)
+	}
+}
+
 func TestEmptyCodeBlockWrite(t *testing.T) {
 	l := NewEmptyLine()
 
@@ -46,10 +63,21 @@ func TestCodeSegmentWrite(t *testing.T) {
 		}),
 	)
 
-	segment := NewCodeSegment([]Statement{
-		stmt1,
-		stmt2,
-	})
+	segment := NewCodeSegment(nil)
+	segment.Add(stmt1)
+	segment.Add(stmt2)
+
+	if segment.Length() != 2 {
+		t.Fatalf("CodeSegment length wrong: expect 2, got %d", segment.Length())
+	}
+
+	if s := segment.GetStatement(0); s != stmt1 {
+		t.Fatalf("CodeSegment statement wrong: expect %v, got %v", stmt1, s)
+	}
+
+	if s := segment.GetStatement(1); s != stmt2 {
+		t.Fatalf("CodeSegment statement wrong: expect %v, got %v", stmt2, s)
+	}
 
 	checkInterfaceCodeElement(segment)
 	checkInterfaceStatement(segment)
@@ -63,6 +91,23 @@ func TestCodeSegmentWrite(t *testing.T) {
 		"",
 	}, "\n")
 	checkOutputOnStyle(t, testStyle1, expected, segment)
+}
+
+func TestCodeSegmentOnNilPointer(t *testing.T) {
+	segment := (*CodeSegment)(nil)
+
+	checkInterfaceCodeElement(segment)
+	checkInterfaceStatement(segment)
+
+	length := segment.Length()
+	if length != 0 {
+		t.Fatalf("CodeSegment length wrong: expect 0, got %d", length)
+	}
+
+	stmt := segment.GetStatement(0)
+	if stmt != nil {
+		t.Fatalf("CodeSegment statement wrong: expect nil, got %v", stmt)
+	}
 }
 
 func TestDeclarationStatmentOneVariableStyle1(t *testing.T) {
@@ -646,6 +691,103 @@ func TestForStatementWithoutVariableDeclarationStyle2(t *testing.T) {
 		"for(i = 0; i < 10; i++)",
 		"{",
 		"    sum = sum + i;",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle2, expected, forStmt)
+}
+
+func TestKeywordStatementContinueAndBreakStyle1(t *testing.T) {
+	breakStatement := NewBreakStatement()
+	checkInterfaceCodeElement(breakStatement)
+	checkInterfaceStatement(breakStatement)
+
+	continueStatment := NewContinueStatement()
+	checkInterfaceCodeElement(continueStatment)
+	checkInterfaceStatement(continueStatment)
+
+	initor := NewVariableDeclaration("int", nil)
+	initor.Add("i", 0, NewIntegerLiteral(0))
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	update := NewIdentifier("i").IncrPostfix()
+	body := NewCodeBlock([]Statement{
+		NewIfStatement(
+			NewInfixExpression(NewIdentifier("i"), OperatorEqual, NewIntegerLiteral(5)),
+			NewCodeBlock([]Statement{
+				continueStatment,
+			}),
+		),
+		NewIfStatement(
+			NewInfixExpression(NewIdentifier("i"), OperatorEqual, NewIntegerLiteral(8)),
+			NewCodeBlock([]Statement{
+				breakStatement,
+			}),
+		),
+	})
+
+	forStmt := NewForStatement(initor, cond, update, body)
+
+	checkInterfaceCodeElement(forStmt)
+	checkInterfaceStatement(forStmt)
+
+	expected := strings.Join([]string{
+		"for (int i = 0; i < 10; i++) {",
+		"    if (i == 5) {",
+		"        continue;",
+		"    }",
+		"    if (i == 8) {",
+		"        break;",
+		"    }",
+		"}",
+		"",
+	}, "\n")
+	checkOutputOnStyle(t, testStyle1, expected, forStmt)
+}
+
+func TestKeywordStatementContinueAndBreakStyle2(t *testing.T) {
+	breakStatement := NewBreakStatement()
+	checkInterfaceCodeElement(breakStatement)
+	checkInterfaceStatement(breakStatement)
+
+	continueStatment := NewContinueStatement()
+	checkInterfaceCodeElement(continueStatment)
+	checkInterfaceStatement(continueStatment)
+
+	initor := NewVariableDeclaration("int", nil)
+	initor.Add("i", 0, NewIntegerLiteral(0))
+	cond := NewInfixExpression(NewIdentifier("i"), OperatorLessThan, NewIntegerLiteral(10))
+	update := NewIdentifier("i").IncrPostfix()
+	body := NewCodeBlock([]Statement{
+		NewIfStatement(
+			NewInfixExpression(NewIdentifier("i"), OperatorEqual, NewIntegerLiteral(5)),
+			NewCodeBlock([]Statement{
+				continueStatment,
+			}),
+		),
+		NewIfStatement(
+			NewInfixExpression(NewIdentifier("i"), OperatorEqual, NewIntegerLiteral(8)),
+			NewCodeBlock([]Statement{
+				breakStatement,
+			}),
+		),
+	})
+
+	forStmt := NewForStatement(initor, cond, update, body)
+
+	checkInterfaceCodeElement(forStmt)
+	checkInterfaceStatement(forStmt)
+
+	expected := strings.Join([]string{
+		"for(int i = 0; i < 10; i++)",
+		"{",
+		"    if(i == 5)",
+		"    {",
+		"        continue;",
+		"    }",
+		"    if(i == 8)",
+		"    {",
+		"        break;",
+		"    }",
 		"}",
 		"",
 	}, "\n")
