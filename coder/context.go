@@ -9,7 +9,7 @@ type VariableInfo struct {
 	SourceName string
 	SourceType ast.Type
 	CodeName   string
-	CodeType   csyntax.Type
+	CodeType   csyntax.LiteralType
 	Assigned   string
 }
 

@@ -1,13 +1,13 @@
 package csyntax
 
 type FunctionDeclaration struct {
-	ReturnType *Type
+	ReturnType *LiteralType
 	Name       StringElement
 	Parameters *ParameterList
 	Body       *CodeBlock
 }
 
-func NewFunctionDeclaration(name string, returnType *Type, parameters *ParameterList, body []Statement) *FunctionDeclaration {
+func NewFunctionDeclaration(name string, returnType *LiteralType, parameters *ParameterList, body []Statement) *FunctionDeclaration {
 	f := &FunctionDeclaration{
 		ReturnType: returnType,
 		Name:       StringElement(name),

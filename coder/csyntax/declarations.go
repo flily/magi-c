@@ -65,11 +65,11 @@ func (v *VariableDeclaration) Add(name string, pointerLevel int, initializer Exp
 }
 
 type ParameterListItem struct {
-	Type *Type
+	Type *LiteralType
 	Name StringElement
 }
 
-func NewParameterListItem(typ *Type, name string) *ParameterListItem {
+func NewParameterListItem(typ *LiteralType, name string) *ParameterListItem {
 	p := &ParameterListItem{
 		Type: typ,
 		Name: StringElement(name),

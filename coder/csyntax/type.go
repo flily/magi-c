@@ -1,12 +1,12 @@
 package csyntax
 
-type Type struct {
+type LiteralType struct {
 	Base         StringElement
 	PointerLevel int
 }
 
-func NewType(base string, pointerLevel int) *Type {
-	t := &Type{
+func NewType(base string, pointerLevel int) *LiteralType {
+	t := &LiteralType{
 		Base:         StringElement(base),
 		PointerLevel: pointerLevel,
 	}
@@ -14,17 +14,17 @@ func NewType(base string, pointerLevel int) *Type {
 	return t
 }
 
-func NewConcreteType(base string) *Type {
+func NewConcreteType(base string) *LiteralType {
 	return NewType(base, 0)
 }
 
-func NewPointerType(base string) *Type {
+func NewPointerType(base string) *LiteralType {
 	return NewType(base, 1)
 }
 
-func (t *Type) codeElement() {}
+func (t *LiteralType) codeElement() {}
 
-func (t *Type) Write(out *StyleWriter, level Level) error {
+func (t *LiteralType) Write(out *StyleWriter, level Level) error {
 	parts := []CodeElement{
 		t.Base,
 		NewElementCollection(
@@ -37,6 +37,6 @@ func (t *Type) Write(out *StyleWriter, level Level) error {
 	return out.Write(level, parts...)
 }
 
-func (t *Type) IsPointer() StyleBoolean {
+func (t *LiteralType) IsPointer() StyleBoolean {
 	return t.PointerLevel > 0
 }
